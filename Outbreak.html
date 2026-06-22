@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OUTBREAK — Public Health Crisis Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #07101a;
+  --surf:    #0c1a28;
+  --surf2:   #101f2f;
+  --bord:    #1a3048;
+  --bord2:   #243f58;
+  --text:    #f4faff;
+  --text2:   #a8c8e0;
+  --text3:   #7a9ab8;
+  --amber:   #f5a000;
+  --amber-d: #7a5000;
+  --red:     #e74c3c;
+  --red-d:   #5c1e18;
+  --green:   #27ae60;
+  --blue:    #3498db;
+  --purple:  #9b59b6;
+}
+
+body { background:var(--bg); color:var(--text); font-family:'Raleway',sans-serif;
+       font-size:14px; min-height:100vh; overflow-x:hidden; }
+.screen { display:none; }
+.screen.active { display:flex; }
+
+/* BRIEFING */
+#screen-briefing {
+  flex-direction:column; align-items:center; justify-content:center;
+  min-height:100vh; padding:40px 20px;
+  background:radial-gradient(ellipse at 50% -10%,#0d2d4a 0%,var(--bg) 65%);
+}
+.brief-inner { max-width:720px; width:100%; }
+.brief-badge {
+  display:inline-block; background:var(--red); color:#fff;
+  font-family:'DM Mono',monospace; font-size:11px; letter-spacing:3px; padding:4px 14px; margin-bottom:20px;
+}
+.brief-title { font-family:'Bebas Neue',sans-serif; font-size:90px; letter-spacing:6px; line-height:.9; color:var(--amber); margin-bottom:6px; }
+.brief-sub { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); letter-spacing:2px; margin-bottom:36px; }
+.brief-body { background:var(--surf); border:1px solid var(--bord); border-left:3px solid var(--amber); padding:22px 28px; line-height:1.8; margin-bottom:28px; }
+.brief-body h3 { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:10px; }
+.brief-body p { font-size:14px; color:var(--text); margin-bottom:10px; }
+.brief-body p:last-child { margin-bottom:0; }
+.brief-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:28px; }
+.bstat { background:var(--surf); border:1px solid var(--bord); padding:14px; text-align:center; }
+.bstat-val { font-family:'Bebas Neue',sans-serif; font-size:34px; color:var(--amber); }
+.bstat-label { font-family:'DM Mono',monospace; font-size:9px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
+.btn-primary { background:var(--amber); color:#000; border:none; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; padding:13px 48px; cursor:pointer; transition:all .15s; }
+.btn-primary:hover { background:#ffc040; transform:translateY(-1px); }
+
+/* COMMAND CENTER */
+#screen-command { flex-direction:column; height:100vh; overflow:hidden; }
+.cmd-hdr { background:var(--surf); border-bottom:1px solid var(--bord); padding:0 20px; display:flex; align-items:center; gap:20px; height:52px; flex-shrink:0; }
+.cmd-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:3px; color:var(--amber); }
+.cmd-wk { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); flex:1; }
+.cmd-wk span { color:var(--amber); font-size:15px; }
+.cmd-budget { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); display:flex; align-items:center; gap:8px; }
+.budget-num { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--green); transition:color .2s; }
+.budget-num.warn { color:var(--amber); }
+.budget-num.over { color:var(--red); }
+.cmd-body { flex:1; display:grid; grid-template-columns:264px 1fr 268px; overflow:hidden; min-height:0; }
+
+.p-left, .p-right { background:var(--surf); overflow-y:auto; flex-shrink:0; }
+.p-left  { border-right:1px solid var(--bord); }
+.p-right { border-left:1px solid var(--bord); }
+.psec { padding:14px 16px; border-bottom:1px solid var(--bord); }
+.psec-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:12px; }
+.res-item { margin-bottom:16px; }
+.res-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+.res-name { font-size:12px; font-weight:600; }
+.res-cost { font-family:'DM Mono',monospace; font-size:11px; color:var(--amber); }
+.res-fx { font-size:10px; color:var(--text3); margin-bottom:5px; }
+input[type=range] { width:100%; height:3px; -webkit-appearance:none; background:var(--bord2); outline:none; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; background:var(--amber); cursor:pointer; border-radius:0; }
+input[type=range]:disabled { opacity:.25; cursor:not-allowed; }
+.bd-box { padding:10px 16px; background:var(--surf2); font-family:'DM Mono',monospace; font-size:11px; }
+.bd-row { display:flex; justify-content:space-between; margin-bottom:4px; color:var(--text2); }
+.bd-sep { border-top:1px solid var(--bord); padding-top:6px; margin-top:2px; display:flex; justify-content:space-between; font-weight:500; color:var(--text); }
+.bd-sep.over { color:var(--red); }
+.pol-item { margin-bottom:12px; }
+.pol-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+.lockdown-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:4px; }
+.lk-btn { background:var(--surf2); border:1px solid var(--bord); color:var(--text2); font-family:'DM Mono',monospace; font-size:10px; padding:7px 2px; cursor:pointer; text-align:center; line-height:1.3; transition:all .12s; }
+.lk-btn:hover { border-color:var(--amber-d); color:var(--text); }
+.lk-btn.on { background:var(--amber-d); border-color:var(--amber); color:var(--amber); }
+.lk-cost { font-size:9px; opacity:.7; }
+.tog-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.tog-info .tog-name { font-size:12px; }
+.tog-info .tog-detail { font-family:'DM Mono',monospace; font-size:9px; color:var(--text3); }
+.tog { position:relative; width:34px; height:17px; flex-shrink:0; }
+.tog input { display:none; }
+.tog-track { position:absolute; inset:0; background:var(--bord2); cursor:pointer; transition:background .2s; }
+.tog input:checked + .tog-track { background:var(--amber); }
+.tog-track::after { content:''; position:absolute; top:2px; left:2px; width:13px; height:13px; background:#fff; transition:transform .18s; }
+.tog input:checked + .tog-track::after { transform:translateX(17px); }
+.event-panel { display:none; padding:12px 16px; border-bottom:1px solid var(--bord); border-left:3px solid var(--red); background:rgba(231,76,60,.06); }
+.event-panel-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:6px; }
+.event-panel-body { font-size:12px; color:var(--text2); line-height:1.5; }
+
+/* CENTER PANEL */
+.p-center { display:flex; flex-direction:column; overflow:hidden; min-height:0; }
+.stats-row { display:grid; grid-template-columns:repeat(5,1fr); border-bottom:1px solid var(--bord); flex-shrink:0; }
+.stat-cell { padding:10px 12px; border-right:1px solid var(--bord); text-align:center; }
+.stat-cell:last-child { border-right:none; }
+.stat-val { font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; }
+.stat-lbl { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px; color:var(--text2); text-transform:uppercase; margin-top:2px; }
+.s-col{color:var(--blue);} .i-col{color:var(--red);} .r-col{color:var(--green);}
+.d-col{color:#607d8b;}     .h-col{color:var(--amber);}
+.hosp-wrap { padding:8px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; }
+.hosp-label { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:10px; color:var(--text2); margin-bottom:4px; }
+.hosp-track { height:5px; background:var(--bord); }
+.hosp-fill { height:100%; transition:width .3s,background .3s; }
+
+/* Economy / Satisfaction bar */
+.econ-row { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid var(--bord); flex-shrink:0; }
+.econ-cell { padding:6px 14px; border-right:1px solid var(--bord); }
+.econ-cell:last-child { border-right:none; }
+.econ-label { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:9px; color:var(--text2); margin-bottom:3px; }
+.econ-label span:first-child { letter-spacing:1px; text-transform:uppercase; }
+.econ-val { font-family:'Bebas Neue',sans-serif; font-size:14px; }
+.econ-track { height:4px; background:var(--bord); margin-top:3px; }
+.econ-fill { height:100%; transition:width .4s,background .4s; }
+
+/* Chart areas — explicit pixel heights so getBoundingClientRect() returns real values */
+.epi-wrap {
+  height:195px; flex-shrink:0;
+  padding:6px 14px 4px; border-bottom:1px solid var(--bord); overflow:hidden;
+}
+.charts-bottom {
+  flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; min-height:0; overflow:hidden;
+}
+.chart-block {
+  padding:5px 10px 3px; overflow:hidden; display:flex; flex-direction:column; position:relative;
+}
+.chart-block + .chart-block { border-left:1px solid var(--bord); }
+.chart-title { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px; color:var(--text3); text-transform:uppercase; margin-bottom:2px; flex-shrink:0; }
+canvas { display:block; }
+
+/* FOOTER */
+.cmd-ftr { background:var(--surf); border-top:1px solid var(--bord); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.ftr-info { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); }
+.btn-advance { background:var(--amber); color:#000; border:none; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; padding:9px 38px; cursor:pointer; transition:all .15s; }
+.btn-advance:hover { background:#ffc040; }
+.btn-advance:disabled { background:var(--bord2); color:var(--text3); cursor:not-allowed; }
+
+/* REPORT */
+#screen-report { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:100; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
+.rpt-card { background:var(--surf); border:1px solid var(--bord); border-top:3px solid var(--amber); max-width:660px; width:100%; max-height:88vh; overflow-y:auto; }
+.rpt-hdr { padding:18px 22px 14px; border-bottom:1px solid var(--bord); display:flex; justify-content:space-between; align-items:baseline; }
+.rpt-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; }
+.rpt-sub { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); }
+.rpt-stats { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--bord); }
+.rs { padding:14px 12px; border-right:1px solid var(--bord); text-align:center; }
+.rs:last-child { border-right:none; }
+.rs-val { font-family:'Bebas Neue',sans-serif; font-size:30px; }
+.rs-lbl { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text2); text-transform:uppercase; }
+.rs-chg { font-family:'DM Mono',monospace; font-size:10px; margin-top:3px; }
+.rpt-events { padding:14px 22px; border-bottom:1px solid var(--bord); }
+.rpt-events h4 { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:10px; }
+.ev { display:flex; gap:10px; margin-bottom:8px; font-size:13px; line-height:1.5; }
+.rpt-reflect { padding:14px 22px; background:var(--surf2); }
+.rpt-reflect h4 { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:8px; }
+.rpt-reflect p { font-size:13px; color:var(--text2); line-height:1.65; font-style:italic; }
+.rpt-ftr { padding:14px 22px; display:flex; justify-content:flex-end; }
+
+/* DEBRIEF */
+#screen-debrief { flex-direction:column; align-items:center; min-height:100vh; padding:40px 20px; background:radial-gradient(ellipse at 50% -10%,#0d2d4a 0%,var(--bg) 65%); overflow-y:auto; }
+.db-inner { max-width:780px; width:100%; }
+.db-title { font-family:'Bebas Neue',sans-serif; font-size:54px; letter-spacing:4px; text-align:center; margin-bottom:4px; }
+.db-sub { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text2); text-align:center; margin-bottom:30px; }
+.db-grade { text-align:center; margin-bottom:30px; }
+.grade-badge { font-family:'Bebas Neue',sans-serif; font-size:90px; display:inline-block; padding:0 24px; border:3px solid; line-height:1; }
+.grade-lbl { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text2); margin-top:8px; }
+.db-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:28px; }
+.db-sec { background:var(--surf); border:1px solid var(--bord); padding:22px; margin-bottom:14px; }
+.db-sec h3 { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:14px; }
+.db-outcomes { font-size:13px; line-height:1.85; color:var(--text2); }
+.db-outcomes strong { color:var(--text); }
+.rq { margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid var(--bord); }
+.rq:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.rq p { font-size:13px; line-height:1.7; margin-bottom:6px; }
+.rq .rq-ctx { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); line-height:1.5; }
+.btn-restart { display:block; margin:24px auto 0; background:transparent; color:var(--amber); border:1px solid var(--amber); font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; padding:11px 40px; cursor:pointer; transition:all .15s; }
+.btn-restart:hover { background:var(--amber); color:#000; }
+</style>
+</head>
+<body>
+
+<!-- BRIEFING -->
+<div id="screen-briefing" class="screen active">
+  <div class="brief-inner">
+    <div class="brief-badge">⚠ EMERGENCY ACTIVATION — LEVEL 3</div>
+    <div class="brief-title">OUTBREAK</div>
+    <div class="brief-sub">Public Health Crisis Simulation · Decision Exercise</div>
+    <div class="brief-body">
+      <h3>Situation Briefing</h3>
+      <p>A novel respiratory pathogen has been confirmed in Meridian City (population 500,000). Early modelling places the basic reproduction number R₀ at approximately 3.6, with an infection fatality rate of 2.0% under well-resourced hospital conditions — significantly higher once capacity is overwhelmed.</p>
+      <p>You are the Emergency Public Health Director. Over <strong>12 simulated weeks</strong> you will make weekly resource allocation decisions and set public health policies within a hard $10M weekly budget. All decisions bind. Vaccines become available from <strong>Week 4</strong>. Three scripted events introduce real-world complications.</p>
+    </div>
+    <div class="brief-stats">
+      <div class="bstat"><div class="bstat-val">500K</div><div class="bstat-label">Population</div></div>
+      <div class="bstat"><div class="bstat-val">3.6</div><div class="bstat-label">Baseline R₀</div></div>
+      <div class="bstat"><div class="bstat-val">2.0%</div><div class="bstat-label">Base IFR</div></div>
+      <div class="bstat"><div class="bstat-val">$10M</div><div class="bstat-label">Weekly Budget</div></div>
+    </div>
+    <button class="btn-primary" onclick="startGame()">ASSUME COMMAND</button>
+  </div>
+</div>
+
+<!-- COMMAND CENTER -->
+<div id="screen-command" class="screen">
+  <div class="cmd-hdr">
+    <div class="cmd-title">OUTBREAK — COMMAND CENTER</div>
+    <div class="cmd-wk">WEEK <span id="hdr-wk">1</span>&nbsp;/&nbsp;12</div>
+    <div class="cmd-budget">
+      <span>BUDGET REMAINING</span>
+      <span class="budget-num" id="hdr-bud">$10.0M</span>
+    </div>
+  </div>
+
+  <div class="cmd-body">
+
+    <!-- LEFT -->
+    <div class="p-left">
+      <div class="psec">
+        <div class="psec-title">Resource Allocation</div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Hospital Beds</span><span class="res-cost" id="c-beds">$0</span></div>
+          <div class="res-fx">+400 beds/level — prevents overflow IFR spike</div>
+          <input type="range" min="0" max="5" value="0" id="r-beds" oninput="onSlide()">
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Medical Staff</span><span class="res-cost" id="c-staff">$0</span></div>
+          <div class="res-fx">Surge staffing — reduces case fatality 8%/level</div>
+          <input type="range" min="0" max="5" value="0" id="r-staff" oninput="onSlide()">
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Testing &amp; Tracing</span><span class="res-cost" id="c-test">$0</span></div>
+          <div class="res-fx">Identifies chains — reduces effective R 5%/level</div>
+          <input type="range" min="0" max="5" value="0" id="r-test" oninput="onSlide()">
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Vaccination</span><span class="res-cost" id="c-vax">$0</span></div>
+          <div class="res-fx" id="vax-fx">Unlocks Week 4 — immunises 10,000 people/level/week</div>
+          <input type="range" min="0" max="5" value="0" id="r-vax" disabled oninput="onSlide()">
+        </div>
+        <div class="res-item" style="margin-bottom:0">
+          <div class="res-row"><span class="res-name">Public Communications</span><span class="res-cost" id="c-comms">$0</span></div>
+          <div class="res-fx">Amplifies all policy effectiveness via compliance</div>
+          <input type="range" min="0" max="5" value="0" id="r-comms" oninput="onSlide()">
+        </div>
+      </div>
+      <div class="bd-box">
+        <div class="psec-title" style="padding:0 0 6px">Weekly Budget</div>
+        <div class="bd-row"><span>Income</span><span style="color:var(--green)">+$10.0M</span></div>
+        <div class="bd-row"><span>Resources</span><span id="bd-res">–$0</span></div>
+        <div class="bd-row"><span>Policies</span><span id="bd-pol">–$0</span></div>
+        <div class="bd-sep" id="bd-sep"><span>Remaining</span><span id="bd-rem">$10.0M</span></div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="p-center">
+      <div class="stats-row">
+        <div class="stat-cell"><div class="stat-val s-col" id="sv-S">499,900</div><div class="stat-lbl">Susceptible</div></div>
+        <div class="stat-cell"><div class="stat-val i-col" id="sv-I">100</div><div class="stat-lbl">Infected</div></div>
+        <div class="stat-cell"><div class="stat-val r-col" id="sv-R">0</div><div class="stat-lbl">Recovered</div></div>
+        <div class="stat-cell"><div class="stat-val d-col" id="sv-D">0</div><div class="stat-lbl">Deaths</div></div>
+        <div class="stat-cell"><div class="stat-val h-col" id="sv-H">0%</div><div class="stat-lbl">Hosp. Load</div></div>
+      </div>
+      <div class="hosp-wrap">
+        <div class="hosp-label"><span>Hospital Capacity Usage</span><span id="hosp-txt">0 / 1,000 beds</span></div>
+        <div class="hosp-track"><div class="hosp-fill" id="hosp-fill" style="width:0%;background:var(--green)"></div></div>
+      </div>
+
+      <!-- Economy / Satisfaction -->
+      <div class="econ-row">
+        <div class="econ-cell">
+          <div class="econ-label"><span>Economy Index</span><span class="econ-val" id="sv-econ" style="color:var(--green)">100</span></div>
+          <div class="econ-track"><div class="econ-fill" id="econ-fill" style="width:100%;background:var(--green)"></div></div>
+        </div>
+        <div class="econ-cell">
+          <div class="econ-label"><span>Public Satisfaction</span><span class="econ-val" id="sv-sat" style="color:var(--purple)">100</span></div>
+          <div class="econ-track"><div class="econ-fill" id="sat-fill" style="width:100%;background:var(--purple)"></div></div>
+        </div>
+      </div>
+
+      <!-- Epidemic curve: fixed 210px -->
+      <div class="epi-wrap" id="epi-wrap">
+        <div class="chart-title">EPIDEMIC CURVE — Active Infected &amp; New Cases</div>
+        <canvas id="epi"></canvas>
+      </div>
+
+      <!-- Bottom three charts: flex remaining -->
+      <div class="charts-bottom">
+        <div class="chart-block" id="reff-block">
+          <div class="chart-title">EFFECTIVE Rₑ OVER TIME</div>
+          <canvas id="reff-chart"></canvas>
+        </div>
+        <div class="chart-block" id="econsat-block">
+          <div class="chart-title">ECONOMY &amp; SATISFACTION INDEX (0–100)</div>
+          <canvas id="econsat-chart"></canvas>
+        </div>
+        <div class="chart-block" id="dec-block">
+          <div class="chart-title">RESOURCE ALLOCATION HISTORY</div>
+          <canvas id="dec-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="p-right">
+      <div class="psec">
+        <div class="psec-title">Policy Levers</div>
+        <div class="pol-item">
+          <div class="pol-title">Lockdown Stringency</div>
+          <div class="lockdown-grid">
+            <div class="lk-btn on" onclick="setLock(0)">None<br><span class="lk-cost">$0/wk</span></div>
+            <div class="lk-btn"    onclick="setLock(1)">Mild<br><span class="lk-cost">$1M/wk</span></div>
+            <div class="lk-btn"    onclick="setLock(2)">Moderate<br><span class="lk-cost">$2M/wk</span></div>
+            <div class="lk-btn"    onclick="setLock(3)">Strict<br><span class="lk-cost">$4M/wk</span></div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">R₀ multipliers: ×1.00 / ×0.82 / ×0.65 / ×0.40</div>
+        </div>
+        <div class="pol-item">
+          <div class="tog-row">
+            <div class="tog-info"><div class="tog-name">Mask Mandate</div><div class="tog-detail">$0.5M/wk · −15% R (compliance-weighted)</div></div>
+            <label class="tog"><input type="checkbox" id="p-masks" onchange="onSlide()"><div class="tog-track"></div></label>
+          </div>
+        </div>
+        <div class="pol-item">
+          <div class="tog-row">
+            <div class="tog-info"><div class="tog-name">Schools Closed</div><div class="tog-detail">$1.0M/wk · −10% R (compliance-weighted)</div></div>
+            <label class="tog"><input type="checkbox" id="p-schools" onchange="onSlide()"><div class="tog-track"></div></label>
+          </div>
+        </div>
+        <div class="pol-item">
+          <div class="tog-row">
+            <div class="tog-info"><div class="tog-name">Travel Restrictions</div><div class="tog-detail">$0.5M/wk · −5% R</div></div>
+            <label class="tog"><input type="checkbox" id="p-travel" onchange="onSlide()"><div class="tog-track"></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="psec" style="font-size:12px;color:var(--text2);line-height:1.65">
+        <div class="psec-title">Model Notes</div>
+        <p>Policy reductions multiply. Compliance — driven by comms investment — scales how effective restrictions actually are in practice.</p>
+        <br>
+        <p>Hospital overflow sharply elevates IFR. Even moderate overflow approximately doubles mortality.</p>
+        <br>
+        <p><strong style="color:var(--green)">Economy</strong> falls with lockdown stringency, school/travel closures, and deaths. It recovers slowly when fully open.</p>
+        <br>
+        <p><strong style="color:#9b59b6">Satisfaction</strong> falls with restriction fatigue, visible deaths, and hospital overflow. Comms investment partially offsets it.</p>
+        <br>
+        <p>Your <strong>composite score</strong> (40% deaths · 30% economy · 30% satisfaction) means strict-lockdown-only is not optimal. Unspent budget does not carry forward.</p>
+      </div>
+      <div class="event-panel" id="ev-panel">
+        <div class="event-panel-title">⚠ Active Situation</div>
+        <div class="event-panel-body" id="ev-body"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cmd-ftr">
+    <div class="ftr-info" id="ftr-info">Set resources and policies, then run the week.</div>
+    <button class="btn-advance" id="btn-adv" onclick="advanceWeek()">RUN WEEK →</button>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div id="screen-report" class="screen">
+  <div class="rpt-card">
+    <div class="rpt-hdr">
+      <div class="rpt-title" id="rpt-title">WEEK 1 REPORT</div>
+      <div class="rpt-sub">Epidemiological Update</div>
+    </div>
+    <div class="rpt-stats" style="grid-template-columns:repeat(6,1fr)">
+      <div class="rs"><div class="rs-val i-col" id="rs-cases">—</div><div class="rs-lbl">New Cases</div><div class="rs-chg" id="rs-casechg">—</div></div>
+      <div class="rs"><div class="rs-val d-col" id="rs-deaths">—</div><div class="rs-lbl">Deaths This Wk</div><div class="rs-chg" id="rs-dchg">—</div></div>
+      <div class="rs"><div class="rs-val h-col" id="rs-hosp">—</div><div class="rs-lbl">Hosp. Load</div><div class="rs-chg" id="rs-hchg">—</div></div>
+      <div class="rs"><div class="rs-val" id="rs-reff" style="color:var(--purple)">—</div><div class="rs-lbl">Effective R</div><div class="rs-chg" id="rs-rchg">—</div></div>
+      <div class="rs"><div class="rs-val" id="rs-econ" style="color:var(--green)">—</div><div class="rs-lbl">Economy</div><div class="rs-chg" id="rs-econchg">—</div></div>
+      <div class="rs"><div class="rs-val" id="rs-sat" style="color:#9b59b6">—</div><div class="rs-lbl">Satisfaction</div><div class="rs-chg" id="rs-satchg">—</div></div>
+    </div>
+    <div class="rpt-events" id="rpt-events"><h4>Intelligence Report</h4></div>
+    <div class="rpt-reflect">
+      <h4>Reflection Prompt</h4>
+      <p id="rpt-rflct">—</p>
+    </div>
+    <div class="rpt-ftr"><button class="btn-primary" onclick="afterReport()">CONTINUE →</button></div>
+  </div>
+</div>
+
+<!-- DEBRIEF -->
+<div id="screen-debrief" class="screen">
+  <div class="db-inner">
+    <div class="db-title">SIMULATION COMPLETE</div>
+    <div class="db-sub">12-Week Response Summary — Meridian City, Pop. 500,000</div>
+    <div class="db-grade"><div class="grade-badge" id="db-badge">A</div><div class="grade-lbl" id="db-badge-lbl">EXCELLENT</div></div>
+    <div class="db-stats" id="db-stats"></div>
+    <div class="db-sec"><h3>Final Outcomes</h3><div class="db-outcomes" id="db-outcomes"></div></div>
+    <div class="db-sec"><h3>Class Reflection Questions</h3><div id="db-reflect"></div></div>
+    <button class="btn-restart" onclick="startGame()">RUN SIMULATION AGAIN</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── CONSTANTS ─────────────────────────────────────────────
+const POP       = 500000;
+const GAMMA     = 0.5;
+const R0_BASE   = 3.6;
+const HOSP_RATE = 0.15;
+const CAP_BASE  = 1000;
+const IFR_BASE  = 0.020;
+const BUDGET    = 10e6;
+
+const LOCK_COST   = [0, 1e6, 2e6, 4e6];
+const LOCK_FACTOR = [1.0, 0.82, 0.65, 0.40];
+const RES_COST    = { beds:1e6, staff:1e6, test:0.5e6, vax:1e6, comms:0.5e6 };
+
+// Economic cost of lockdown per week (index points, 0-100 scale)
+const LOCK_ECON = [0, 5, 9, 17];
+// Satisfaction cost of lockdown per week (index points)
+const LOCK_SAT  = [0, 3, 8, 13];
+
+/*  Composite scoring — 40% deaths, 30% economy, 30% satisfaction
+ *  deathScore = max(0, 100 - deaths/100)
+ *  Calibration:
+ *    Do nothing   → deaths~16k, econ~5  (death drag), sat~5  → composite~3  → F
+ *    Strict only  → deaths~50,  econ~0  (lockdown),   sat~8  → composite~42 → C
+ *    Balanced+vax → deaths~250, econ~65, sat~80        → composite~84        → A
+ *    Near-optimal → deaths~50,  econ~70, sat~85        → composite~90        → A+
+ */
+const GRADE_THRESHOLDS = [
+  { min:87, g:'A+', lbl:'EXEMPLARY',    c:'#27ae60' },
+  { min:72, g:'A',  lbl:'EXCELLENT',    c:'#27ae60' },
+  { min:55, g:'B',  lbl:'COMPETENT',    c:'#3498db' },
+  { min:36, g:'C',  lbl:'ADEQUATE',     c:'#f5a000' },
+  { min:18, g:'D',  lbl:'POOR',         c:'#e74c3c' },
+  { min:0,  g:'F',  lbl:'CATASTROPHIC', c:'#e74c3c' },
+];
+
+const REFLECTIONS = [
+  "What drove the balance you chose between resource investment and policy restriction? What assumptions were embedded in that choice?",
+  "The curve is beginning to form. Are you responding to data you can see, or anticipating what is coming?",
+  "Three weeks in — have your initial assumptions held? What has surprised you?",
+  "Vaccines are now available. How does this change your resource allocation logic going forward?",
+  "Halfway through. Would you describe your strategy as reactive or proactive? What evidence from your own history chart supports that?",
+  "Decisions made in weeks 1–2 are now compounding. What would you have done differently in retrospect?",
+  "Past the likely peak. How has the shifting situation changed the relative value of different interventions?",
+  "Has budget been the binding constraint, or have policy choices been more decisive? Why?",
+  "With four weeks remaining — are you in recovery mode or still managing active spread?",
+  "Consider the people behind the numbers. How does the abstraction of a simulation affect your decision-making versus a real crisis?",
+  "Final stretch. What single tradeoff do you most regret, and what would it have cost to avoid it?",
+  "Last week. Did you have a coherent strategy throughout, or did you adapt opportunistically? Which proved more effective?",
+];
+
+const EVENTS = {
+  3: { icon:'🧬', title:'Sub-strain Detected',
+       body:'Genomic surveillance identified a more transmissible variant. R₀ elevated +0.4 this week.',
+       r0_delta:0.4 },
+  6: { icon:'🏥', title:'Healthcare Worker Fatigue',
+       body:'Extended surge causing staff burnout. IFR +20% this week unless Staff investment ≥ level 3.',
+       type:'fatigue' },
+  9: { icon:'📢', title:'Compliance Erosion',
+       body:'Prolonged restrictions have produced fatigue. Lockdown effectiveness −20% this week unless Comms investment ≥ level 3.',
+       type:'erosion' },
+};
+
+const RES_LABELS = ['Beds','Staff','Test','Vacc','Comms'];
+const RES_KEYS   = ['beds','staff','test','vax','comms'];
+
+// ── STATE ─────────────────────────────────────────────────
+let G;
+
+function init() {
+  G = {
+    week:1,
+    S:POP-100, I:100, R:0, D:0,
+    economy:100, satisfaction:100,
+    lock:0,
+    history:[{ week:0, S:POP-100, I:100, R:0, D:0,
+               newCases:100, newDeaths:0, hospLoad:15, hospCap:CAP_BASE,
+               Reff:R0_BASE, economy:100, satisfaction:100, dec:null }],
+    totalSpent:0,
+  };
+}
+
+// ── MODEL ─────────────────────────────────────────────────
+function getDecisions() {
+  const v = id => parseInt(document.getElementById(id).value);
+  const c = id => document.getElementById(id).checked;
+  const beds=v('r-beds'), staff=v('r-staff'), test=v('r-test');
+  const vax  = G.week >= 4 ? v('r-vax') : 0;
+  const comms = v('r-comms');
+  const masks=c('p-masks'), schools=c('p-schools'), travel=c('p-travel');
+  const lock=G.lock;
+  const resCost = beds*RES_COST.beds + staff*RES_COST.staff + test*RES_COST.test
+                + vax*RES_COST.vax + comms*RES_COST.comms;
+  const polCost = LOCK_COST[lock]+(masks?0.5e6:0)+(schools?1e6:0)+(travel?0.5e6:0);
+  return { beds, staff, test, vax, comms, masks, schools, travel, lock,
+           resCost, polCost, total:resCost+polCost };
+}
+
+function step(d) {
+  const ev  = EVENTS[G.week] || null;
+  const cap = CAP_BASE + d.beds * 400;
+  let cf = 0.70 + 0.30 * (d.comms / 5);
+  if (ev && ev.type==='erosion' && d.comms < 3) cf *= 0.80;
+
+  const lockRed = (1 - LOCK_FACTOR[d.lock]) * cf;
+  let pf = 1 - lockRed;
+  if (d.masks)   pf *= (1 - 0.15 * cf);
+  if (d.schools) pf *= (1 - 0.10 * cf);
+  if (d.travel)  pf *= (1 - 0.05);
+  pf *= (1 - 0.05 * d.test);
+
+  const r0Bonus = (ev && ev.r0_delta) ? ev.r0_delta : 0;
+  const Reff = Math.max(0.05, (R0_BASE + r0Bonus) * pf);
+
+  const N    = Math.max(1, G.S + G.I + G.R);
+  const beta = Reff * GAMMA / N;
+  const newInf  = Math.min(G.S, beta * G.S * G.I);
+  const removed = GAMMA * G.I;
+
+  let IFR = IFR_BASE * (1 - 0.08 * d.staff);
+  if (ev && ev.type==='fatigue' && d.staff < 3) IFR *= 1.20;
+  const hospDemand = G.I * HOSP_RATE;
+  const capMet = Math.min(1.0, cap / Math.max(1, hospDemand));
+  if (capMet < 1) IFR = Math.min(0.12, IFR * (1 + (1-capMet)*4));
+
+  const newDead = removed * IFR;
+  const newRec  = removed - newDead;
+  const vaccinated = G.week >= 4 ? Math.min(Math.max(0, G.S - newInf), d.vax*10000) : 0;
+
+  // Economy (0–100): damaged by lockdown, school/travel closures, and deaths (workforce/healthcare costs)
+  let econDelta = -LOCK_ECON[d.lock];
+  if (d.schools) econDelta -= 2;
+  if (d.travel)  econDelta -= 1;
+  econDelta -= newDead / 100;  // each death costs 0.01 economy points (workforce loss, costs)
+  if (d.lock === 0 && !d.schools && !d.travel) econDelta += 1; // slow recovery when fully open
+  const newEcon = Math.round(Math.max(0, Math.min(100, G.economy + econDelta)));
+
+  // Satisfaction (0–100): damaged by restrictions, deaths, overflow; comms partially offsets fatigue
+  let satDelta = -LOCK_SAT[d.lock];
+  if (d.schools) satDelta -= 1.5;
+  if (d.travel)  satDelta -= 0.5;
+  if (d.lock > 0 || d.schools || d.travel) satDelta += d.comms * 0.5; // comms offsets restriction fatigue
+  satDelta -= newDead / 200;                         // visible deaths harm public morale
+  if (capMet < 1) satDelta -= 4;                    // hospital crisis is highly visible
+  satDelta -= Math.min(4, newInf / 10000);           // epidemic severity creates fear/disruption
+  const newSat = Math.round(Math.max(0, Math.min(100, G.satisfaction + satDelta)));
+
+  return {
+    S: Math.round(Math.max(0, G.S - newInf - vaccinated)),
+    I: Math.round(Math.max(0, G.I + newInf - removed)),
+    R: Math.round(G.R + newRec + vaccinated),
+    D: Math.round(G.D + newDead),
+    newCases:  Math.round(newInf),
+    newDeaths: Math.round(newDead),
+    hospLoad:  Math.round(hospDemand),
+    hospCap:   cap,
+    Reff:      Math.round(Reff*100)/100,
+    economy: newEcon, satisfaction: newSat,
+    capMet, IFR,
+  };
+}
+
+// ── BUDGET UI ─────────────────────────────────────────────
+function fmt(n) {
+  if (Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if (Math.abs(n)>=1e3) return '$'+Math.round(n/1e3)+'K';
+  return '$'+Math.round(n);
+}
+function fmtN(n){ return Math.round(n).toLocaleString(); }
+
+function onSlide() {
+  const d = getDecisions();
+  ['beds','staff','test','vax','comms'].forEach(k => {
+    document.getElementById('c-'+k).textContent = fmt(parseInt(document.getElementById('r-'+k).value)*RES_COST[k]);
+  });
+  const rem = BUDGET - d.total;
+  document.getElementById('bd-res').textContent = '–'+fmt(d.resCost);
+  document.getElementById('bd-pol').textContent = '–'+fmt(d.polCost);
+  document.getElementById('bd-rem').textContent = fmt(Math.abs(rem));
+  const sep=document.getElementById('bd-sep'), budNum=document.getElementById('hdr-bud'), btn=document.getElementById('btn-adv');
+  if (rem < 0) {
+    sep.classList.add('over'); budNum.className='budget-num over';
+    budNum.textContent='–'+fmt(Math.abs(rem)); btn.disabled=true;
+    document.getElementById('ftr-info').textContent='⚠ Over budget by '+fmt(Math.abs(rem))+'. Reduce spending to continue.';
+  } else {
+    sep.classList.remove('over');
+    budNum.className=rem<2e6?'budget-num warn':'budget-num';
+    budNum.textContent=fmt(rem); btn.disabled=false;
+    document.getElementById('ftr-info').textContent='Set resources and policies, then run the week.';
+  }
+}
+
+function setLock(lv) {
+  G.lock=lv;
+  document.querySelectorAll('.lk-btn').forEach((b,i)=>b.classList.toggle('on',i===lv));
+  onSlide();
+}
+
+// ── ADVANCE ───────────────────────────────────────────────
+function advanceWeek() {
+  const d = getDecisions();
+  if (d.total > BUDGET) return;
+  const ev=EVENTS[G.week]||null, res=step(d), prev=G.history[G.history.length-1];
+  G.history.push({
+    week:G.week, S:res.S, I:res.I, R:res.R, D:res.D,
+    newCases:res.newCases, newDeaths:res.newDeaths,
+    hospLoad:res.hospLoad, hospCap:res.hospCap, Reff:res.Reff,
+    economy:res.economy, satisfaction:res.satisfaction,
+    dec:{ beds:d.beds, staff:d.staff, test:d.test, vax:d.vax, comms:d.comms, lock:d.lock }
+  });
+  G.totalSpent += d.total;
+  buildReport(G.week, prev, res, ev, d);
+  G.S=res.S; G.I=res.I; G.R=res.R; G.D=res.D;
+  G.economy=res.economy; G.satisfaction=res.satisfaction;
+  G.week++;
+}
+
+// ── REPORT ────────────────────────────────────────────────
+function buildReport(week, prev, res, ev, d) {
+  document.getElementById('rpt-title').textContent = 'WEEK '+week+' REPORT';
+  document.getElementById('rs-cases').textContent  = fmtN(res.newCases);
+  document.getElementById('rs-deaths').textContent = fmtN(res.newDeaths);
+  document.getElementById('rs-hosp').textContent   = Math.round(res.hospLoad/res.hospCap*100)+'%';
+  document.getElementById('rs-reff').textContent   = res.Reff.toFixed(2);
+
+  const cChg = prev.newCases>0 ? ((res.newCases-prev.newCases)/prev.newCases*100).toFixed(0) : 0;
+  const cEl  = document.getElementById('rs-casechg');
+  cEl.textContent = (cChg>=0?'▲':'▼')+Math.abs(cChg)+'% vs last week';
+  cEl.style.color = cChg>=0?'var(--red)':'var(--green)';
+  document.getElementById('rs-dchg').textContent = 'Cumulative: '+fmtN(G.D+res.newDeaths);
+  document.getElementById('rs-hchg').textContent = fmtN(res.hospLoad)+' / '+fmtN(res.hospCap)+' beds';
+  const rEl=document.getElementById('rs-rchg');
+  rEl.textContent = res.Reff<=1?'✓ Below epidemic threshold':'⚠ Above 1.0 — epidemic growing';
+  rEl.style.color = res.Reff<=1?'var(--green)':'var(--amber)';
+
+  document.getElementById('rs-econ').textContent  = res.economy;
+  document.getElementById('rs-sat').textContent   = res.satisfaction;
+  const prevH = G.history[G.history.length-2] || G.history[0];
+  const econChg = res.economy - (prevH.economy||100);
+  const satChg  = res.satisfaction - (prevH.satisfaction||100);
+  const econEl = document.getElementById('rs-econchg');
+  econEl.textContent = (econChg>=0?'▲+':'▼')+econChg+' pts this week';
+  econEl.style.color = econChg>=0?'var(--green)':'var(--red)';
+  const satEl = document.getElementById('rs-satchg');
+  satEl.textContent = (satChg>=0?'▲+':'▼')+satChg+' pts this week';
+  satEl.style.color = satChg>=0?'#9b59b6':'var(--red)';
+
+  const evBox=document.getElementById('rpt-events');
+  evBox.innerHTML='<h4>Intelligence Report</h4>';
+  const items=[];
+  items.push(res.Reff<=1
+    ? {ico:'✅',txt:`Effective R is ${res.Reff.toFixed(2)} — transmission is sub-epidemic. Active cases should begin declining.`}
+    : {ico:'📈',txt:`Effective R is ${res.Reff.toFixed(2)} — outbreak expanding. ${res.Reff>2?'Growth is rapid; early action critical.':'Interventions are having some effect.'}`});
+  if (res.capMet<1)
+    items.push({ico:'🚨',txt:`Hospital system at ${Math.round(100/res.capMet)}% capacity. Overflow pushing IFR to ~${(res.IFR*100).toFixed(1)}%.`});
+  else if (res.hospLoad/res.hospCap>0.75)
+    items.push({ico:'⚠️',txt:`Hospital system at ${Math.round(res.hospLoad/res.hospCap*100)}% — approaching overflow threshold.`});
+  else
+    items.push({ico:'🏥',txt:`Hospital system managing (${Math.round(res.hospLoad/res.hospCap*100)}% utilisation). IFR: ${(res.IFR*100).toFixed(2)}%.`});
+  if (ev) items.push({ico:ev.icon, txt:`SITUATION UPDATE — ${ev.title}: ${ev.body}`});
+  if (week===4) items.push({ico:'💉', txt:'Vaccine supply now available. Each level immunises ~10,000 people/week.'});
+  if (d.total<5e6) items.push({ico:'💰', txt:`Only ${fmt(d.total)} of $10M deployed. Unspent funds do not carry forward.`});
+  // Economy signal
+  if (res.economy < 40) items.push({ico:'📉', txt:`Economy index critical at ${res.economy}/100. Prolonged restrictions and deaths are causing severe economic damage.`});
+  else if (econChg <= -8) items.push({ico:'📉', txt:`Economy fell ${Math.abs(econChg)} points this week to ${res.economy}/100. Lockdown costs are accumulating.`});
+  // Satisfaction signal
+  if (res.satisfaction < 35) items.push({ico:'😤', txt:`Public satisfaction critically low at ${res.satisfaction}/100. Risk of policy non-compliance and political pressure to lift restrictions.`});
+  else if (satChg <= -6) items.push({ico:'😤', txt:`Satisfaction fell ${Math.abs(satChg)} points this week to ${res.satisfaction}/100. Consider whether comms investment can offset restriction fatigue.`});
+  items.forEach(it=>{
+    const div=document.createElement('div'); div.className='ev';
+    div.innerHTML=`<span>${it.ico}</span><span>${it.txt}</span>`;
+    evBox.appendChild(div);
+  });
+  document.getElementById('rpt-rflct').textContent=REFLECTIONS[week-1]||'';
+  showScreen('screen-report');
+}
+
+function afterReport() {
+  if (G.week>=4){ document.getElementById('r-vax').disabled=false; document.getElementById('vax-fx').textContent='Immunises ~10,000 people / level / week'; }
+  const ev=EVENTS[G.week]||null;
+  document.getElementById('ev-panel').style.display = ev?'block':'none';
+  if (ev) document.getElementById('ev-body').textContent=ev.body;
+  if (G.week>12){ buildDebrief(); return; }
+  document.getElementById('hdr-wk').textContent=G.week;
+  updateStatsPanel();
+  showScreen('screen-command');
+  requestAnimationFrame(()=>requestAnimationFrame(drawAllCharts));
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function updateStatsPanel() {
+  document.getElementById('sv-S').textContent=fmtN(G.S);
+  document.getElementById('sv-I').textContent=fmtN(G.I);
+  document.getElementById('sv-R').textContent=fmtN(G.R);
+  document.getElementById('sv-D').textContent=fmtN(G.D);
+  const last=G.history[G.history.length-1];
+  const load=last.hospLoad||0, cap=last.hospCap||CAP_BASE, pct=load/cap, pctR=Math.round(pct*100);
+  document.getElementById('sv-H').textContent=pctR+'%';
+  document.getElementById('sv-H').style.color=pct>=1?'var(--red)':pct>=0.75?'var(--amber)':'var(--green)';
+  document.getElementById('hosp-txt').textContent=fmtN(load)+' / '+fmtN(cap)+' beds';
+  const fill=document.getElementById('hosp-fill');
+  fill.style.width=Math.min(100,pctR)+'%';
+  fill.style.background=pct>=1?'var(--red)':pct>=0.75?'var(--amber)':'var(--green)';
+
+  const econColor = G.economy >= 70 ? 'var(--green)' : G.economy >= 40 ? 'var(--amber)' : 'var(--red)';
+  const satColor  = G.satisfaction >= 70 ? '#9b59b6' : G.satisfaction >= 40 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('sv-econ').textContent = G.economy;
+  document.getElementById('sv-econ').style.color = econColor;
+  document.getElementById('econ-fill').style.width = G.economy+'%';
+  document.getElementById('econ-fill').style.background = econColor;
+  document.getElementById('sv-sat').textContent = G.satisfaction;
+  document.getElementById('sv-sat').style.color = satColor;
+  document.getElementById('sat-fill').style.width = G.satisfaction+'%';
+  document.getElementById('sat-fill').style.background = satColor;
+}
+
+// ── CANVAS SIZING ─────────────────────────────────────────
+function setupCanvas(id, titleSelector) {
+  const canvas=document.getElementById(id);
+  const parent=canvas.parentElement;
+  const rect=parent.getBoundingClientRect();
+  const titleEl=titleSelector?parent.querySelector(titleSelector):parent.querySelector('.chart-title');
+  const titleH=titleEl ? titleEl.offsetHeight+2 : 0;
+  const dpr=window.devicePixelRatio||1;
+  const W=Math.max(Math.floor(rect.width)-4, 10);
+  const H=Math.max(Math.floor(rect.height)-titleH-6, 20);
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return {ctx,W,H};
+}
+
+function drawAllCharts(){ drawEpiChart(); drawReffChart(); drawEconSatChart(); drawDecChart(); }
+
+// ── CHART 1: EPIDEMIC CURVE ───────────────────────────────
+function drawEpiChart() {
+  const {ctx,W,H}=setupCanvas('epi');
+  const PAD={t:12,r:16,b:22,l:58};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+  ctx.clearRect(0,0,W,H);
+
+  const pts=G.history;
+  const maxI=Math.max(...pts.map(h=>h.I),500);
+  const yMax=maxI*1.25;
+
+  // Grid lines + Y labels
+  for(let i=0;i<=4;i++){
+    const y=PAD.t+PH-(i/4)*PH;
+    ctx.strokeStyle='#162535'; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
+    ctx.fillStyle='#2e4d62'; ctx.font='9px DM Mono'; ctx.textAlign='right';
+    ctx.fillText(fmtN(Math.round((i/4)*yMax)),PAD.l-4,y+3);
+  }
+  // X labels
+  for(let w=0;w<=12;w++){
+    const x=PAD.l+(w/12)*PW;
+    ctx.fillStyle='#2e4d62'; ctx.font='9px DM Mono'; ctx.textAlign='center';
+    if(w>0) ctx.fillText(w,x,H-2);
+  }
+
+  // Hospital capacity threshold
+  const lastCap=pts[pts.length-1].hospCap||CAP_BASE;
+  const iAtCap=lastCap/HOSP_RATE;
+  if(iAtCap<=yMax){
+    const cy=PAD.t+PH-(iAtCap/yMax)*PH;
+    ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(122,80,0,0.7)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PAD.l,cy); ctx.lineTo(PAD.l+PW,cy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(122,80,0,0.8)'; ctx.font='8px DM Mono'; ctx.textAlign='left';
+    ctx.fillText('HOSP CAP',PAD.l+3,cy-2);
+  }
+
+  // Filled I area
+  if(pts.length>=2){
+    ctx.beginPath();
+    pts.forEach((h,i)=>{
+      const x=PAD.l+(h.week/12)*PW, y=PAD.t+PH-(h.I/yMax)*PH;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    const last=pts[pts.length-1];
+    ctx.lineTo(PAD.l+(last.week/12)*PW,PAD.t+PH);
+    ctx.lineTo(PAD.l,PAD.t+PH); ctx.closePath();
+    const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH);
+    g.addColorStop(0,'rgba(231,76,60,0.22)'); g.addColorStop(1,'rgba(231,76,60,0.01)');
+    ctx.fillStyle=g; ctx.fill();
+  }
+
+  function polyline(data,color,lw,dash=[]) {
+    if(data.length<2) return;
+    ctx.setLineDash(dash); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round';
+    data.forEach((p,i)=>{ const x=PAD.l+(p.w/12)*PW, y=PAD.t+PH-(p.v/yMax)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Deaths ×20 for visibility on same axis
+  polyline(pts.map(h=>({w:h.week,v:h.newDeaths*20})),'rgba(96,125,139,0.7)',1.5);
+  // New cases
+  polyline(pts.map(h=>({w:h.week,v:h.newCases})),'rgba(155,89,182,0.8)',1.5);
+  // Active infected
+  polyline(pts.map(h=>({w:h.week,v:h.I})),'#e74c3c',2.5);
+
+  // Dots on I
+  pts.forEach(h=>{
+    const x=PAD.l+(h.week/12)*PW, y=PAD.t+PH-(h.I/yMax)*PH;
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle='#e74c3c'; ctx.fill();
+    ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Legend
+  const leg=[
+    {c:'#e74c3c',lw:2.5,label:'Active Infected'},
+    {c:'rgba(155,89,182,.8)',lw:1.5,label:'New Cases/Wk'},
+    {c:'rgba(96,125,139,.7)',lw:1.5,label:'Deaths×20'},
+  ];
+  let lx=PAD.l+4;
+  leg.forEach(l=>{
+    ctx.strokeStyle=l.c; ctx.lineWidth=l.lw; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+14,PAD.t+5); ctx.stroke();
+    ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='left';
+    ctx.fillText(l.label,lx+17,PAD.t+8);
+    lx+=17+ctx.measureText(l.label).width+12;
+  });
+}
+
+// ── CHART 2: Reff TREND ───────────────────────────────────
+function drawReffChart() {
+  const {ctx,W,H}=setupCanvas('reff-chart');
+  const PAD={t:8,r:12,b:20,l:28};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+  ctx.clearRect(0,0,W,H);
+
+  const decPts=G.history.filter(h=>h.week>0);
+  if(decPts.length===0){
+    ctx.fillStyle='#2e4d62'; ctx.font='10px DM Mono'; ctx.textAlign='center';
+    ctx.fillText('No data yet',W/2,H/2); return;
+  }
+
+  const rMax=Math.max(...decPts.map(h=>h.Reff),R0_BASE+0.5,1.5);
+  const yMax=Math.ceil(rMax*11)/10;
+
+  // Y labels at 0.5 intervals
+  for(let v=0;v<=yMax;v+=0.5){
+    const y=PAD.t+PH-(v/yMax)*PH;
+    ctx.strokeStyle=v===1.0?'rgba(231,76,60,0.12)':'#162535'; ctx.lineWidth=v===1.0?1:0.5;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
+    ctx.fillStyle=v===1.0?'rgba(231,76,60,0.7)':'#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='right';
+    ctx.fillText(v.toFixed(1),PAD.l-3,y+3);
+  }
+
+  // Threshold line
+  const thY=PAD.t+PH-(1.0/yMax)*PH;
+  ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(231,76,60,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD.l,thY); ctx.lineTo(PAD.l+PW,thY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Safe zone shading
+  ctx.fillStyle='rgba(39,174,96,0.04)';
+  ctx.fillRect(PAD.l,thY,PW,PAD.t+PH-thY);
+
+  // X labels (every 2 weeks)
+  for(let w=2;w<=12;w+=2){
+    const x=PAD.l+((w-0.5)/12)*PW;
+    ctx.fillStyle='#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='center';
+    ctx.fillText(w,x,H-2);
+  }
+
+  // Coloured line segments
+  for(let i=1;i<decPts.length;i++){
+    const p1=decPts[i-1], p2=decPts[i];
+    const x1=PAD.l+((p1.week-0.5)/12)*PW, x2=PAD.l+((p2.week-0.5)/12)*PW;
+    const y1=PAD.t+PH-(p1.Reff/yMax)*PH, y2=PAD.t+PH-(p2.Reff/yMax)*PH;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle=(p1.Reff+p2.Reff)/2>1?'#e74c3c':'#27ae60';
+    ctx.lineWidth=2; ctx.lineJoin='round'; ctx.setLineDash([]);
+    ctx.stroke();
+  }
+
+  // Dots
+  decPts.forEach(h=>{
+    const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(h.Reff/yMax)*PH;
+    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle=h.Reff>1?'#e74c3c':'#27ae60'; ctx.fill();
+    ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Latest value label
+  const last=decPts[decPts.length-1];
+  const lx=PAD.l+((last.week-0.5)/12)*PW, ly=PAD.t+PH-(last.Reff/yMax)*PH;
+  ctx.fillStyle=last.Reff>1?'#e74c3c':'#27ae60'; ctx.font='9px DM Mono'; ctx.textAlign='left';
+  const labelX=Math.min(lx+5, PAD.l+PW-26);
+  ctx.fillText(last.Reff.toFixed(2),labelX,ly-4);
+
+  // R=1 label on right edge
+  ctx.fillStyle='rgba(231,76,60,0.6)'; ctx.font='7px DM Mono'; ctx.textAlign='right';
+  ctx.fillText('R=1',PAD.l+PW,thY-2);
+}
+
+// ── CHART 3: ECONOMY & SATISFACTION ─────────────────────
+function drawEconSatChart() {
+  const {ctx,W,H}=setupCanvas('econsat-chart');
+  const PAD={t:8,r:14,b:20,l:26};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+  ctx.clearRect(0,0,W,H);
+
+  const pts=G.history.filter(h=>h.week>0 && h.economy!==undefined);
+  if(pts.length===0){
+    ctx.fillStyle='#7a9ab8'; ctx.font='9px DM Mono'; ctx.textAlign='center';
+    ctx.fillText('No data yet',W/2,H/2); return;
+  }
+
+  // Grid lines at 0, 25, 50, 75, 100
+  [0,25,50,75,100].forEach(v=>{
+    const y=PAD.t+PH-(v/100)*PH;
+    ctx.strokeStyle = v===50 ? '#1a3048' : '#162535'; ctx.lineWidth=v===50?0.8:0.4;
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
+    ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='right';
+    ctx.fillText(v,PAD.l-3,y+2.5);
+  });
+
+  // X labels
+  for(let w=2;w<=12;w+=2){
+    ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='center';
+    ctx.fillText(w, PAD.l+((w-0.5)/12)*PW, H-2);
+  }
+
+  // Danger zone shading below 30
+  ctx.fillStyle='rgba(231,76,60,0.05)';
+  ctx.fillRect(PAD.l, PAD.t+PH-(30/100)*PH, PW, (30/100)*PH);
+
+  function drawLine(data, color, lw) {
+    if(data.length<2) return;
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round'; ctx.setLineDash([]);
+    data.forEach((p,i)=>{ const x=PAD.l+((p.w-0.5)/12)*PW, y=PAD.t+PH-(p.v/100)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke();
+  }
+
+  // Filled area under economy
+  if(pts.length>=2){
+    ctx.beginPath();
+    pts.forEach((h,i)=>{ const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(h.economy/100)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.lineTo(PAD.l+((pts[pts.length-1].week-0.5)/12)*PW, PAD.t+PH);
+    ctx.lineTo(PAD.l+((pts[0].week-0.5)/12)*PW, PAD.t+PH); ctx.closePath();
+    const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH);
+    g.addColorStop(0,'rgba(39,174,96,0.15)'); g.addColorStop(1,'rgba(39,174,96,0.01)');
+    ctx.fillStyle=g; ctx.fill();
+  }
+
+  drawLine(pts.map(h=>({w:h.week,v:h.economy})),      '#27ae60', 2);
+  drawLine(pts.map(h=>({w:h.week,v:h.satisfaction})),  '#9b59b6', 2);
+
+  // Dots
+  pts.forEach(h=>{
+    [[h.economy,'#27ae60'],[h.satisfaction,'#9b59b6']].forEach(([v,c])=>{
+      const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(v/100)*PH;
+      ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2);
+      ctx.fillStyle=c; ctx.fill();
+      ctx.strokeStyle='#07101a'; ctx.lineWidth=0.8; ctx.stroke();
+    });
+  });
+
+  // Legend
+  ctx.setLineDash([]);
+  [['#27ae60','Economy'],['#9b59b6','Satisfaction']].forEach((l,i)=>{
+    const lx=PAD.l+4+i*80;
+    ctx.strokeStyle=l[0]; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+12,PAD.t+5); ctx.stroke();
+    ctx.fillStyle='#a8c8e0'; ctx.font='7px DM Mono'; ctx.textAlign='left';
+    ctx.fillText(l[1],lx+14,PAD.t+8);
+  });
+}
+
+// ── CHART 4: DECISION HEATMAP ─────────────────────────────
+function drawDecChart() {
+  const {ctx,W,H}=setupCanvas('dec-chart');
+  ctx.clearRect(0,0,W,H);
+
+  const decPts=G.history.filter(h=>h.week>0&&h.dec);
+
+  const LABEL_W=34;
+  const WEEK_LABEL_H=14;
+  const nRows=RES_LABELS.length;   // 5 resource rows
+  const LOCK_ROW_H=9;              // thin lock strip
+  const avail=H-WEEK_LABEL_H-LOCK_ROW_H-4;
+  const cellH=Math.max(avail/nRows, 8);
+  const cellW=(W-LABEL_W)/12;
+
+  // Week headers
+  ctx.fillStyle='#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='center';
+  for(let w=1;w<=12;w++){
+    const cx=LABEL_W+(w-0.5)*cellW;
+    ctx.fillText(w,cx,WEEK_LABEL_H-2);
+  }
+
+  // Resource rows
+  RES_LABELS.forEach((label,ri)=>{
+    const y=WEEK_LABEL_H+ri*cellH;
+    ctx.fillStyle='#5a7d96'; ctx.font='9px DM Mono'; ctx.textAlign='right';
+    ctx.fillText(label,LABEL_W-3,y+cellH*0.65);
+
+    for(let w=1;w<=12;w++){
+      const cx=LABEL_W+(w-1)*cellW;
+      const h=decPts.find(h=>h.week===w);
+      if(!h){
+        // Future
+        ctx.fillStyle='#0a1620';
+        ctx.fillRect(cx+0.5,y+0.5,cellW-1,cellH-1);
+      } else {
+        const lv=h.dec[RES_KEYS[ri]];
+        const t=lv/5;
+        // amber gradient: dark 0 → full amber 5
+        const r=Math.round(7+t*(245-7));
+        const g2=Math.round(16+t*(160-16));
+        const b=Math.round(26+t*(0-26));
+        ctx.fillStyle=`rgb(${r},${g2},${b})`;
+        ctx.fillRect(cx+0.5,y+0.5,cellW-1,cellH-1);
+        // Level digit if cell wide enough
+        if(lv>0&&cellW>=14){
+          ctx.fillStyle=t>0.45?'rgba(0,0,0,0.8)':'rgba(90,125,150,0.9)';
+          ctx.font='7px DM Mono'; ctx.textAlign='center';
+          ctx.fillText(lv,cx+cellW/2,y+cellH*0.72);
+        }
+      }
+      ctx.strokeStyle='#07101a'; ctx.lineWidth=0.5;
+      ctx.strokeRect(cx+0.5,y+0.5,cellW-1,cellH-1);
+    }
+  });
+
+  // Lockdown strip
+  const ly=WEEK_LABEL_H+nRows*cellH+2;
+  ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='right';
+  ctx.fillText('Lock',LABEL_W-3,ly+LOCK_ROW_H*0.8);
+  const lockColors=['#0c1a28','#5c3200','#a05800','#f5a000'];
+  for(let w=1;w<=12;w++){
+    const h=decPts.find(h=>h.week===w);
+    const lv=h?h.dec.lock:-1;
+    const cx=LABEL_W+(w-1)*cellW;
+    ctx.fillStyle=lv>=0?lockColors[lv]:'#0a1620';
+    ctx.fillRect(cx+0.5,ly+0.5,cellW-1,LOCK_ROW_H-1);
+    ctx.strokeStyle='#07101a'; ctx.lineWidth=0.5;
+    ctx.strokeRect(cx+0.5,ly+0.5,cellW-1,LOCK_ROW_H-1);
+  }
+
+  // Legend row
+  ctx.fillStyle='#2e4d62'; ctx.font='7px DM Mono'; ctx.textAlign='left';
+  ctx.fillText('Dark=0  Bright amber=5  Lock strip below',LABEL_W,H);
+}
+
+// ── DEBRIEF ───────────────────────────────────────────────
+function buildDebrief() {
+  const peakI     = Math.max(...G.history.map(h=>h.I));
+  const overflows = G.history.filter(h=>h.hospLoad>(h.hospCap||CAP_BASE)).length;
+  const deadPct   = (G.D/POP*100).toFixed(3);
+  const finalEcon = G.economy;
+  const finalSat  = G.satisfaction;
+
+  // Composite score: 40% deaths, 30% economy, 30% satisfaction
+  const deathScore = Math.max(0, 100 - G.D/100);
+  const composite  = Math.round(deathScore*0.40 + finalEcon*0.30 + finalSat*0.30);
+
+  // Economy collapse override: if economy hit 0 at any point, response is automatically F
+  const econCollapsed = G.history.some(h => h.economy !== undefined && h.economy === 0);
+  const tier = econCollapsed
+    ? { g:'F', lbl:'ECONOMIC COLLAPSE', c:'#e74c3c' }
+    : (GRADE_THRESHOLDS.find(t=>composite>=t.min) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length-1]);
+  const badge=document.getElementById('db-badge');
+  badge.textContent=tier.g; badge.style.color=badge.style.borderColor=tier.c;
+  document.getElementById('db-badge-lbl').textContent=tier.lbl+' RESPONSE';
+
+  // Composite score label
+  const compLabel = composite>=87?'Near-optimal balance of all three outcomes'
+    : composite>=72?'Good balance — room for improvement on one or more dimensions'
+    : composite>=55?'Competent but significant costs incurred on at least one dimension'
+    : composite>=36?'Serious failures in at least one dimension dragged overall performance'
+    : 'Multiple dimensions failed — review your strategy across all three outcomes';
+
+  document.getElementById('db-stats').innerHTML=[
+    {v:fmtN(G.D),       l:'Total Deaths',    c:'var(--text)'},
+    {v:finalEcon,        l:'Economy Index',   c:finalEcon>=70?'#27ae60':finalEcon>=40?'var(--amber)':'var(--red)'},
+    {v:finalSat,         l:'Satisfaction',    c:finalSat>=70?'#9b59b6':finalSat>=40?'var(--amber)':'var(--red)'},
+    {v:composite+'/100', l:'Composite Score', c:tier.c},
+  ].map(s=>`<div class="bstat"><div class="bstat-val" style="color:${s.c}">${s.v}</div><div class="bstat-label">${s.l}</div></div>`).join('');
+
+  const peakWk=G.history.findIndex(h=>h.I===peakI);
+
+  // Determine what held each student back
+  const weakDim = deathScore<40?'health outcomes':finalEcon<40?'economic impact':finalSat<40?'public satisfaction':'no single clear weakness';
+
+  document.getElementById('db-outcomes').innerHTML=
+    `${econCollapsed ? '<strong style="color:#e74c3c">⚠ ECONOMIC COLLAPSE: The Economy Index reached zero during the simulation. Regardless of health outcomes, this constitutes a failed response — a city cannot sustain a public health system without a functioning economy.</strong><br><br>' : ''}
+    The 12-week response recorded <strong>${fmtN(G.D)} deaths</strong> (${deadPct}% of population),
+    a final <strong>Economy Index of ${finalEcon}/100</strong>, and a final
+    <strong>Satisfaction Index of ${finalSat}/100</strong>.
+    The epidemic peaked at <strong>${fmtN(peakI)} simultaneous active cases</strong> around week ${peakWk},
+    with hospital capacity exceeded in <strong>${overflows} of 12 weeks</strong>.
+    The composite response score of <strong>${composite}/100</strong> reflects all three dimensions —
+    ${compLabel}.
+    ${weakDim!=='no single clear weakness'?`The principal drag on the composite score was <strong>${weakDim}</strong>.`:''}
+    Total expenditure: <strong>${fmt(G.totalSpent)}</strong> of a possible $120M.`;
+
+  document.getElementById('db-reflect').innerHTML=[
+    {
+      q:'Your composite score weighs deaths, economy, and public satisfaction equally at their respective shares. Do you think that weighting is correct? Who in society benefits from a higher weight on economic outcomes, and who benefits from a higher weight on health outcomes?',
+      ctx:'This is a values question disguised as a technical one. Any weighting embeds a political choice about whose interests count more — a question that was intensely contested during real pandemic responses.'
+    },
+    {
+      q:'Strict lockdown saves lives but destroys economic output and satisfaction. Do nothing preserves the economy short-term but collapses both through deaths. Where in that space did your strategy sit, and was it where you intended to be?',
+      ctx:`Your decision heatmap shows your lockdown choices week by week. Your final economy was ${finalEcon}/100 and satisfaction was ${finalSat}/100. A student who went strict-only from week 1 typically ends with economy ~0–5 and satisfaction ~5–20 despite low deaths.`
+    },
+    {
+      q:'At what point in the simulation did your decisions have the greatest marginal impact on outcomes? Was that also the point of greatest investment?',
+      ctx:`Your active case peak occurred around week ${peakWk}. Interventions before the exponential inflection have multiplicatively larger effects. The same is true for economic damage — lockdown costs compound just as transmission does.`
+    },
+    {
+      q:'The satisfaction index declines under both restrictions and uncontrolled deaths. What real-world institutional mechanisms allow governments to sustain high satisfaction during a health crisis?',
+      ctx:'Comms investment in the model proxies for public trust, transparent communication, and perceived legitimacy of decisions. In reality, this also includes financial support for affected workers, co-produced policy design, and consistent messaging from scientific advisors.'
+    },
+    {
+      q:'This model omits distributional effects entirely. Which groups in a real city would bear the largest economic costs from strict lockdown, and which would bear the largest health costs from no lockdown? Does that asymmetry change your preferred strategy?',
+      ctx:'Low-income workers, the self-employed, and renters bear disproportionate economic costs of lockdown. Elderly people, the immunocompromised, and those in crowded housing bear disproportionate health costs of uncontrolled spread. Optimal aggregate outcomes may be deeply inequitable.'
+    },
+  ].map((q,i)=>`<div class="rq"><p><strong>${i+1}.</strong> ${q.q}</p><div class="rq-ctx">Context: ${q.ctx}</div></div>`).join('');
+
+  showScreen('screen-debrief');
+}
+
+// ── SCREEN MANAGEMENT ─────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame(){
+  init();
+  ['r-beds','r-staff','r-test','r-vax','r-comms'].forEach(id=>{ document.getElementById(id).value=0; });
+  ['p-masks','p-schools','p-travel'].forEach(id=>{ document.getElementById(id).checked=false; });
+  document.getElementById('r-vax').disabled=true;
+  document.getElementById('vax-fx').textContent='Unlocks Week 4 — immunises 10,000 people/level/week';
+  document.getElementById('ev-panel').style.display='none';
+  setLock(0);
+  document.getElementById('hdr-wk').textContent='1';
+  updateStatsPanel();
+  onSlide();
+  showScreen('screen-command');
+  requestAnimationFrame(()=>requestAnimationFrame(drawAllCharts));
+}
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('screen-command').classList.contains('active'))
+    requestAnimationFrame(drawAllCharts);
+});
+</script>
+</body>
+</html>
