@@ -25,6 +25,7 @@
   --green:   #27ae60;
   --blue:    #3498db;
   --purple:  #9b59b6;
+  --teal:    #1abc9c;
 }
 
 body { background:var(--bg); color:var(--text); font-family:'Raleway',sans-serif;
@@ -38,18 +39,34 @@ body { background:var(--bg); color:var(--text); font-family:'Raleway',sans-serif
   min-height:100vh; padding:40px 20px;
   background:radial-gradient(ellipse at 50% -10%,#0d2d4a 0%,var(--bg) 65%);
 }
-.brief-inner { max-width:720px; width:100%; }
+.brief-inner { max-width:760px; width:100%; }
 .brief-badge {
   display:inline-block; background:var(--red); color:#fff;
   font-family:'DM Mono',monospace; font-size:11px; letter-spacing:3px; padding:4px 14px; margin-bottom:20px;
 }
 .brief-title { font-family:'Bebas Neue',sans-serif; font-size:90px; letter-spacing:6px; line-height:.9; color:var(--amber); margin-bottom:6px; }
-.brief-sub { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); letter-spacing:2px; margin-bottom:36px; }
-.brief-body { background:var(--surf); border:1px solid var(--bord); border-left:3px solid var(--amber); padding:22px 28px; line-height:1.8; margin-bottom:28px; }
+.brief-sub { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); letter-spacing:2px; margin-bottom:30px; }
+.brief-body { background:var(--surf); border:1px solid var(--bord); border-left:3px solid var(--amber); padding:22px 28px; line-height:1.8; margin-bottom:24px; }
 .brief-body h3 { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:10px; }
 .brief-body p { font-size:14px; color:var(--text); margin-bottom:10px; }
 .brief-body p:last-child { margin-bottom:0; }
-.brief-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:28px; }
+
+/* Scenario / difficulty setup */
+.setup-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.setup-box { background:var(--surf); border:1px solid var(--bord); padding:16px 18px; }
+.setup-box h4 { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:12px; }
+.opt-row { display:flex; flex-direction:column; gap:7px; }
+.opt-btn { background:var(--surf2); border:1px solid var(--bord); color:var(--text2); padding:9px 12px; cursor:pointer; text-align:left; transition:all .12s; }
+.opt-btn:hover { border-color:var(--amber-d); color:var(--text); }
+.opt-btn.on { background:rgba(245,160,0,.10); border-color:var(--amber); color:var(--amber); }
+.opt-btn .ob-name { font-size:13px; font-weight:600; }
+.opt-btn .ob-desc { font-family:'DM Mono',monospace; font-size:9px; color:var(--text3); margin-top:2px; line-height:1.35; }
+.opt-btn.on .ob-desc { color:var(--amber-d); }
+.seed-row { display:flex; align-items:center; gap:10px; margin-top:12px; }
+.seed-row label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text3); text-transform:uppercase; }
+.seed-row input { background:var(--surf2); border:1px solid var(--bord); color:var(--text); font-family:'DM Mono',monospace; font-size:12px; padding:6px 10px; width:120px; }
+
+.brief-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:26px; }
 .bstat { background:var(--surf); border:1px solid var(--bord); padding:14px; text-align:center; }
 .bstat-val { font-family:'Bebas Neue',sans-serif; font-size:34px; color:var(--amber); }
 .bstat-label { font-family:'DM Mono',monospace; font-size:9px; color:var(--text2); letter-spacing:1px; text-transform:uppercase; margin-top:2px; }
@@ -58,40 +75,56 @@ body { background:var(--bg); color:var(--text); font-family:'Raleway',sans-serif
 
 /* COMMAND CENTER */
 #screen-command { flex-direction:column; height:100vh; overflow:hidden; }
-.cmd-hdr { background:var(--surf); border-bottom:1px solid var(--bord); padding:0 20px; display:flex; align-items:center; gap:20px; height:52px; flex-shrink:0; }
+.cmd-hdr { background:var(--surf); border-bottom:1px solid var(--bord); padding:0 20px; display:flex; align-items:center; gap:18px; height:50px; flex-shrink:0; }
 .cmd-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:3px; color:var(--amber); }
-.cmd-wk { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); flex:1; }
+.cmd-scn { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); }
+.cmd-scn b { color:var(--text2); }
+.cmd-wk { font-family:'DM Mono',monospace; font-size:12px; color:var(--text2); flex:1; text-align:right; }
 .cmd-wk span { color:var(--amber); font-size:15px; }
 .cmd-budget { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); display:flex; align-items:center; gap:8px; }
 .budget-num { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--green); transition:color .2s; }
 .budget-num.warn { color:var(--amber); }
 .budget-num.over { color:var(--red); }
-.cmd-body { flex:1; display:grid; grid-template-columns:264px 1fr 268px; overflow:hidden; min-height:0; }
+
+/* News ticker */
+.ticker { background:#050b12; border-bottom:1px solid var(--bord); height:24px; overflow:hidden; display:flex; align-items:center; flex-shrink:0; position:relative; }
+.ticker-badge { background:var(--red); color:#fff; font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1.5px; padding:3px 10px; height:100%; display:flex; align-items:center; flex-shrink:0; z-index:2; }
+.ticker-mask { flex:1; overflow:hidden; position:relative; height:100%; }
+.ticker-text { position:absolute; white-space:nowrap; font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); line-height:24px; will-change:transform; animation:tickerScroll linear infinite; }
+.ticker-text b { color:var(--amber); }
+@keyframes tickerScroll { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+
+.cmd-body { flex:1; display:grid; grid-template-columns:276px 1fr 280px; overflow:hidden; min-height:0; }
 
 .p-left, .p-right { background:var(--surf); overflow-y:auto; flex-shrink:0; }
 .p-left  { border-right:1px solid var(--bord); }
 .p-right { border-left:1px solid var(--bord); }
-.psec { padding:14px 16px; border-bottom:1px solid var(--bord); }
-.psec-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:12px; }
-.res-item { margin-bottom:16px; }
-.res-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px; }
+.psec { padding:13px 15px; border-bottom:1px solid var(--bord); }
+.psec-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:11px; display:flex; justify-content:space-between; }
+.res-item { margin-bottom:13px; }
+.res-item.locked { opacity:.45; }
+.res-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px; }
 .res-name { font-size:12px; font-weight:600; }
 .res-cost { font-family:'DM Mono',monospace; font-size:11px; color:var(--amber); }
-.res-fx { font-size:10px; color:var(--text3); margin-bottom:5px; }
+.res-fx { font-size:10px; color:var(--text3); margin-bottom:4px; line-height:1.3; }
 input[type=range] { width:100%; height:3px; -webkit-appearance:none; background:var(--bord2); outline:none; cursor:pointer; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; background:var(--amber); cursor:pointer; border-radius:0; }
 input[type=range]:disabled { opacity:.25; cursor:not-allowed; }
-.bd-box { padding:10px 16px; background:var(--surf2); font-family:'DM Mono',monospace; font-size:11px; }
+.bd-box { padding:10px 15px; background:var(--surf2); font-family:'DM Mono',monospace; font-size:11px; }
 .bd-row { display:flex; justify-content:space-between; margin-bottom:4px; color:var(--text2); }
 .bd-sep { border-top:1px solid var(--bord); padding-top:6px; margin-top:2px; display:flex; justify-content:space-between; font-weight:500; color:var(--text); }
 .bd-sep.over { color:var(--red); }
 .pol-item { margin-bottom:12px; }
-.pol-title { font-size:12px; font-weight:600; margin-bottom:6px; }
-.lockdown-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:4px; }
-.lk-btn { background:var(--surf2); border:1px solid var(--bord); color:var(--text2); font-family:'DM Mono',monospace; font-size:10px; padding:7px 2px; cursor:pointer; text-align:center; line-height:1.3; transition:all .12s; }
-.lk-btn:hover { border-color:var(--amber-d); color:var(--text); }
-.lk-btn.on { background:var(--amber-d); border-color:var(--amber); color:var(--amber); }
-.lk-cost { font-size:9px; opacity:.7; }
+.pol-item:last-child { margin-bottom:0; }
+.pol-title { font-size:12px; font-weight:600; margin-bottom:5px; }
+.tier-grid { display:grid; gap:3px; margin-bottom:4px; }
+.tier-grid.g4 { grid-template-columns:repeat(4,1fr); }
+.tier-grid.g3 { grid-template-columns:repeat(3,1fr); }
+.tk-btn { background:var(--surf2); border:1px solid var(--bord); color:var(--text2); font-family:'DM Mono',monospace; font-size:10px; padding:7px 2px; cursor:pointer; text-align:center; line-height:1.3; transition:all .12s; }
+.tk-btn:hover { border-color:var(--amber-d); color:var(--text); }
+.tk-btn.on { background:var(--amber-d); border-color:var(--amber); color:var(--amber); }
+.tk-cost { font-size:9px; opacity:.7; }
+.pol-note { font-family:'DM Mono',monospace; font-size:9px; color:var(--text3); }
 .tog-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .tog-info .tog-name { font-size:12px; }
 .tog-info .tog-detail { font-family:'DM Mono',monospace; font-size:9px; color:var(--text3); }
@@ -101,20 +134,37 @@ input[type=range]:disabled { opacity:.25; cursor:not-allowed; }
 .tog input:checked + .tog-track { background:var(--amber); }
 .tog-track::after { content:''; position:absolute; top:2px; left:2px; width:13px; height:13px; background:#fff; transition:transform .18s; }
 .tog input:checked + .tog-track::after { transform:translateX(17px); }
-.event-panel { display:none; padding:12px 16px; border-bottom:1px solid var(--bord); border-left:3px solid var(--red); background:rgba(231,76,60,.06); }
+
+/* Vaccine priority segmented */
+.vp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+.vp-btn { background:var(--surf2); border:1px solid var(--bord); color:var(--text2); font-family:'DM Mono',monospace; font-size:9px; padding:6px 2px; cursor:pointer; text-align:center; transition:all .12s; }
+.vp-btn:hover { border-color:var(--teal); color:var(--text); }
+.vp-btn.on { background:rgba(26,188,156,.14); border-color:var(--teal); color:var(--teal); }
+
+/* Advisors */
+.adv-item { margin-bottom:7px; }
+.adv-btn { width:100%; background:var(--surf2); border:1px solid var(--bord); color:var(--text2); padding:8px 10px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:8px; transition:all .12s; }
+.adv-btn:hover { border-color:var(--bord2); }
+.adv-btn .adv-ico { font-size:15px; }
+.adv-btn .adv-name { font-size:12px; font-weight:600; }
+.adv-btn .adv-role { font-family:'DM Mono',monospace; font-size:8px; color:var(--text3); }
+.adv-advice { display:none; padding:8px 10px; background:rgba(52,152,219,.05); border:1px solid var(--bord); border-top:none; font-size:11px; color:var(--text2); line-height:1.5; }
+.adv-advice.open { display:block; }
+
+.event-panel { display:none; padding:11px 15px; border-bottom:1px solid var(--bord); border-left:3px solid var(--red); background:rgba(231,76,60,.06); }
 .event-panel-title { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:6px; }
 .event-panel-body { font-size:12px; color:var(--text2); line-height:1.5; }
 
 /* CENTER PANEL */
 .p-center { display:flex; flex-direction:column; overflow:hidden; min-height:0; }
-.stats-row { display:grid; grid-template-columns:repeat(5,1fr); border-bottom:1px solid var(--bord); flex-shrink:0; }
-.stat-cell { padding:10px 12px; border-right:1px solid var(--bord); text-align:center; }
+.stats-row { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--bord); flex-shrink:0; }
+.stat-cell { padding:8px 10px; border-right:1px solid var(--bord); text-align:center; }
 .stat-cell:last-child { border-right:none; }
-.stat-val { font-family:'Bebas Neue',sans-serif; font-size:26px; line-height:1; }
-.stat-lbl { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px; color:var(--text2); text-transform:uppercase; margin-top:2px; }
-.s-col{color:var(--blue);} .i-col{color:var(--red);} .r-col{color:var(--green);}
-.d-col{color:#607d8b;}     .h-col{color:var(--amber);}
-.hosp-wrap { padding:8px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; }
+.stat-val { font-family:'Bebas Neue',sans-serif; font-size:24px; line-height:1; }
+.stat-lbl { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.2px; color:var(--text2); text-transform:uppercase; margin-top:2px; }
+.s-col{color:var(--blue);} .e-col{color:var(--amber);} .i-col{color:var(--red);} .r-col{color:var(--green);}
+.d-col{color:#8fa6b3;}     .h-col{color:var(--amber);}
+.hosp-wrap { padding:7px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; }
 .hosp-label { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:10px; color:var(--text2); margin-bottom:4px; }
 .hosp-track { height:5px; background:var(--bord); }
 .hosp-fill { height:100%; transition:width .3s,background .3s; }
@@ -129,38 +179,64 @@ input[type=range]:disabled { opacity:.25; cursor:not-allowed; }
 .econ-track { height:4px; background:var(--bord); margin-top:3px; }
 .econ-fill { height:100%; transition:width .4s,background .4s; }
 
-/* Chart areas — explicit pixel heights so getBoundingClientRect() returns real values */
-.epi-wrap {
-  height:195px; flex-shrink:0;
-  padding:6px 14px 4px; border-bottom:1px solid var(--bord); overflow:hidden;
-}
-.charts-bottom {
-  flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; min-height:0; overflow:hidden;
-}
-.chart-block {
-  padding:5px 10px 3px; overflow:hidden; display:flex; flex-direction:column; position:relative;
-}
+/* Forecast preview strip */
+.fc-strip { display:flex; align-items:center; gap:14px; padding:6px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; background:rgba(52,152,219,.04); font-family:'DM Mono',monospace; font-size:10px; }
+.fc-tag { color:var(--blue); letter-spacing:1.5px; text-transform:uppercase; font-size:9px; }
+.fc-tag.locked { color:var(--text3); }
+.fc-metric { color:var(--text2); }
+.fc-metric b { color:var(--text); font-size:12px; }
+.fc-locked-msg { color:var(--text3); font-style:italic; }
+
+/* Chart areas */
+.epi-wrap { height:196px; flex-shrink:0; padding:6px 14px 4px; border-bottom:1px solid var(--bord); overflow:hidden; position:relative; }
+.charts-bottom { flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; min-height:0; overflow:hidden; }
+.chart-block { padding:5px 10px 3px; overflow:hidden; display:flex; flex-direction:column; position:relative; }
 .chart-block + .chart-block { border-left:1px solid var(--bord); }
 .chart-title { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1.5px; color:var(--text3); text-transform:uppercase; margin-bottom:2px; flex-shrink:0; }
 canvas { display:block; }
 
+/* Chart tooltip */
+.chart-tip { position:absolute; pointer-events:none; display:none; z-index:20; background:rgba(5,11,18,.96); border:1px solid var(--bord2); padding:7px 9px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text2); line-height:1.5; min-width:150px; }
+.chart-tip .ct-wk { color:var(--amber); font-weight:500; margin-bottom:3px; }
+.chart-tip .ct-row { display:flex; justify-content:space-between; gap:12px; }
+.chart-tip .ct-row b { color:var(--text); }
+
 /* FOOTER */
-.cmd-ftr { background:var(--surf); border-top:1px solid var(--bord); padding:10px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.cmd-ftr { background:var(--surf); border-top:1px solid var(--bord); padding:9px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
 .ftr-info { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); }
 .btn-advance { background:var(--amber); color:#000; border:none; font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; padding:9px 38px; cursor:pointer; transition:all .15s; }
 .btn-advance:hover { background:#ffc040; }
 .btn-advance:disabled { background:var(--bord2); color:var(--text3); cursor:not-allowed; }
 
+/* EVENT MODAL */
+#screen-event { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:120; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+.evt-card { background:var(--surf); border:1px solid var(--bord); border-top:3px solid var(--red); max-width:600px; width:100%; }
+.evt-hdr { padding:20px 24px 16px; border-bottom:1px solid var(--bord); display:flex; gap:16px; align-items:flex-start; }
+.evt-ico { font-size:40px; line-height:1; }
+.evt-htext { flex:1; }
+.evt-kicker { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:5px; }
+.evt-title { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:1px; line-height:1; }
+.evt-body { padding:16px 24px; font-size:13px; color:var(--text2); line-height:1.65; border-bottom:1px solid var(--bord); }
+.evt-body .evt-syn { color:var(--teal); }
+.evt-opts { padding:16px 24px; }
+.evt-opts h4 { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text3); text-transform:uppercase; margin-bottom:12px; }
+.evt-opt { background:var(--surf2); border:1px solid var(--bord); padding:12px 14px; margin-bottom:9px; cursor:pointer; transition:all .12s; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.evt-opt:hover { border-color:var(--amber); background:rgba(245,160,0,.06); }
+.evt-opt .eo-name { font-size:13px; font-weight:600; margin-bottom:2px; }
+.evt-opt .eo-note { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); line-height:1.4; }
+.evt-opt .eo-cost { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--amber); flex-shrink:0; }
+.evt-opt .eo-cost.free { color:var(--text3); }
+
 /* REPORT */
 #screen-report { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:100; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y:auto; }
-.rpt-card { background:var(--surf); border:1px solid var(--bord); border-top:3px solid var(--amber); max-width:660px; width:100%; max-height:88vh; overflow-y:auto; }
+.rpt-card { background:var(--surf); border:1px solid var(--bord); border-top:3px solid var(--amber); max-width:680px; width:100%; max-height:88vh; overflow-y:auto; }
 .rpt-hdr { padding:18px 22px 14px; border-bottom:1px solid var(--bord); display:flex; justify-content:space-between; align-items:baseline; }
 .rpt-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; }
 .rpt-sub { font-family:'DM Mono',monospace; font-size:11px; color:var(--text2); }
-.rpt-stats { display:grid; grid-template-columns:repeat(4,1fr); border-bottom:1px solid var(--bord); }
-.rs { padding:14px 12px; border-right:1px solid var(--bord); text-align:center; }
+.rpt-stats { display:grid; grid-template-columns:repeat(6,1fr); border-bottom:1px solid var(--bord); }
+.rs { padding:14px 10px; border-right:1px solid var(--bord); text-align:center; }
 .rs:last-child { border-right:none; }
-.rs-val { font-family:'Bebas Neue',sans-serif; font-size:30px; }
+.rs-val { font-family:'Bebas Neue',sans-serif; font-size:28px; }
 .rs-lbl { font-family:'DM Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text2); text-transform:uppercase; }
 .rs-chg { font-family:'DM Mono',monospace; font-size:10px; margin-top:3px; }
 .rpt-events { padding:14px 22px; border-bottom:1px solid var(--bord); }
@@ -173,7 +249,7 @@ canvas { display:block; }
 
 /* DEBRIEF */
 #screen-debrief { flex-direction:column; align-items:center; min-height:100vh; padding:40px 20px; background:radial-gradient(ellipse at 50% -10%,#0d2d4a 0%,var(--bg) 65%); overflow-y:auto; }
-.db-inner { max-width:780px; width:100%; }
+.db-inner { max-width:820px; width:100%; }
 .db-title { font-family:'Bebas Neue',sans-serif; font-size:54px; letter-spacing:4px; text-align:center; margin-bottom:4px; }
 .db-sub { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--text2); text-align:center; margin-bottom:30px; }
 .db-grade { text-align:center; margin-bottom:30px; }
@@ -184,6 +260,10 @@ canvas { display:block; }
 .db-sec h3 { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--amber); text-transform:uppercase; margin-bottom:14px; }
 .db-outcomes { font-size:13px; line-height:1.85; color:var(--text2); }
 .db-outcomes strong { color:var(--text); }
+.cmp-wrap { height:240px; position:relative; }
+.cmp-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:10px; font-family:'DM Mono',monospace; font-size:10px; color:var(--text2); }
+.cmp-legend .cl { display:flex; align-items:center; gap:5px; }
+.cmp-legend .cl-swatch { width:14px; height:3px; display:inline-block; }
 .rq { margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid var(--bord); }
 .rq:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
 .rq p { font-size:13px; line-height:1.7; margin-bottom:6px; }
@@ -202,15 +282,26 @@ canvas { display:block; }
     <div class="brief-sub">Public Health Crisis Simulation · Decision Exercise</div>
     <div class="brief-body">
       <h3>Situation Briefing</h3>
-      <p>A novel respiratory pathogen has been confirmed in Meridian City (population 500,000). Early modelling places the basic reproduction number R₀ at approximately 3.6, with an infection fatality rate of 2.0% under well-resourced hospital conditions — significantly higher once capacity is overwhelmed.</p>
-      <p>You are the Emergency Public Health Director. Over <strong>12 simulated weeks</strong> you will make weekly resource allocation decisions and set public health policies within a hard $10M weekly budget. All decisions bind. Vaccines become available from <strong>Week 4</strong>. Three scripted events introduce real-world complications.</p>
+      <p>A novel pathogen has been confirmed in Meridian City (population 500,000). You are the Emergency Public Health Director. Over <strong>12 simulated weeks</strong> you will make weekly resource and policy decisions within a hard weekly budget. All decisions bind.</p>
+      <p>The population is split into a <strong>general</strong> group and a smaller <strong>clinically vulnerable</strong> group with far higher fatality risk — how you protect each shapes both deaths and public life. Events will interrupt you; some can be blunted by <em>early</em> investment. Choose your scenario and difficulty below.</p>
     </div>
-    <div class="brief-stats">
-      <div class="bstat"><div class="bstat-val">500K</div><div class="bstat-label">Population</div></div>
-      <div class="bstat"><div class="bstat-val">3.6</div><div class="bstat-label">Baseline R₀</div></div>
-      <div class="bstat"><div class="bstat-val">2.0%</div><div class="bstat-label">Base IFR</div></div>
-      <div class="bstat"><div class="bstat-val">$10M</div><div class="bstat-label">Weekly Budget</div></div>
+
+    <div class="setup-grid">
+      <div class="setup-box">
+        <h4>Scenario</h4>
+        <div class="opt-row" id="scenario-opts"></div>
+      </div>
+      <div class="setup-box">
+        <h4>Difficulty</h4>
+        <div class="opt-row" id="difficulty-opts"></div>
+        <div class="seed-row">
+          <label>Seed</label>
+          <input type="text" id="seed-input" value="meridian" title="Same seed + scenario + difficulty = same events. For fair class comparison.">
+        </div>
+      </div>
     </div>
+
+    <div class="brief-stats" id="brief-stats"></div>
     <button class="btn-primary" onclick="startGame()">ASSUME COMMAND</button>
   </div>
 </div>
@@ -218,12 +309,19 @@ canvas { display:block; }
 <!-- COMMAND CENTER -->
 <div id="screen-command" class="screen">
   <div class="cmd-hdr">
-    <div class="cmd-title">OUTBREAK — COMMAND CENTER</div>
+    <div class="cmd-title">OUTBREAK</div>
+    <div class="cmd-scn" id="hdr-scn">—</div>
     <div class="cmd-wk">WEEK <span id="hdr-wk">1</span>&nbsp;/&nbsp;12</div>
     <div class="cmd-budget">
       <span>BUDGET REMAINING</span>
       <span class="budget-num" id="hdr-bud">$10.0M</span>
     </div>
+  </div>
+
+  <!-- News ticker -->
+  <div class="ticker">
+    <div class="ticker-badge">MERIDIAN WIRE</div>
+    <div class="ticker-mask"><div class="ticker-text" id="ticker-text"></div></div>
   </div>
 
   <div class="cmd-body">
@@ -232,37 +330,62 @@ canvas { display:block; }
     <div class="p-left">
       <div class="psec">
         <div class="psec-title">Resource Allocation</div>
+
         <div class="res-item">
-          <div class="res-row"><span class="res-name">Hospital Beds</span><span class="res-cost" id="c-beds">$0</span></div>
-          <div class="res-fx">+400 beds/level — prevents overflow IFR spike</div>
-          <input type="range" min="0" max="5" value="0" id="r-beds" oninput="onSlide()">
+          <div class="res-row"><span class="res-name">Permanent Capacity</span><span class="res-cost" id="c-perm">$0</span></div>
+          <div class="res-fx">+250 beds/level — <b>persists all game</b>. Build early, benefit for weeks.</div>
+          <input type="range" min="0" max="5" value="0" id="r-perm" oninput="onSlide()">
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Surge Capacity</span><span class="res-cost" id="c-surge">$0</span></div>
+          <div class="res-fx">+300 beds/level — <b>this week only</b>. Cheap, reactive, strains staff.</div>
+          <input type="range" min="0" max="5" value="0" id="r-surge" oninput="onSlide()">
         </div>
         <div class="res-item">
           <div class="res-row"><span class="res-name">Medical Staff</span><span class="res-cost" id="c-staff">$0</span></div>
-          <div class="res-fx">Surge staffing — reduces case fatality 8%/level</div>
+          <div class="res-fx">Surge staffing — lowers fatality rate, esp. under overflow.</div>
           <input type="range" min="0" max="5" value="0" id="r-staff" oninput="onSlide()">
         </div>
         <div class="res-item">
           <div class="res-row"><span class="res-name">Testing &amp; Tracing</span><span class="res-cost" id="c-test">$0</span></div>
-          <div class="res-fx">Identifies chains — reduces effective R 5%/level</div>
+          <div class="res-fx">Breaks chains — reduces effective R. Guards vs super-spreaders.</div>
           <input type="range" min="0" max="5" value="0" id="r-test" oninput="onSlide()">
         </div>
-        <div class="res-item">
+        <div class="res-item locked" id="ri-vax">
           <div class="res-row"><span class="res-name">Vaccination</span><span class="res-cost" id="c-vax">$0</span></div>
-          <div class="res-fx" id="vax-fx">Unlocks Week 4 — immunises 10,000 people/level/week</div>
+          <div class="res-fx" id="vax-fx">Unlocks Week 4 — immunises ~10,000 people/level/week.</div>
           <input type="range" min="0" max="5" value="0" id="r-vax" disabled oninput="onSlide()">
+          <div style="margin-top:6px">
+            <div class="pol-note" style="margin-bottom:3px">Prioritisation</div>
+            <div class="vp-grid">
+              <div class="vp-btn on" id="vp-elderly"  onclick="setVaxPriority('elderly')">Elderly<br>first</div>
+              <div class="vp-btn"    id="vp-balanced" onclick="setVaxPriority('balanced')">Balanced</div>
+              <div class="vp-btn"    id="vp-workers"  onclick="setVaxPriority('workers')">Workers<br>first</div>
+            </div>
+          </div>
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Epidemic Modelling</span><span class="res-cost" id="c-epi">$0</span></div>
+          <div class="res-fx">Unlocks <b>forecasts &amp; live projections</b>. Higher = clearer, further ahead. Early warning of variants.</div>
+          <input type="range" min="0" max="5" value="0" id="r-epi" oninput="onSlide()">
+        </div>
+        <div class="res-item">
+          <div class="res-row"><span class="res-name">Port-of-Entry Screening</span><span class="res-cost" id="c-poe">$0</span></div>
+          <div class="res-fx">Screens arrivals. <b>Cumulative</b> early investment blunts imported-variant shocks.</div>
+          <input type="range" min="0" max="5" value="0" id="r-poe" oninput="onSlide()">
         </div>
         <div class="res-item" style="margin-bottom:0">
           <div class="res-row"><span class="res-name">Public Communications</span><span class="res-cost" id="c-comms">$0</span></div>
-          <div class="res-fx">Amplifies all policy effectiveness via compliance</div>
+          <div class="res-fx">Drives compliance — amplifies <b>every</b> policy. Cheap, always valuable.</div>
           <input type="range" min="0" max="5" value="0" id="r-comms" oninput="onSlide()">
         </div>
       </div>
       <div class="bd-box">
         <div class="psec-title" style="padding:0 0 6px">Weekly Budget</div>
-        <div class="bd-row"><span>Income</span><span style="color:var(--green)">+$10.0M</span></div>
+        <div class="bd-row"><span>Income</span><span style="color:var(--green)" id="bd-inc">+$10.0M</span></div>
         <div class="bd-row"><span>Resources</span><span id="bd-res">–$0</span></div>
         <div class="bd-row"><span>Policies</span><span id="bd-pol">–$0</span></div>
+        <div class="bd-row" id="bd-evt-row" style="display:none"><span>Event response</span><span id="bd-evt">–$0</span></div>
         <div class="bd-sep" id="bd-sep"><span>Remaining</span><span id="bd-rem">$10.0M</span></div>
       </div>
     </div>
@@ -270,10 +393,11 @@ canvas { display:block; }
     <!-- CENTER -->
     <div class="p-center">
       <div class="stats-row">
-        <div class="stat-cell"><div class="stat-val s-col" id="sv-S">499,900</div><div class="stat-lbl">Susceptible</div></div>
-        <div class="stat-cell"><div class="stat-val i-col" id="sv-I">100</div><div class="stat-lbl">Infected</div></div>
-        <div class="stat-cell"><div class="stat-val r-col" id="sv-R">0</div><div class="stat-lbl">Recovered</div></div>
-        <div class="stat-cell"><div class="stat-val d-col" id="sv-D">0</div><div class="stat-lbl">Deaths</div></div>
+        <div class="stat-cell"><div class="stat-val s-col" id="sv-S">—</div><div class="stat-lbl">Susceptible</div></div>
+        <div class="stat-cell"><div class="stat-val e-col" id="sv-E">—</div><div class="stat-lbl">Exposed</div></div>
+        <div class="stat-cell"><div class="stat-val i-col" id="sv-I">—</div><div class="stat-lbl">Infectious</div></div>
+        <div class="stat-cell"><div class="stat-val r-col" id="sv-R">—</div><div class="stat-lbl">Recovered</div></div>
+        <div class="stat-cell"><div class="stat-val d-col" id="sv-D">—</div><div class="stat-lbl">Deaths (cum.)</div></div>
         <div class="stat-cell"><div class="stat-val h-col" id="sv-H">0%</div><div class="stat-lbl">Hosp. Load</div></div>
       </div>
       <div class="hosp-wrap">
@@ -281,7 +405,6 @@ canvas { display:block; }
         <div class="hosp-track"><div class="hosp-fill" id="hosp-fill" style="width:0%;background:var(--green)"></div></div>
       </div>
 
-      <!-- Economy / Satisfaction -->
       <div class="econ-row">
         <div class="econ-cell">
           <div class="econ-label"><span>Economy Index</span><span class="econ-val" id="sv-econ" style="color:var(--green)">100</span></div>
@@ -293,25 +416,30 @@ canvas { display:block; }
         </div>
       </div>
 
-      <!-- Epidemic curve: fixed 210px -->
-      <div class="epi-wrap" id="epi-wrap">
-        <div class="chart-title">EPIDEMIC CURVE — Active Infected &amp; New Cases</div>
-        <canvas id="epi"></canvas>
+      <!-- Forecast preview strip -->
+      <div class="fc-strip" id="fc-strip">
+        <span class="fc-tag locked" id="fc-tag">◷ Forecast</span>
+        <span class="fc-locked-msg" id="fc-msg">Invest in Epidemic Modelling to unlock next-week projections.</span>
       </div>
 
-      <!-- Bottom three charts: flex remaining -->
+      <div class="epi-wrap" id="epi-wrap">
+        <div class="chart-title">EPIDEMIC CURVE — Infectious (left) · Weekly Deaths (right) · Forecast when modelling active</div>
+        <canvas id="epi"></canvas>
+        <div class="chart-tip" id="epi-tip"></div>
+      </div>
+
       <div class="charts-bottom">
         <div class="chart-block" id="reff-block">
           <div class="chart-title">EFFECTIVE Rₑ OVER TIME</div>
           <canvas id="reff-chart"></canvas>
         </div>
         <div class="chart-block" id="econsat-block">
-          <div class="chart-title">ECONOMY &amp; SATISFACTION INDEX (0–100)</div>
+          <div class="chart-title">ECONOMY &amp; SATISFACTION (0–100, w/ thresholds)</div>
           <canvas id="econsat-chart"></canvas>
         </div>
-        <div class="chart-block" id="dec-block">
-          <div class="chart-title">RESOURCE ALLOCATION HISTORY</div>
-          <canvas id="dec-chart"></canvas>
+        <div class="chart-block" id="seir-block">
+          <div class="chart-title">POPULATION COMPARTMENTS — S·E·I·R·Deaths</div>
+          <canvas id="seir-chart"></canvas>
         </div>
       </div>
     </div>
@@ -322,48 +450,70 @@ canvas { display:block; }
         <div class="psec-title">Policy Levers</div>
         <div class="pol-item">
           <div class="pol-title">Lockdown Stringency</div>
-          <div class="lockdown-grid">
-            <div class="lk-btn on" onclick="setLock(0)">None<br><span class="lk-cost">$0/wk</span></div>
-            <div class="lk-btn"    onclick="setLock(1)">Mild<br><span class="lk-cost">$1M/wk</span></div>
-            <div class="lk-btn"    onclick="setLock(2)">Moderate<br><span class="lk-cost">$2M/wk</span></div>
-            <div class="lk-btn"    onclick="setLock(3)">Strict<br><span class="lk-cost">$4M/wk</span></div>
+          <div class="tier-grid g4">
+            <div class="tk-btn on" onclick="setLock(0)">None<br><span class="tk-cost">$0</span></div>
+            <div class="tk-btn"    onclick="setLock(1)">Mild<br><span class="tk-cost">$1M</span></div>
+            <div class="tk-btn"    onclick="setLock(2)">Mod<br><span class="tk-cost">$2M</span></div>
+            <div class="tk-btn"    onclick="setLock(3)">Strict<br><span class="tk-cost">$4M</span></div>
           </div>
-          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text3)">R₀ multipliers: ×1.00 / ×0.82 / ×0.65 / ×0.40</div>
+          <div class="pol-note">R₀ ×1.00 / ×0.82 / ×0.65 / ×0.40 · heavy economy &amp; satisfaction cost</div>
         </div>
+
+        <div class="pol-item">
+          <div class="pol-title">Shield Vulnerable</div>
+          <div class="tier-grid g3">
+            <div class="tk-btn on" onclick="setShield(0)">None<br><span class="tk-cost">$0</span></div>
+            <div class="tk-btn"    onclick="setShield(1)">Voluntary<br><span class="tk-cost">$0.8M</span></div>
+            <div class="tk-btn"    onclick="setShield(2)">Mandatory<br><span class="tk-cost">$1.5M</span></div>
+          </div>
+          <div class="pol-note">Cuts vulnerable-group exposure &amp; deaths without shutting the whole city.</div>
+        </div>
+
+        <div class="pol-item">
+          <div class="pol-title">Public Financial Support</div>
+          <div class="tier-grid g3">
+            <div class="tk-btn on" onclick="setFinance(0)">None<br><span class="tk-cost">$0</span></div>
+            <div class="tk-btn"    onclick="setFinance(1)">Partial<br><span class="tk-cost">$3M</span></div>
+            <div class="tk-btn"    onclick="setFinance(2)">Full<br><span class="tk-cost">$6M</span></div>
+          </div>
+          <div class="pol-note">Cushions the economic &amp; morale hit of restrictions — but consumes most of the budget.</div>
+        </div>
+
         <div class="pol-item">
           <div class="tog-row">
-            <div class="tog-info"><div class="tog-name">Mask Mandate</div><div class="tog-detail">$0.5M/wk · −15% R (compliance-weighted)</div></div>
+            <div class="tog-info"><div class="tog-name">Mask Mandate</div><div class="tog-detail">$0.5M · −16% R (compliance-weighted)</div></div>
             <label class="tog"><input type="checkbox" id="p-masks" onchange="onSlide()"><div class="tog-track"></div></label>
           </div>
         </div>
         <div class="pol-item">
           <div class="tog-row">
-            <div class="tog-info"><div class="tog-name">Schools Closed</div><div class="tog-detail">$1.0M/wk · −10% R (compliance-weighted)</div></div>
+            <div class="tog-info"><div class="tog-name">Schools Closed</div><div class="tog-detail">$1.0M · −11% R (compliance-weighted)</div></div>
             <label class="tog"><input type="checkbox" id="p-schools" onchange="onSlide()"><div class="tog-track"></div></label>
           </div>
         </div>
         <div class="pol-item">
           <div class="tog-row">
-            <div class="tog-info"><div class="tog-name">Travel Restrictions</div><div class="tog-detail">$0.5M/wk · −5% R</div></div>
+            <div class="tog-info"><div class="tog-name">Travel Restrictions</div><div class="tog-detail">$0.5M · −6% R</div></div>
             <label class="tog"><input type="checkbox" id="p-travel" onchange="onSlide()"><div class="tog-track"></div></label>
           </div>
         </div>
       </div>
-      <div class="psec" style="font-size:12px;color:var(--text2);line-height:1.65">
-        <div class="psec-title">Model Notes</div>
-        <p>Policy reductions multiply. Compliance — driven by comms investment — scales how effective restrictions actually are in practice.</p>
-        <br>
-        <p>Hospital overflow sharply elevates IFR. Even moderate overflow approximately doubles mortality.</p>
-        <br>
-        <p><strong style="color:var(--green)">Economy</strong> falls with lockdown stringency, school/travel closures, and deaths. It recovers slowly when fully open.</p>
-        <br>
-        <p><strong style="color:#9b59b6">Satisfaction</strong> falls with restriction fatigue, visible deaths, and hospital overflow. Comms investment partially offsets it.</p>
-        <br>
-        <p>Your <strong>composite score</strong> (40% deaths · 30% economy · 30% satisfaction) means strict-lockdown-only is not optimal. Unspent budget does not carry forward.</p>
+
+      <div class="psec">
+        <div class="psec-title">Consult Advisors</div>
+        <div id="advisors"></div>
       </div>
+
       <div class="event-panel" id="ev-panel">
         <div class="event-panel-title">⚠ Active Situation</div>
         <div class="event-panel-body" id="ev-body"></div>
+      </div>
+
+      <div class="psec" style="font-size:11px;color:var(--text2);line-height:1.6">
+        <div class="psec-title">Model Notes</div>
+        <p>Two-group SEIR with waning immunity. Vulnerable group has far higher fatality. Overflow sharply raises mortality.</p>
+        <br>
+        <p>Compliance (from comms + financial support) scales how effective restrictions really are. Composite score: 40% deaths · 30% economy · 30% satisfaction. Unspent budget does not carry forward.</p>
       </div>
     </div>
 
@@ -375,6 +525,24 @@ canvas { display:block; }
   </div>
 </div>
 
+<!-- EVENT MODAL -->
+<div id="screen-event" class="screen">
+  <div class="evt-card">
+    <div class="evt-hdr">
+      <div class="evt-ico" id="evt-ico">⚠</div>
+      <div class="evt-htext">
+        <div class="evt-kicker" id="evt-kicker">DEVELOPING SITUATION</div>
+        <div class="evt-title" id="evt-title">—</div>
+      </div>
+    </div>
+    <div class="evt-body" id="evt-body">—</div>
+    <div class="evt-opts">
+      <h4>Choose Your Response</h4>
+      <div id="evt-opts"></div>
+    </div>
+  </div>
+</div>
+
 <!-- REPORT -->
 <div id="screen-report" class="screen">
   <div class="rpt-card">
@@ -382,7 +550,7 @@ canvas { display:block; }
       <div class="rpt-title" id="rpt-title">WEEK 1 REPORT</div>
       <div class="rpt-sub">Epidemiological Update</div>
     </div>
-    <div class="rpt-stats" style="grid-template-columns:repeat(6,1fr)">
+    <div class="rpt-stats">
       <div class="rs"><div class="rs-val i-col" id="rs-cases">—</div><div class="rs-lbl">New Cases</div><div class="rs-chg" id="rs-casechg">—</div></div>
       <div class="rs"><div class="rs-val d-col" id="rs-deaths">—</div><div class="rs-lbl">Deaths This Wk</div><div class="rs-chg" id="rs-dchg">—</div></div>
       <div class="rs"><div class="rs-val h-col" id="rs-hosp">—</div><div class="rs-lbl">Hosp. Load</div><div class="rs-chg" id="rs-hchg">—</div></div>
@@ -403,44 +571,70 @@ canvas { display:block; }
 <div id="screen-debrief" class="screen">
   <div class="db-inner">
     <div class="db-title">SIMULATION COMPLETE</div>
-    <div class="db-sub">12-Week Response Summary — Meridian City, Pop. 500,000</div>
+    <div class="db-sub" id="db-sub">12-Week Response Summary — Meridian City, Pop. 500,000</div>
     <div class="db-grade"><div class="grade-badge" id="db-badge">A</div><div class="grade-lbl" id="db-badge-lbl">EXCELLENT</div></div>
     <div class="db-stats" id="db-stats"></div>
+    <div class="db-sec">
+      <h3>How Your Run Compared</h3>
+      <div class="cmp-wrap"><canvas id="cmp-chart"></canvas></div>
+      <div class="cmp-legend" id="cmp-legend"></div>
+    </div>
     <div class="db-sec"><h3>Final Outcomes</h3><div class="db-outcomes" id="db-outcomes"></div></div>
     <div class="db-sec"><h3>Class Reflection Questions</h3><div id="db-reflect"></div></div>
-    <button class="btn-restart" onclick="startGame()">RUN SIMULATION AGAIN</button>
+    <button class="btn-restart" onclick="showScreen('screen-briefing')">CONFIGURE NEW SIMULATION</button>
   </div>
 </div>
 
 <script>
 'use strict';
 
-// ── CONSTANTS ─────────────────────────────────────────────
-const POP       = 500000;
-const GAMMA     = 0.5;
-const R0_BASE   = 3.6;
-const HOSP_RATE = 0.15;
-const CAP_BASE  = 1000;
-const IFR_BASE  = 0.020;
-const BUDGET    = 10e6;
+// ══ CONSTANTS ══════════════════════════════════════════════
+const POP        = 500000;
+const VULN_FRAC  = 0.18;
+const SIGMA      = 1.2;   // E→I rate (incubation), per week
+const GAMMA      = 0.9;   // I→removed rate, per week
+const SUBSTEPS   = 7;     // daily integration within each week (numerical stability)
+const CAP_BASE   = 1000;
+const HOSP_G     = 0.05;  // hospitalisation rate, general
+const HOSP_V     = 0.22;  // hospitalisation rate, vulnerable
+const VAX_LEVEL  = 10000; // people immunised per vax level per week
+const WEEKS      = 12;
+const BASE_BUDGET= 10e6;
 
+const RES_COST = { perm:1.5e6, surge:0.6e6, staff:1.0e6, test:0.6e6, vax:1.0e6, epi:0.5e6, poe:0.5e6, comms:0.5e6 };
 const LOCK_COST   = [0, 1e6, 2e6, 4e6];
 const LOCK_FACTOR = [1.0, 0.82, 0.65, 0.40];
-const RES_COST    = { beds:1e6, staff:1e6, test:0.5e6, vax:1e6, comms:0.5e6 };
+const LOCK_ECON   = [0, 5, 9, 17];
+const LOCK_SAT    = [0, 3, 8, 13];
+const SHIELD_COST = [0, 0.8e6, 1.5e6];
+const SHIELD_EFF  = [0, 0.40, 0.68];  // reduction in vulnerable exposure (× compliance)
+const SHIELD_SAT  = [0, 1.0, 3.0];
+const SHIELD_ECON = [0, 0.4, 0.9];
+const FIN_COST    = [0, 3e6, 6e6];
+const FIN_RELIEF  = [0, 0.40, 0.72];  // fraction of restriction economic damage cushioned
+const FIN_SAT     = [0, 1.5, 3.2];
+const FIN_COMPLY  = [0, 0.06, 0.11];
 
-// Economic cost of lockdown per week (index points, 0-100 scale)
-const LOCK_ECON = [0, 5, 9, 17];
-// Satisfaction cost of lockdown per week (index points)
-const LOCK_SAT  = [0, 3, 8, 13];
+const SCENARIOS = {
+  baseline: { name:'Novel Respiratory', tag:'BASELINE',
+    desc:'R₀ 3.4 · moderate fatality · slow waning',
+    R0:3.4, ifrG:0.006, ifrV:0.080, waning:0.020, vaxWeek:4, seed0:200 },
+  fast: { name:'Fast &amp; Deadly', tag:'SEVERE',
+    desc:'R₀ 4.5 · high fatality · races the peak',
+    R0:4.5, ifrG:0.012, ifrV:0.140, waning:0.012, vaxWeek:5, seed0:280 },
+  slow: { name:'Slow Burn / Endemic', tag:'PERSISTENT',
+    desc:'R₀ 2.6 · mild · strong waning → reinfection waves',
+    R0:2.6, ifrG:0.004, ifrV:0.050, waning:0.090, vaxWeek:4, seed0:180 },
+  storm: { name:'Variant Storm', tag:'VOLATILE',
+    desc:'R₀ 3.2 · repeated variant shocks reward POE screening',
+    R0:3.2, ifrG:0.007, ifrV:0.090, waning:0.030, vaxWeek:4, seed0:200, extraVariant:true },
+};
+const DIFFICULTIES = {
+  standard:  { name:'Standard',  desc:'Full $10M/wk · baseline shocks', budgetMult:1.0,  r0Mult:1.0, sev:1.0, events:3 },
+  hard:      { name:'Hard',      desc:'$8M/wk · stronger, more frequent shocks', budgetMult:0.8, r0Mult:1.1, sev:1.25, events:4 },
+  nightmare: { name:'Nightmare', desc:'$6.5M/wk · relentless, severe shocks', budgetMult:0.65, r0Mult:1.2, sev:1.5, events:5 },
+};
 
-/*  Composite scoring — 40% deaths, 30% economy, 30% satisfaction
- *  deathScore = max(0, 100 - deaths/100)
- *  Calibration:
- *    Do nothing   → deaths~16k, econ~5  (death drag), sat~5  → composite~3  → F
- *    Strict only  → deaths~50,  econ~0  (lockdown),   sat~8  → composite~42 → C
- *    Balanced+vax → deaths~250, econ~65, sat~80        → composite~84        → A
- *    Near-optimal → deaths~50,  econ~70, sat~85        → composite~90        → A+
- */
 const GRADE_THRESHOLDS = [
   { min:87, g:'A+', lbl:'EXEMPLARY',    c:'#27ae60' },
   { min:72, g:'A',  lbl:'EXCELLENT',    c:'#27ae60' },
@@ -454,10 +648,10 @@ const REFLECTIONS = [
   "What drove the balance you chose between resource investment and policy restriction? What assumptions were embedded in that choice?",
   "The curve is beginning to form. Are you responding to data you can see, or anticipating what is coming?",
   "Three weeks in — have your initial assumptions held? What has surprised you?",
-  "Vaccines are now available. How does this change your resource allocation logic going forward?",
-  "Halfway through. Would you describe your strategy as reactive or proactive? What evidence from your own history chart supports that?",
+  "Vaccines are becoming available. Elderly-first cuts deaths; workers-first cuts transmission. Which did you choose, and why?",
+  "Halfway soon. Would you describe your strategy as reactive or proactive? What evidence from your own charts supports that?",
   "Decisions made in weeks 1–2 are now compounding. What would you have done differently in retrospect?",
-  "Past the likely peak. How has the shifting situation changed the relative value of different interventions?",
+  "Consider your vulnerable group specifically. Are you protecting them through shielding, or through suppressing spread everywhere?",
   "Has budget been the binding constraint, or have policy choices been more decisive? Why?",
   "With four weeks remaining — are you in recovery mode or still managing active spread?",
   "Consider the people behind the numbers. How does the abstraction of a simulation affect your decision-making versus a real crisis?",
@@ -465,174 +659,427 @@ const REFLECTIONS = [
   "Last week. Did you have a coherent strategy throughout, or did you adapt opportunistically? Which proved more effective?",
 ];
 
+// ══ SEEDED RNG (mulberry32) ════════════════════════════════
+function makeRng(seedStr){
+  let h = 1779033703 ^ seedStr.length;
+  for (let i=0;i<seedStr.length;i++){ h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353); h = h<<13 | h>>>19; }
+  let a = h >>> 0;
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a>>>15, 1 | a);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  };
+}
+
+// ══ EVENT LIBRARY ══════════════════════════════════════════
+// mods baseline: r0Delta, ifrMult, lockEffMult, complyMult, capMult, bonusVax, extraInf, satDelta, bonusBudget
+function baseMods(){ return { r0Delta:0, ifrMult:1, lockEffMult:1, complyMult:1, capMult:1, bonusVax:0, extraInf:0, satDelta:0, bonusBudget:0 }; }
+
 const EVENTS = {
-  3: { icon:'🧬', title:'Sub-strain Detected',
-       body:'Genomic surveillance identified a more transmissible variant. R₀ elevated +0.4 this week.',
-       r0_delta:0.4 },
-  6: { icon:'🏥', title:'Healthcare Worker Fatigue',
-       body:'Extended surge causing staff burnout. IFR +20% this week unless Staff investment ≥ level 3.',
-       type:'fatigue' },
-  9: { icon:'📢', title:'Compliance Erosion',
-       body:'Prolonged restrictions have produced fatigue. Lockdown effectiveness −20% this week unless Comms investment ≥ level 3.',
-       type:'erosion' },
+  variant: {
+    icon:'🧬', kicker:'GENOMIC SURVEILLANCE', title:'More Transmissible Variant',
+    build(G, sev){
+      // POE cumulative investment blunts the variant; forecasting gives forewarning
+      const poeMit = Math.min(0.75, G.poeCum * 0.06);
+      const foreseen = G.lastEpi >= 3;
+      const baseDelta = (foreseen ? 1.1 : 1.4) * sev;
+      const eff = baseDelta * (1 - poeMit);
+      let body = `Genomic surveillance flags a variant with materially higher transmissibility (baseline R₀ +${baseDelta.toFixed(2)}). `;
+      if (poeMit > 0.05) body += `<span class="evt-syn">Your port-of-entry screening (cumulative level ${G.poeCum}) delayed its introduction, cutting the impact by ${Math.round(poeMit*100)}%.</span> `;
+      else body += `With no border screening in place, it seeded the city unimpeded. `;
+      if (foreseen) body += `<span class="evt-syn">Your modelling team saw the signal early, buying reaction time.</span>`;
+      return { body, effDelta: eff };
+    },
+    opts(ctx){ return [
+      { name:'Close borders & sequence aggressively', cost:1.5e6, note:'−60% of the variant surge · −2 satisfaction',
+        apply(m){ m.r0Delta += ctx.effDelta*0.4; m.satDelta -= 2; } },
+      { name:'Targeted containment of clusters', cost:0.7e6, note:'−30% of the variant surge',
+        apply(m){ m.r0Delta += ctx.effDelta*0.7; } },
+      { name:'Monitor only', cost:0, note:'Full variant transmissibility this week',
+        apply(m){ m.r0Delta += ctx.effDelta; } },
+    ]; }
+  },
+  fatigue: {
+    icon:'🏥', kicker:'WORKFORCE ALERT', title:'Healthcare Worker Burnout',
+    build(G, sev){ return { body:`Sustained surge has exhausted frontline staff. Fatality risk is elevated (+${Math.round(25*sev)}%) unless you act. Well-staffed systems weather this far better.`, mult:1+0.25*sev }; },
+    opts(ctx){ return [
+      { name:'Emergency retention bonuses', cost:1.2e6, note:'Neutralises the fatality spike',
+        apply(m){ m.ifrMult *= 1.0; } },
+      { name:'Redeploy trained reserves', cost:0.5e6, note:'Halves the spike',
+        apply(m){ m.ifrMult *= 1 + (ctx.mult-1)*0.5; } },
+      { name:'Ask staff to push through', cost:0, note:'Full fatality spike · −3 satisfaction',
+        apply(m){ m.ifrMult *= ctx.mult; m.satDelta -= 3; } },
+    ]; }
+  },
+  misinfo: {
+    icon:'📱', kicker:'INFORMATION ENVIRONMENT', title:'Misinformation Surge',
+    build(G, sev){ const drop = 0.28*sev; return { body:`A viral disinformation campaign is undermining trust in guidance. Compliance is collapsing (−${Math.round(drop*100)}% policy effectiveness) and satisfaction is falling. Strong comms blunts it.`, drop }; },
+    opts(ctx){ return [
+      { name:'Rapid counter-messaging campaign', cost:1.0e6, note:'Restores most compliance (best with high comms)',
+        apply(m){ m.complyMult *= (1 - ctx.drop*0.15); m.satDelta -= 1; } },
+      { name:'Partner with trusted local voices', cost:0.4e6, note:'Restores about half',
+        apply(m){ m.complyMult *= (1 - ctx.drop*0.5); m.satDelta -= 2; } },
+      { name:'Ignore it', cost:0, note:'Full compliance collapse · −6 satisfaction',
+        apply(m){ m.complyMult *= (1 - ctx.drop); m.satDelta -= 6; } },
+    ]; }
+  },
+  erosion: {
+    icon:'😮‍💨', kicker:'PUBLIC MOOD', title:'Lockdown Fatigue',
+    build(G, sev){ const drop=0.26*sev; return { body:`Prolonged restrictions are breeding non-compliance (−${Math.round(drop*100)}% lockdown effectiveness). Financial support and messaging can restore buy-in.`, drop }; },
+    opts(ctx){ return [
+      { name:'Announce a public support package', cost:1.0e6, note:'Restores most effectiveness · +2 satisfaction',
+        apply(m){ m.lockEffMult *= (1 - ctx.drop*0.15); m.satDelta += 2; } },
+      { name:'Renewed public messaging', cost:0.5e6, note:'Restores about half',
+        apply(m){ m.lockEffMult *= (1 - ctx.drop*0.5); } },
+      { name:'Do nothing', cost:0, note:'Full effectiveness loss · −4 satisfaction',
+        apply(m){ m.lockEffMult *= (1 - ctx.drop); m.satDelta -= 4; } },
+    ]; }
+  },
+  protests: {
+    icon:'📢', kicker:'CIVIL UNREST', title:'Anti-Restriction Protests', conditional:true,
+    build(G, sev){ return { body:`Weeks of strict measures with low public satisfaction have spilled into mass protests. Satisfaction and compliance are both hit.`, sev }; },
+    opts(ctx){ return [
+      { name:'Ease restrictions to relieve pressure', cost:0, note:'Restores morale but restrictions bite less this week',
+        apply(m){ m.satDelta -= 1; m.lockEffMult *= 0.68; } },
+      { name:'Hold firm', cost:0, note:'−8 satisfaction · −25% compliance',
+        apply(m){ m.satDelta -= 8; m.complyMult *= 0.75; } },
+      { name:'Open dialogue + financial support', cost:1.0e6, note:'Defuses it · −2 satisfaction',
+        apply(m){ m.satDelta -= 2; } },
+    ]; }
+  },
+  superspreader: {
+    icon:'🦠', kicker:'CLUSTER ALERT', title:'Super-Spreader Cluster', conditional:true,
+    build(G, sev){ const extra = 9000*sev; return { body:`Weak testing and tracing let a large cluster go undetected until it seeded widely — a one-off jump of roughly ${Math.round(extra).toLocaleString()} infections is underway.`, extra }; },
+    opts(ctx){ return [
+      { name:'Mass testing blitz', cost:1.2e6, note:'Contains ~80% of the cluster',
+        apply(m){ m.extraInf += ctx.extra*0.2; } },
+      { name:'Localised lockdown of the area', cost:0.5e6, note:'Contains ~50% · −2 satisfaction',
+        apply(m){ m.extraInf += ctx.extra*0.5; m.satDelta -= 2; } },
+      { name:'Manual contact tracing only', cost:0, note:'Cluster spreads in full',
+        apply(m){ m.extraInf += ctx.extra; } },
+    ]; }
+  },
+  strike: {
+    icon:'⛑️', kicker:'WORKFORCE ALERT', title:'Hospital Staff Walkout', conditional:true,
+    build(G, sev){ return { body:`Understaffing under a heavy patient load has triggered industrial action. Effective hospital capacity is cut this week.`, mult:0.68 }; },
+    opts(ctx){ return [
+      { name:'Meet staffing demands', cost:1.2e6, note:'Capacity almost fully restored',
+        apply(m){ m.capMult *= 0.95; } },
+      { name:'Bring in agency & military reserves', cost:0.5e6, note:'Partly restores capacity',
+        apply(m){ m.capMult *= 0.85; } },
+      { name:'Refuse to negotiate', cost:0, note:'Capacity cut hard · −4 satisfaction',
+        apply(m){ m.capMult *= ctx.mult; m.satDelta -= 4; } },
+    ]; }
+  },
+  aid: {
+    icon:'🤝', kicker:'GOOD NEWS', title:'International Aid Grant', positive:true,
+    build(G, sev){ return { body:`A coalition of donors has offered emergency funding for Meridian City's response this week.`, }; },
+    opts(){ return [
+      { name:'Accept — general relief fund', cost:0, note:'+$4M budget this week',
+        apply(m){ m.bonusBudget += 4e6; } },
+      { name:'Accept — earmarked, plus matched vaccines', cost:0, note:'+$3M budget · +8,000 doses',
+        apply(m){ m.bonusBudget += 3e6; m.bonusVax += 8000; } },
+    ]; }
+  },
+  vaxboost: {
+    icon:'💉', kicker:'GOOD NEWS', title:'Vaccine Supply Windfall', positive:true,
+    build(G, sev){ return { body:`A manufacturer has released additional doses to Meridian City ahead of schedule.`, }; },
+    opts(){ return [
+      { name:'Fast-track distribution', cost:0.4e6, note:'+22,000 doses this week (uses your priority setting)',
+        apply(m){ m.bonusVax += 22000; } },
+      { name:'Standard rollout', cost:0, note:'+13,000 doses this week',
+        apply(m){ m.bonusVax += 13000; } },
+    ]; }
+  },
 };
 
-const RES_LABELS = ['Beds','Staff','Test','Vacc','Comms'];
-const RES_KEYS   = ['beds','staff','test','vax','comms'];
-
-// ── STATE ─────────────────────────────────────────────────
+// ══ STATE ══════════════════════════════════════════════════
 let G;
+let SETUP = { scenario:'baseline', difficulty:'standard' };
 
-function init() {
+function scenarioParams(){
+  const sc = Object.assign({}, SCENARIOS[SETUP.scenario]);
+  const df = DIFFICULTIES[SETUP.difficulty];
+  sc.R0 = sc.R0 * df.r0Mult;
+  return sc;
+}
+
+function freshComp(sc){
+  const vuln = Math.round(POP*VULN_FRAC), gen = POP - vuln;
+  const seed = sc.seed0;
+  const Iv = Math.round(seed*0.10), Ig = seed - Iv;
+  return { Sg:gen-Ig, Eg:0, Ig, Rg:0, Sv:vuln-Iv, Ev:0, Iv, Rv:0, Dg:0, Dv:0, permBeds:0 };
+}
+function totals(c){ return { S:c.Sg+c.Sv, E:c.Eg+c.Ev, I:c.Ig+c.Iv, R:c.Rg+c.Rv, D:c.Dg+c.Dv }; }
+
+function buildEventSchedule(sc, df, rng){
+  // Choose weeks (2..11) for scripted events from a pool; conditional events fire dynamically.
+  const pool = ['variant','fatigue','misinfo','erosion','aid','vaxboost'];
+  if (sc.extraVariant) pool.unshift('variant'); // storm gets a second variant chance
+  const weeks = [];
+  const sched = {};
+  const n = df.events;
+  const candidates = [3,4,5,6,7,8,9,10,11];
+  // always ensure a variant appears
+  let vWeek = 3 + Math.floor(rng()*3);
+  sched[vWeek] = 'variant'; weeks.push(vWeek);
+  let placed = 1;
+  let guard = 0;
+  while (placed < n && guard++ < 100){
+    const w = candidates[Math.floor(rng()*candidates.length)];
+    if (weeks.includes(w)) continue;
+    let ev = pool[Math.floor(rng()*pool.length)];
+    sched[w] = ev; weeks.push(w); placed++;
+  }
+  return sched;
+}
+
+function init(){
+  const sc = scenarioParams();
+  const df = DIFFICULTIES[SETUP.difficulty];
+  const seedStr = (document.getElementById('seed-input').value || 'meridian') + '|' + SETUP.scenario + '|' + SETUP.difficulty;
+  const rng = makeRng(seedStr);
+  const comp = freshComp(sc);
+  const t = totals(comp);
   G = {
+    sc, df, rng,
     week:1,
-    S:POP-100, I:100, R:0, D:0,
-    economy:100, satisfaction:100,
-    lock:0,
-    history:[{ week:0, S:POP-100, I:100, R:0, D:0,
-               newCases:100, newDeaths:0, hospLoad:15, hospCap:CAP_BASE,
-               Reff:R0_BASE, economy:100, satisfaction:100, dec:null }],
+    comp,
+    economy:100, satisfaction:100, compliance:0.7,
+    lock:0, shield:0, finance:0,
+    vaxPriority:'elderly',
+    budget: BASE_BUDGET*df.budgetMult,
+    poeCum:0, lastEpi:0, lockStreak:0, lastCondWeek:-3,
+    eventSchedule: buildEventSchedule(sc, df, rng),
+    eventMods: baseMods(), eventCost:0, activeEvent:null,
     totalSpent:0,
+    forecast:null,
+    history:[{ week:0, S:t.S, E:t.E, I:t.I, R:t.R, D:0,
+               newCases:sc.seed0, newDeaths:0, hospLoad:Math.round(t.I*0.1), hospCap:CAP_BASE,
+               Reff:sc.R0, economy:100, satisfaction:100, compliance:0.7, dec:null, event:null }],
   };
 }
 
-// ── MODEL ─────────────────────────────────────────────────
-function getDecisions() {
+// ══ CORE MODEL (pure) ══════════════════════════════════════
+function computeStep(comp, econ, sat, week, d, sc, mods){
+  mods = mods || baseMods();
+  // Compliance from comms + financial support, minus event effect
+  let cf = 0.55 + 0.09*d.comms + FIN_COMPLY[d.finance];
+  cf = Math.max(0.2, Math.min(1.0, cf)) * mods.complyMult;
+  cf = Math.max(0.15, Math.min(1.0, cf));
+
+  // Transmission multiplier
+  const lockRed = (1 - LOCK_FACTOR[d.lock]) * cf * mods.lockEffMult;
+  let pf = 1 - lockRed;
+  if (d.masks)   pf *= (1 - 0.16*cf);
+  if (d.schools) pf *= (1 - 0.11*cf);
+  if (d.travel)  pf *= (1 - 0.06);
+  pf *= (1 - 0.055*d.test);
+  pf *= (1 - 0.01*d.poe); // small ongoing importation control
+  const Reff = Math.max(0.05, (sc.R0 + mods.r0Delta) * pf);
+
+  const c = Object.assign({}, comp);
+  const cap = Math.max(1, (CAP_BASE + c.permBeds + d.perm*250 + d.surge*300) * mods.capMult);
+  const shieldEff = SHIELD_EFF[d.shield] * cf;
+  const ifrBaseG = sc.ifrG * (1 - 0.09*d.staff) * mods.ifrMult;
+  const ifrBaseV = sc.ifrV * (1 - 0.07*d.staff) * mods.ifrMult;
+
+  // One-off super-spreader seeding: move susceptibles straight into E
+  const extra = mods.extraInf || 0;
+  if (extra > 0){
+    const totS = Math.max(1, c.Sg + c.Sv);
+    const exG = Math.min(c.Sg, extra*(c.Sg/totS));
+    const exV = Math.min(c.Sv, extra*(c.Sv/totS)*(1 - shieldEff*0.5));
+    c.Sg-=exG; c.Eg+=exG; c.Sv-=exV; c.Ev+=exV;
+  }
+
+  // Sub-stepped SEIR (daily integration for numerical stability)
+  const dt = 1/SUBSTEPS;
+  let newCases=0, newDeaths=0, peakDemand=0, worstCapMet=1;
+  for (let s=0; s<SUBSTEPS; s++){
+    const alive = Math.max(1, c.Sg+c.Eg+c.Ig+c.Rg + c.Sv+c.Ev+c.Iv+c.Rv);
+    const lambda = Reff * GAMMA / alive * (c.Ig+c.Iv) * dt;
+    const neG = Math.min(c.Sg, lambda*c.Sg);
+    const neV = Math.min(c.Sv, lambda*c.Sv*(1-shieldEff));
+    const demand = c.Ig*HOSP_G + c.Iv*HOSP_V;
+    const capMet = Math.min(1.0, cap/Math.max(1,demand));
+    if (demand>peakDemand) peakDemand=demand;
+    if (capMet<worstCapMet) worstCapMet=capMet;
+    let ifrG=ifrBaseG, ifrV=ifrBaseV;
+    if (capMet<1){ const om=1+(1-capMet)*4; ifrG=Math.min(0.10,ifrG*om); ifrV=Math.min(0.30,ifrV*om); }
+    const remG=GAMMA*dt*c.Ig, remV=GAMMA*dt*c.Iv;
+    const dG=remG*ifrG, dV=remV*ifrV;
+    const eiG=SIGMA*dt*c.Eg, eiV=SIGMA*dt*c.Ev;
+    c.Sg-=neG; c.Eg+=neG-eiG; c.Ig+=eiG-remG; c.Rg+=remG-dG; c.Dg+=dG;
+    c.Sv-=neV; c.Ev+=neV-eiV; c.Iv+=eiV-remV; c.Rv+=remV-dV; c.Dv+=dV;
+    newCases += neG+neV; newDeaths += dG+dV;
+  }
+
+  // Vaccination distributed by priority (once per week, S→R)
+  let doses = (week >= sc.vaxWeek ? d.vax*VAX_LEVEL : 0) + (mods.bonusVax||0);
+  if (doses>0){
+    let vaxG=0, vaxV=0; const availG=Math.max(0,c.Sg), availV=Math.max(0,c.Sv);
+    if (d.vaxPriority==='elderly'){ vaxV=Math.min(availV,doses); doses-=vaxV; vaxG=Math.min(availG,doses); }
+    else if (d.vaxPriority==='workers'){ vaxG=Math.min(availG,doses); doses-=vaxG; vaxV=Math.min(availV,doses); }
+    else { const tot=Math.max(1,availG+availV); vaxG=Math.min(availG,doses*availG/tot); vaxV=Math.min(availV,doses*availV/tot); }
+    c.Sg-=vaxG; c.Rg+=vaxG; c.Sv-=vaxV; c.Rv+=vaxV;
+  }
+
+  // Waning immunity R→S (once per week)
+  const waneG=sc.waning*c.Rg, waneV=sc.waning*c.Rv;
+  c.Rg-=waneG; c.Sg+=waneG; c.Rv-=waneV; c.Sv+=waneV;
+
+  const nc = {
+    Sg:Math.max(0,c.Sg), Eg:Math.max(0,c.Eg), Ig:Math.max(0,c.Ig), Rg:Math.max(0,c.Rg),
+    Sv:Math.max(0,c.Sv), Ev:Math.max(0,c.Ev), Iv:Math.max(0,c.Iv), Rv:Math.max(0,c.Rv),
+    Dg:c.Dg, Dv:c.Dv, permBeds:comp.permBeds + d.perm*250,
+  };
+  const hospDemand = peakDemand;
+  const capMet = worstCapMet;
+
+  // Economy
+  const restrictionEcon = LOCK_ECON[d.lock] + (d.schools?2:0) + (d.travel?1.5:0) + SHIELD_ECON[d.shield];
+  let econDelta = -restrictionEcon*(1 - FIN_RELIEF[d.finance]) - newDeaths/90 - d.poe*0.25;
+  if (d.lock===0 && !d.schools && !d.travel && d.shield<2) econDelta += 1.2;
+  const newEcon = Math.round(Math.max(0, Math.min(100, econ + econDelta)));
+
+  // Satisfaction
+  const restrictionSat = LOCK_SAT[d.lock] + (d.schools?1.5:0) + (d.travel?0.5:0) + SHIELD_SAT[d.shield];
+  let satDelta = -restrictionSat + FIN_SAT[d.finance] + (mods.satDelta||0);
+  if (d.lock>0 || d.schools || d.travel || d.shield>0) satDelta += d.comms*0.5;
+  satDelta -= newDeaths/180;
+  if (capMet < 1) satDelta -= 4;
+  satDelta -= Math.min(4, newCases/10000);
+  const newSat = Math.round(Math.max(0, Math.min(100, sat + satDelta)));
+
+  const tt = totals(nc);
+  return {
+    comp:nc, economy:newEcon, satisfaction:newSat, compliance:cf,
+    S:tt.S, E:tt.E, I:tt.I, R:tt.R, D:tt.D,
+    newCases, newDeaths, hospLoad:hospDemand, hospCap:cap, capMet,
+    Reff:Math.round(Reff*100)/100, ifrEff:newDeaths/Math.max(1,newCases),
+  };
+}
+
+// ══ DECISIONS FROM DOM ═════════════════════════════════════
+function getDecisions(){
   const v = id => parseInt(document.getElementById(id).value);
   const c = id => document.getElementById(id).checked;
-  const beds=v('r-beds'), staff=v('r-staff'), test=v('r-test');
-  const vax  = G.week >= 4 ? v('r-vax') : 0;
-  const comms = v('r-comms');
+  const perm=v('r-perm'), surge=v('r-surge'), staff=v('r-staff'), test=v('r-test');
+  const vax = G.week >= G.sc.vaxWeek ? v('r-vax') : 0;
+  const epi=v('r-epi'), poe=v('r-poe'), comms=v('r-comms');
   const masks=c('p-masks'), schools=c('p-schools'), travel=c('p-travel');
-  const lock=G.lock;
-  const resCost = beds*RES_COST.beds + staff*RES_COST.staff + test*RES_COST.test
-                + vax*RES_COST.vax + comms*RES_COST.comms;
-  const polCost = LOCK_COST[lock]+(masks?0.5e6:0)+(schools?1e6:0)+(travel?0.5e6:0);
-  return { beds, staff, test, vax, comms, masks, schools, travel, lock,
-           resCost, polCost, total:resCost+polCost };
+  const d = { perm, surge, staff, test, vax, epi, poe, comms, masks, schools, travel,
+              lock:G.lock, shield:G.shield, finance:G.finance, vaxPriority:G.vaxPriority };
+  d.resCost = perm*RES_COST.perm + surge*RES_COST.surge + staff*RES_COST.staff + test*RES_COST.test
+            + vax*RES_COST.vax + epi*RES_COST.epi + poe*RES_COST.poe + comms*RES_COST.comms;
+  d.polCost = LOCK_COST[d.lock] + SHIELD_COST[d.shield] + FIN_COST[d.finance]
+            + (masks?0.5e6:0) + (schools?1e6:0) + (travel?0.5e6:0);
+  d.total = d.resCost + d.polCost + G.eventCost;
+  return d;
 }
 
-function step(d) {
-  const ev  = EVENTS[G.week] || null;
-  const cap = CAP_BASE + d.beds * 400;
-  let cf = 0.70 + 0.30 * (d.comms / 5);
-  if (ev && ev.type==='erosion' && d.comms < 3) cf *= 0.80;
-
-  const lockRed = (1 - LOCK_FACTOR[d.lock]) * cf;
-  let pf = 1 - lockRed;
-  if (d.masks)   pf *= (1 - 0.15 * cf);
-  if (d.schools) pf *= (1 - 0.10 * cf);
-  if (d.travel)  pf *= (1 - 0.05);
-  pf *= (1 - 0.05 * d.test);
-
-  const r0Bonus = (ev && ev.r0_delta) ? ev.r0_delta : 0;
-  const Reff = Math.max(0.05, (R0_BASE + r0Bonus) * pf);
-
-  const N    = Math.max(1, G.S + G.I + G.R);
-  const beta = Reff * GAMMA / N;
-  const newInf  = Math.min(G.S, beta * G.S * G.I);
-  const removed = GAMMA * G.I;
-
-  let IFR = IFR_BASE * (1 - 0.08 * d.staff);
-  if (ev && ev.type==='fatigue' && d.staff < 3) IFR *= 1.20;
-  const hospDemand = G.I * HOSP_RATE;
-  const capMet = Math.min(1.0, cap / Math.max(1, hospDemand));
-  if (capMet < 1) IFR = Math.min(0.12, IFR * (1 + (1-capMet)*4));
-
-  const newDead = removed * IFR;
-  const newRec  = removed - newDead;
-  const vaccinated = G.week >= 4 ? Math.min(Math.max(0, G.S - newInf), d.vax*10000) : 0;
-
-  // Economy (0–100): damaged by lockdown, school/travel closures, and deaths (workforce/healthcare costs)
-  let econDelta = -LOCK_ECON[d.lock];
-  if (d.schools) econDelta -= 2;
-  if (d.travel)  econDelta -= 1;
-  econDelta -= newDead / 100;  // each death costs 0.01 economy points (workforce loss, costs)
-  if (d.lock === 0 && !d.schools && !d.travel) econDelta += 1; // slow recovery when fully open
-  const newEcon = Math.round(Math.max(0, Math.min(100, G.economy + econDelta)));
-
-  // Satisfaction (0–100): damaged by restrictions, deaths, overflow; comms partially offsets fatigue
-  let satDelta = -LOCK_SAT[d.lock];
-  if (d.schools) satDelta -= 1.5;
-  if (d.travel)  satDelta -= 0.5;
-  if (d.lock > 0 || d.schools || d.travel) satDelta += d.comms * 0.5; // comms offsets restriction fatigue
-  satDelta -= newDead / 200;                         // visible deaths harm public morale
-  if (capMet < 1) satDelta -= 4;                    // hospital crisis is highly visible
-  satDelta -= Math.min(4, newInf / 10000);           // epidemic severity creates fear/disruption
-  const newSat = Math.round(Math.max(0, Math.min(100, G.satisfaction + satDelta)));
-
-  return {
-    S: Math.round(Math.max(0, G.S - newInf - vaccinated)),
-    I: Math.round(Math.max(0, G.I + newInf - removed)),
-    R: Math.round(G.R + newRec + vaccinated),
-    D: Math.round(G.D + newDead),
-    newCases:  Math.round(newInf),
-    newDeaths: Math.round(newDead),
-    hospLoad:  Math.round(hospDemand),
-    hospCap:   cap,
-    Reff:      Math.round(Reff*100)/100,
-    economy: newEcon, satisfaction: newSat,
-    capMet, IFR,
-  };
-}
-
-// ── BUDGET UI ─────────────────────────────────────────────
-function fmt(n) {
-  if (Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
-  if (Math.abs(n)>=1e3) return '$'+Math.round(n/1e3)+'K';
-  return '$'+Math.round(n);
-}
+// ══ FORMATTERS ═════════════════════════════════════════════
+function fmt(n){ if(Math.abs(n)>=1e6) return '$'+(n/1e6).toFixed(1)+'M'; if(Math.abs(n)>=1e3) return '$'+Math.round(n/1e3)+'K'; return '$'+Math.round(n); }
 function fmtN(n){ return Math.round(n).toLocaleString(); }
 
-function onSlide() {
+// ══ BUDGET + LIVE FORECAST ═════════════════════════════════
+function onSlide(){
   const d = getDecisions();
-  ['beds','staff','test','vax','comms'].forEach(k => {
+  ['perm','surge','staff','test','vax','epi','poe','comms'].forEach(k=>{
     document.getElementById('c-'+k).textContent = fmt(parseInt(document.getElementById('r-'+k).value)*RES_COST[k]);
   });
-  const rem = BUDGET - d.total;
+  const budget = G.budget + (G.eventMods.bonusBudget||0);
+  const rem = budget - d.total;
+  document.getElementById('bd-inc').textContent = '+'+fmt(budget);
   document.getElementById('bd-res').textContent = '–'+fmt(d.resCost);
   document.getElementById('bd-pol').textContent = '–'+fmt(d.polCost);
+  const evtRow = document.getElementById('bd-evt-row');
+  if (G.eventCost>0){ evtRow.style.display='flex'; document.getElementById('bd-evt').textContent='–'+fmt(G.eventCost); }
+  else evtRow.style.display='none';
   document.getElementById('bd-rem').textContent = fmt(Math.abs(rem));
   const sep=document.getElementById('bd-sep'), budNum=document.getElementById('hdr-bud'), btn=document.getElementById('btn-adv');
-  if (rem < 0) {
+  if (rem < 0){
     sep.classList.add('over'); budNum.className='budget-num over';
     budNum.textContent='–'+fmt(Math.abs(rem)); btn.disabled=true;
     document.getElementById('ftr-info').textContent='⚠ Over budget by '+fmt(Math.abs(rem))+'. Reduce spending to continue.';
   } else {
     sep.classList.remove('over');
-    budNum.className=rem<2e6?'budget-num warn':'budget-num';
+    budNum.className = rem<0.2*budget ? 'budget-num warn' : 'budget-num';
     budNum.textContent=fmt(rem); btn.disabled=false;
     document.getElementById('ftr-info').textContent='Set resources and policies, then run the week.';
   }
+  updateForecast(d);
+  updateAdvisors();
 }
 
-function setLock(lv) {
-  G.lock=lv;
-  document.querySelectorAll('.lk-btn').forEach((b,i)=>b.classList.toggle('on',i===lv));
-  onSlide();
+function updateForecast(d){
+  const strip = document.getElementById('fc-strip');
+  const tag = document.getElementById('fc-tag');
+  const msg = document.getElementById('fc-msg');
+  if (d.epi < 1){
+    G.forecast = null;
+    tag.className='fc-tag locked'; tag.textContent='◷ Forecast — locked';
+    msg.innerHTML='<span class="fc-locked-msg">Invest in Epidemic Modelling to unlock next-week projections and the forecast band.</span>';
+    if (document.getElementById('screen-command').classList.contains('active')) drawEpiChart();
+    return;
+  }
+  tag.className='fc-tag'; tag.textContent='◷ Forecast · modelling L'+d.epi;
+  const horizon = Math.min(6, 2+d.epi);
+  const unc = 0.30/d.epi;
+  let comp = Object.assign({}, G.comp), econ=G.economy, sat=G.satisfaction;
+  const pts=[{ week:G.week-1, I: totals(G.comp).I, lo: totals(G.comp).I, hi: totals(G.comp).I }];
+  let firstNext=null;
+  for (let k=1;k<=horizon;k++){
+    const wk = G.week-1+k;
+    const r = computeStep(comp, econ, sat, wk, d, G.sc, baseMods());
+    comp=r.comp; econ=r.economy; sat=r.satisfaction;
+    const band = r.I * unc * k;
+    pts.push({ week:wk, I:r.I, lo:Math.max(0,r.I-band), hi:r.I+band });
+    if (k===1) firstNext = r;
+  }
+  G.forecast = pts;
+  msg.innerHTML = `Next week if you commit this plan: <span class="fc-metric"><b>${fmtN(firstNext.newCases)}</b> new cases</span> · `
+    + `<span class="fc-metric"><b>${fmtN(firstNext.newDeaths)}</b> deaths</span> · `
+    + `<span class="fc-metric">Rₑ <b>${firstNext.Reff.toFixed(2)}</b></span> · `
+    + `<span class="fc-metric">hosp <b>${Math.round(firstNext.hospLoad/firstNext.hospCap*100)}%</b></span>`
+    + (d.epi>=3 ? ` <span style="color:var(--text3)">(±${Math.round(unc*100)}% band, ${horizon}-wk horizon)</span>` : ` <span style="color:var(--text3)">(coarse — raise modelling for a tighter band)</span>`);
+  if (document.getElementById('screen-command').classList.contains('active')) drawEpiChart();
 }
 
-// ── ADVANCE ───────────────────────────────────────────────
-function advanceWeek() {
+// ══ POLICY SETTERS ═════════════════════════════════════════
+function setLock(lv){ G.lock=lv; document.querySelectorAll('#screen-command .pol-item .tier-grid.g4 .tk-btn').forEach((b,i)=>b.classList.toggle('on',i===lv)); onSlide(); }
+function setShield(lv){ G.shield=lv; const btns=document.querySelectorAll('#screen-command .pol-item')[1].querySelectorAll('.tk-btn'); btns.forEach((b,i)=>b.classList.toggle('on',i===lv)); onSlide(); }
+function setFinance(lv){ G.finance=lv; const btns=document.querySelectorAll('#screen-command .pol-item')[2].querySelectorAll('.tk-btn'); btns.forEach((b,i)=>b.classList.toggle('on',i===lv)); onSlide(); }
+function setVaxPriority(p){ G.vaxPriority=p; ['elderly','balanced','workers'].forEach(k=>document.getElementById('vp-'+k).classList.toggle('on',k===p)); onSlide(); }
+
+// ══ ADVANCE WEEK ═══════════════════════════════════════════
+function advanceWeek(){
   const d = getDecisions();
-  if (d.total > BUDGET) return;
-  const ev=EVENTS[G.week]||null, res=step(d), prev=G.history[G.history.length-1];
+  const budget = G.budget + (G.eventMods.bonusBudget||0);
+  if (d.total > budget) return;
+  const res = computeStep(G.comp, G.economy, G.satisfaction, G.week, d, G.sc, G.eventMods);
+  const prev = G.history[G.history.length-1];
+  G.poeCum += d.poe;
+  G.lastEpi = d.epi;
+  G.lockStreak = d.lock>=2 ? G.lockStreak+1 : 0;
   G.history.push({
-    week:G.week, S:res.S, I:res.I, R:res.R, D:res.D,
+    week:G.week, S:res.S, E:res.E, I:res.I, R:res.R, D:res.D,
     newCases:res.newCases, newDeaths:res.newDeaths,
     hospLoad:res.hospLoad, hospCap:res.hospCap, Reff:res.Reff,
-    economy:res.economy, satisfaction:res.satisfaction,
-    dec:{ beds:d.beds, staff:d.staff, test:d.test, vax:d.vax, comms:d.comms, lock:d.lock }
+    economy:res.economy, satisfaction:res.satisfaction, compliance:res.compliance,
+    dec:{ perm:d.perm, surge:d.surge, staff:d.staff, test:d.test, vax:d.vax, epi:d.epi, poe:d.poe, comms:d.comms, lock:d.lock, shield:d.shield, finance:d.finance },
+    event: G.activeEvent ? { icon:EVENTS[G.activeEvent].icon, title:EVENTS[G.activeEvent].title } : null,
   });
   G.totalSpent += d.total;
-  buildReport(G.week, prev, res, ev, d);
-  G.S=res.S; G.I=res.I; G.R=res.R; G.D=res.D;
-  G.economy=res.economy; G.satisfaction=res.satisfaction;
+  G.comp=res.comp; G.economy=res.economy; G.satisfaction=res.satisfaction; G.compliance=res.compliance;
+  buildReport(G.week, prev, res, d);
   G.week++;
 }
 
-// ── REPORT ────────────────────────────────────────────────
-function buildReport(week, prev, res, ev, d) {
+// ══ REPORT ═════════════════════════════════════════════════
+function buildReport(week, prev, res, d){
   document.getElementById('rpt-title').textContent = 'WEEK '+week+' REPORT';
   document.getElementById('rs-cases').textContent  = fmtN(res.newCases);
   document.getElementById('rs-deaths').textContent = fmtN(res.newDeaths);
@@ -640,75 +1087,133 @@ function buildReport(week, prev, res, ev, d) {
   document.getElementById('rs-reff').textContent   = res.Reff.toFixed(2);
 
   const cChg = prev.newCases>0 ? ((res.newCases-prev.newCases)/prev.newCases*100).toFixed(0) : 0;
-  const cEl  = document.getElementById('rs-casechg');
+  const cEl = document.getElementById('rs-casechg');
   cEl.textContent = (cChg>=0?'▲':'▼')+Math.abs(cChg)+'% vs last week';
   cEl.style.color = cChg>=0?'var(--red)':'var(--green)';
-  document.getElementById('rs-dchg').textContent = 'Cumulative: '+fmtN(G.D+res.newDeaths);
+  document.getElementById('rs-dchg').textContent = 'Cumulative: '+fmtN(res.D);
   document.getElementById('rs-hchg').textContent = fmtN(res.hospLoad)+' / '+fmtN(res.hospCap)+' beds';
   const rEl=document.getElementById('rs-rchg');
-  rEl.textContent = res.Reff<=1?'✓ Below epidemic threshold':'⚠ Above 1.0 — epidemic growing';
+  rEl.textContent = res.Reff<=1?'✓ Below epidemic threshold':'⚠ Above 1.0 — growing';
   rEl.style.color = res.Reff<=1?'var(--green)':'var(--amber)';
 
-  document.getElementById('rs-econ').textContent  = res.economy;
-  document.getElementById('rs-sat').textContent   = res.satisfaction;
-  const prevH = G.history[G.history.length-2] || G.history[0];
-  const econChg = res.economy - (prevH.economy||100);
-  const satChg  = res.satisfaction - (prevH.satisfaction||100);
-  const econEl = document.getElementById('rs-econchg');
-  econEl.textContent = (econChg>=0?'▲+':'▼')+econChg+' pts this week';
-  econEl.style.color = econChg>=0?'var(--green)':'var(--red)';
-  const satEl = document.getElementById('rs-satchg');
-  satEl.textContent = (satChg>=0?'▲+':'▼')+satChg+' pts this week';
-  satEl.style.color = satChg>=0?'#9b59b6':'var(--red)';
+  document.getElementById('rs-econ').textContent = res.economy;
+  document.getElementById('rs-sat').textContent  = res.satisfaction;
+  const econChg = res.economy - (prev.economy!==undefined?prev.economy:100);
+  const satChg  = res.satisfaction - (prev.satisfaction!==undefined?prev.satisfaction:100);
+  const econEl=document.getElementById('rs-econchg');
+  econEl.textContent=(econChg>=0?'▲+':'▼')+econChg+' pts'; econEl.style.color=econChg>=0?'var(--green)':'var(--red)';
+  const satEl=document.getElementById('rs-satchg');
+  satEl.textContent=(satChg>=0?'▲+':'▼')+satChg+' pts'; satEl.style.color=satChg>=0?'#9b59b6':'var(--red)';
 
-  const evBox=document.getElementById('rpt-events');
-  evBox.innerHTML='<h4>Intelligence Report</h4>';
+  const evBox=document.getElementById('rpt-events'); evBox.innerHTML='<h4>Intelligence Report</h4>';
   const items=[];
   items.push(res.Reff<=1
     ? {ico:'✅',txt:`Effective R is ${res.Reff.toFixed(2)} — transmission is sub-epidemic. Active cases should begin declining.`}
-    : {ico:'📈',txt:`Effective R is ${res.Reff.toFixed(2)} — outbreak expanding. ${res.Reff>2?'Growth is rapid; early action critical.':'Interventions are having some effect.'}`});
-  if (res.capMet<1)
-    items.push({ico:'🚨',txt:`Hospital system at ${Math.round(100/res.capMet)}% capacity. Overflow pushing IFR to ~${(res.IFR*100).toFixed(1)}%.`});
-  else if (res.hospLoad/res.hospCap>0.75)
-    items.push({ico:'⚠️',txt:`Hospital system at ${Math.round(res.hospLoad/res.hospCap*100)}% — approaching overflow threshold.`});
-  else
-    items.push({ico:'🏥',txt:`Hospital system managing (${Math.round(res.hospLoad/res.hospCap*100)}% utilisation). IFR: ${(res.IFR*100).toFixed(2)}%.`});
-  if (ev) items.push({ico:ev.icon, txt:`SITUATION UPDATE — ${ev.title}: ${ev.body}`});
-  if (week===4) items.push({ico:'💉', txt:'Vaccine supply now available. Each level immunises ~10,000 people/week.'});
-  if (d.total<5e6) items.push({ico:'💰', txt:`Only ${fmt(d.total)} of $10M deployed. Unspent funds do not carry forward.`});
-  // Economy signal
-  if (res.economy < 40) items.push({ico:'📉', txt:`Economy index critical at ${res.economy}/100. Prolonged restrictions and deaths are causing severe economic damage.`});
-  else if (econChg <= -8) items.push({ico:'📉', txt:`Economy fell ${Math.abs(econChg)} points this week to ${res.economy}/100. Lockdown costs are accumulating.`});
-  // Satisfaction signal
-  if (res.satisfaction < 35) items.push({ico:'😤', txt:`Public satisfaction critically low at ${res.satisfaction}/100. Risk of policy non-compliance and political pressure to lift restrictions.`});
-  else if (satChg <= -6) items.push({ico:'😤', txt:`Satisfaction fell ${Math.abs(satChg)} points this week to ${res.satisfaction}/100. Consider whether comms investment can offset restriction fatigue.`});
-  items.forEach(it=>{
-    const div=document.createElement('div'); div.className='ev';
-    div.innerHTML=`<span>${it.ico}</span><span>${it.txt}</span>`;
-    evBox.appendChild(div);
-  });
-  document.getElementById('rpt-rflct').textContent=REFLECTIONS[week-1]||'';
+    : {ico:'📈',txt:`Effective R is ${res.Reff.toFixed(2)} — outbreak expanding. ${res.Reff>2?'Growth is rapid; early action is critical.':'Interventions are having some effect.'}`});
+  if (res.capMet<1) items.push({ico:'🚨',txt:`Hospital system at ${Math.round(100/res.capMet)}% of capacity. Overflow is elevating fatality among admitted patients.`});
+  else if (res.hospLoad/res.hospCap>0.75) items.push({ico:'⚠️',txt:`Hospital system at ${Math.round(res.hospLoad/res.hospCap*100)}% — approaching overflow.`});
+  else items.push({ico:'🏥',txt:`Hospital system managing (${Math.round(res.hospLoad/res.hospCap*100)}% utilisation).`});
+  // Vulnerable-group signal
+  const vDead = Math.round(G.comp.Dv), gDead = Math.round(G.comp.Dg);
+  items.push({ico:'👵',txt:`Deaths by group: vulnerable ${fmtN(vDead)} · general ${fmtN(gDead)}. ${d.shield>0?'Shielding is active.':'The vulnerable group is unshielded.'}`});
+  if (G.activeEvent) { const e=EVENTS[G.activeEvent]; items.push({ico:e.icon, txt:`SITUATION — ${e.title.replace(/&amp;/g,'&')}: your response is reflected in this week's figures.`}); }
+  if (week===G.sc.vaxWeek) items.push({ico:'💉', txt:`Vaccine supply now available. Prioritisation is set to "${G.vaxPriority}".`});
+  if (d.total<0.5*G.budget) items.push({ico:'💰', txt:`Only ${fmt(d.total)} of ${fmt(G.budget)} deployed. Unspent funds do not carry forward.`});
+  if (res.economy<40) items.push({ico:'📉', txt:`Economy index critical at ${res.economy}/100. ${d.finance>0?'Financial support is cushioning the blow.':'Consider financial support to cushion restrictions.'}`});
+  if (res.satisfaction<35) items.push({ico:'😤', txt:`Public satisfaction critically low at ${res.satisfaction}/100 — risk of non-compliance and unrest.`});
+  items.forEach(it=>{ const div=document.createElement('div'); div.className='ev'; div.innerHTML=`<span>${it.ico}</span><span>${it.txt}</span>`; evBox.appendChild(div); });
+
+  document.getElementById('rpt-rflct').textContent = REFLECTIONS[week-1]||'';
   showScreen('screen-report');
 }
 
-function afterReport() {
-  if (G.week>=4){ document.getElementById('r-vax').disabled=false; document.getElementById('vax-fx').textContent='Immunises ~10,000 people / level / week'; }
-  const ev=EVENTS[G.week]||null;
-  document.getElementById('ev-panel').style.display = ev?'block':'none';
-  if (ev) document.getElementById('ev-body').textContent=ev.body;
-  if (G.week>12){ buildDebrief(); return; }
+function afterReport(){
+  if (G.week > WEEKS){ buildDebrief(); return; }
+  enterWeek();
+}
+
+// ══ WEEK ENTRY + EVENTS ════════════════════════════════════
+function pickEvent(){
+  // scripted takes priority; else conditional if cooldown passed
+  const sched = G.eventSchedule[G.week];
+  if (sched) return sched;
+  if (G.week - G.lastCondWeek < 2) return null;
+  const last = G.history[G.history.length-1];
+  const loadPct = last.hospLoad/(last.hospCap||CAP_BASE);
+  const rising = G.history.length>=2 && last.I > G.history[G.history.length-2].I;
+  const d = last.dec || {};
+  if (G.lockStreak>=2 && G.satisfaction<55) return 'protests';
+  if ((d.test<=1) && rising && last.I>3000) return 'superspreader';
+  if ((d.staff<=1) && loadPct>0.8) return 'strike';
+  return null;
+}
+
+function enterWeek(){
+  G.eventMods = baseMods(); G.eventCost=0; G.activeEvent=null;
+  document.getElementById('ev-panel').style.display='none';
+  // unlock vaccination
+  if (G.week >= G.sc.vaxWeek){
+    document.getElementById('r-vax').disabled=false;
+    document.getElementById('ri-vax').classList.remove('locked');
+    document.getElementById('vax-fx').textContent='Immunises ~10,000 people / level / week.';
+  }
   document.getElementById('hdr-wk').textContent=G.week;
+  const evId = pickEvent();
+  if (evId){ showEventModal(evId); }
+  else { showCommand(); }
+}
+
+function showEventModal(evId){
+  G.activeEvent = evId;
+  if (!G.eventSchedule[G.week]) G.lastCondWeek = G.week;
+  const e = EVENTS[evId];
+  const sev = G.df.sev;
+  const ctx = e.build(G, sev) || {};
+  document.getElementById('evt-ico').textContent = e.icon;
+  document.getElementById('evt-kicker').textContent = e.kicker;
+  document.getElementById('evt-title').innerHTML = e.title;
+  document.getElementById('evt-body').innerHTML = ctx.body || '';
+  document.querySelector('.evt-card').style.borderTopColor = e.positive ? 'var(--green)' : 'var(--red)';
+  document.querySelector('.evt-kicker').style.color = e.positive ? 'var(--green)' : 'var(--red)';
+  const box = document.getElementById('evt-opts'); box.innerHTML='';
+  e.opts(ctx).forEach(opt=>{
+    const div=document.createElement('div'); div.className='evt-opt';
+    div.innerHTML=`<div><div class="eo-name">${opt.name}</div><div class="eo-note">${opt.note}</div></div>`
+      +`<div class="eo-cost ${opt.cost>0?'':'free'}">${opt.cost>0?fmt(opt.cost):'FREE'}</div>`;
+    div.onclick=()=>chooseEventOption(opt);
+    box.appendChild(div);
+  });
+  showScreen('screen-event');
+}
+
+function chooseEventOption(opt){
+  const m = G.eventMods;
+  opt.apply(m);
+  G.eventCost = opt.cost;
+  const e = EVENTS[G.activeEvent];
+  document.getElementById('ev-panel').style.display='block';
+  document.getElementById('ev-body').innerHTML = `<b>${e.title.replace(/&amp;/g,'&')}</b> — you chose: ${opt.name}. Effects apply to this week.`;
+  showCommand();
+}
+
+// ══ SHOW COMMAND ═══════════════════════════════════════════
+function showCommand(){
+  document.getElementById('hdr-scn').innerHTML = `<b>${G.sc.name}</b> · ${G.df.name}`;
   updateStatsPanel();
+  updateTicker();
+  onSlide();
   showScreen('screen-command');
   requestAnimationFrame(()=>requestAnimationFrame(drawAllCharts));
 }
 
-// ── STATS ─────────────────────────────────────────────────
-function updateStatsPanel() {
-  document.getElementById('sv-S').textContent=fmtN(G.S);
-  document.getElementById('sv-I').textContent=fmtN(G.I);
-  document.getElementById('sv-R').textContent=fmtN(G.R);
-  document.getElementById('sv-D').textContent=fmtN(G.D);
+// ══ STATS PANEL ════════════════════════════════════════════
+function updateStatsPanel(){
+  const t = totals(G.comp);
+  document.getElementById('sv-S').textContent=fmtN(t.S);
+  document.getElementById('sv-E').textContent=fmtN(t.E);
+  document.getElementById('sv-I').textContent=fmtN(t.I);
+  document.getElementById('sv-R').textContent=fmtN(t.R);
+  document.getElementById('sv-D').textContent=fmtN(t.D);
   const last=G.history[G.history.length-1];
   const load=last.hospLoad||0, cap=last.hospCap||CAP_BASE, pct=load/cap, pctR=Math.round(pct*100);
   document.getElementById('sv-H').textContent=pctR+'%';
@@ -718,454 +1223,450 @@ function updateStatsPanel() {
   fill.style.width=Math.min(100,pctR)+'%';
   fill.style.background=pct>=1?'var(--red)':pct>=0.75?'var(--amber)':'var(--green)';
 
-  const econColor = G.economy >= 70 ? 'var(--green)' : G.economy >= 40 ? 'var(--amber)' : 'var(--red)';
-  const satColor  = G.satisfaction >= 70 ? '#9b59b6' : G.satisfaction >= 40 ? 'var(--amber)' : 'var(--red)';
-  document.getElementById('sv-econ').textContent = G.economy;
-  document.getElementById('sv-econ').style.color = econColor;
-  document.getElementById('econ-fill').style.width = G.economy+'%';
-  document.getElementById('econ-fill').style.background = econColor;
-  document.getElementById('sv-sat').textContent = G.satisfaction;
-  document.getElementById('sv-sat').style.color = satColor;
-  document.getElementById('sat-fill').style.width = G.satisfaction+'%';
-  document.getElementById('sat-fill').style.background = satColor;
+  const econColor=G.economy>=70?'var(--green)':G.economy>=40?'var(--amber)':'var(--red)';
+  const satColor =G.satisfaction>=70?'#9b59b6':G.satisfaction>=40?'var(--amber)':'var(--red)';
+  document.getElementById('sv-econ').textContent=G.economy; document.getElementById('sv-econ').style.color=econColor;
+  document.getElementById('econ-fill').style.width=G.economy+'%'; document.getElementById('econ-fill').style.background=econColor;
+  document.getElementById('sv-sat').textContent=G.satisfaction; document.getElementById('sv-sat').style.color=satColor;
+  document.getElementById('sat-fill').style.width=G.satisfaction+'%'; document.getElementById('sat-fill').style.background=satColor;
 }
 
-// ── CANVAS SIZING ─────────────────────────────────────────
-function setupCanvas(id, titleSelector) {
+// ══ NEWS TICKER ════════════════════════════════════════════
+function updateTicker(){
+  const t=totals(G.comp), last=G.history[G.history.length-1];
+  const heads=[];
+  heads.push(`WEEK ${G.week} of ${WEEKS} — Meridian City response continues`);
+  if (G.activeEvent){ const e=EVENTS[G.activeEvent]; heads.push(`BREAKING: ${e.title.replace(/&amp;/g,'&')}`); }
+  if (last.Reff>1.4) heads.push(`Cases climbing fast — Rₑ at <b>${last.Reff.toFixed(2)}</b>`);
+  else if (last.Reff<=1) heads.push(`Officials cautiously optimistic as Rₑ falls to <b>${last.Reff.toFixed(2)}</b>`);
+  heads.push(`Cumulative deaths reach <b>${fmtN(t.D)}</b>`);
+  if (last.hospLoad/(last.hospCap||CAP_BASE)>0.9) heads.push(`Hospitals near breaking point`);
+  if (G.economy<40) heads.push(`Business groups warn of <b>economic freefall</b> (index ${G.economy})`);
+  else if (G.economy>75) heads.push(`Economy holding steady at ${G.economy}`);
+  if (G.satisfaction<40) heads.push(`Public anger mounting — approval at <b>${G.satisfaction}</b>`);
+  else if (G.satisfaction>75) heads.push(`Director's handling widely approved (${G.satisfaction})`);
+  if (G.week>=G.sc.vaxWeek) heads.push(`Vaccination programme underway — priority: ${G.vaxPriority}`);
+  const line = heads.join('  ✦  ') + '  ✦  ';
+  const el=document.getElementById('ticker-text');
+  el.innerHTML = line + line;
+  el.style.animationDuration = Math.max(18, line.length*0.28)+'s';
+}
+
+// ══ ADVISORS ═══════════════════════════════════════════════
+const ADVISORS = [
+  { key:'health', ico:'🩺', name:'Dr. Adeyemi', role:'Chief Epidemiologist', color:'var(--red)',
+    advice(G,d,last){
+      if (last.Reff>1.5) return `Rₑ is ${last.Reff.toFixed(2)} — we are in exponential growth. Suppress transmission NOW; every week of delay multiplies the eventual peak. Testing and lockdown are your fastest levers.`;
+      if (last.Reff>1) return `Rₑ ${last.Reff.toFixed(2)} is still above 1. We're slowing it, not stopping it. Consider one more increment of restriction or testing.`;
+      if (G.comp.Iv>G.comp.Ig*0.5) return `A large share of infection is in the vulnerable group. Shielding would cut deaths sharply without shutting the whole city.`;
+      return `Rₑ ${last.Reff.toFixed(2)} is below threshold — cases should fall. Hold your gains; don't relax everything at once or we rebound (immunity wanes).`;
+    } },
+  { key:'treasury', ico:'💼', name:'Okonkwo', role:'City Treasurer', color:'var(--green)',
+    advice(G,d,last){
+      if (G.economy<40) return `The economy is at ${G.economy}. Prolonged shutdowns are doing lasting damage. If you must restrict, pair it with financial support, or target the vulnerable rather than closing everything.`;
+      if (d.lock>=3) return `Strict lockdown costs us dearly every week. Is a moderate tier plus masks and testing enough? Financial support softens the blow but eats over half the budget.`;
+      return `Economy at ${G.economy} is manageable. Watch that permanent capacity — it's a one-time buy that pays off for the rest of the crisis, unlike surge beds.`;
+    } },
+  { key:'comms', ico:'🎙️', name:'Vance', role:'Communications Chief', color:'var(--purple)',
+    advice(G,d,last){
+      if (G.satisfaction<40) return `Approval is at ${G.satisfaction}. People are exhausted and disbelieving. Invest in communications and financial support before compliance collapses entirely.`;
+      if (d.comms<2 && (d.lock>0||d.masks||d.schools)) return `We're asking a lot of the public with thin messaging (comms L${d.comms}). Under-communicated rules get ignored — comms multiplies everything else you do.`;
+      return `Public mood is holding (${G.satisfaction}). Keep messaging consistent; it's our cheapest lever and it makes every restriction bite harder.`;
+    } },
+];
+function renderAdvisorShell(){
+  const box=document.getElementById('advisors'); box.innerHTML='';
+  ADVISORS.forEach(a=>{
+    const wrap=document.createElement('div'); wrap.className='adv-item';
+    wrap.innerHTML=`<button class="adv-btn" onclick="toggleAdvisor('${a.key}')">
+        <span class="adv-ico">${a.ico}</span>
+        <span><span class="adv-name" style="color:${a.color}">${a.name}</span><br><span class="adv-role">${a.role}</span></span>
+      </button><div class="adv-advice" id="adv-${a.key}"></div>`;
+    box.appendChild(wrap);
+  });
+}
+function toggleAdvisor(key){ const el=document.getElementById('adv-'+key); el.classList.toggle('open'); if(el.classList.contains('open')) updateAdvisors(); }
+function updateAdvisors(){
+  if (!G) return;
+  const d=getDecisions(), last=G.history[G.history.length-1];
+  ADVISORS.forEach(a=>{ const el=document.getElementById('adv-'+a.key); if(el&&el.classList.contains('open')) el.textContent=a.advice(G,d,last); });
+}
+
+// ══ CANVAS SETUP ═══════════════════════════════════════════
+function setupCanvas(id){
   const canvas=document.getElementById(id);
   const parent=canvas.parentElement;
   const rect=parent.getBoundingClientRect();
-  const titleEl=titleSelector?parent.querySelector(titleSelector):parent.querySelector('.chart-title');
-  const titleH=titleEl ? titleEl.offsetHeight+2 : 0;
+  const titleEl=parent.querySelector('.chart-title');
+  const titleH=titleEl?titleEl.offsetHeight+2:0;
   const dpr=window.devicePixelRatio||1;
-  const W=Math.max(Math.floor(rect.width)-4, 10);
-  const H=Math.max(Math.floor(rect.height)-titleH-6, 20);
+  const W=Math.max(Math.floor(rect.width)-4,10);
+  const H=Math.max(Math.floor(rect.height)-titleH-6,20);
   canvas.width=W*dpr; canvas.height=H*dpr;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d');
-  ctx.scale(dpr,dpr);
-  return {ctx,W,H};
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,W,H,dpr};
 }
+function drawAllCharts(){ drawEpiChart(); drawReffChart(); drawEconSatChart(); drawSeirChart(); }
 
-function drawAllCharts(){ drawEpiChart(); drawReffChart(); drawEconSatChart(); drawDecChart(); }
-
-// ── CHART 1: EPIDEMIC CURVE ───────────────────────────────
-function drawEpiChart() {
+// ══ CHART 1: EPIDEMIC CURVE (dual axis + forecast + hover) ══
+let EPI_GEOM=null;
+function drawEpiChart(){
   const {ctx,W,H}=setupCanvas('epi');
-  const PAD={t:12,r:16,b:22,l:58};
+  const PAD={t:14,r:52,b:22,l:52};
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
-
   const pts=G.history;
-  const maxI=Math.max(...pts.map(h=>h.I),500);
-  const yMax=maxI*1.25;
+  const fc=G.forecast;
 
-  // Grid lines + Y labels
+  const maxI = Math.max(...pts.map(h=>h.I), fc?Math.max(...fc.map(f=>f.hi)):0, 500);
+  const yMaxL = maxI*1.2;
+  const maxD = Math.max(...pts.map(h=>h.newDeaths), 10);
+  const yMaxR = maxD*1.25;
+
+  const xW = w => PAD.l+(w/WEEKS)*PW;
+  const yL = v => PAD.t+PH-(v/yMaxL)*PH;
+  const yR = v => PAD.t+PH-(v/yMaxR)*PH;
+
+  // Grid + left labels (infectious)
   for(let i=0;i<=4;i++){
     const y=PAD.t+PH-(i/4)*PH;
     ctx.strokeStyle='#162535'; ctx.lineWidth=0.5;
     ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
-    ctx.fillStyle='#2e4d62'; ctx.font='9px DM Mono'; ctx.textAlign='right';
-    ctx.fillText(fmtN(Math.round((i/4)*yMax)),PAD.l-4,y+3);
+    ctx.fillStyle='#3a5f78'; ctx.font='9px DM Mono'; ctx.textAlign='right';
+    ctx.fillText(fmtN(Math.round((i/4)*yMaxL)),PAD.l-4,y+3);
   }
+  // Right labels (deaths)
+  for(let i=0;i<=4;i++){
+    const y=PAD.t+PH-(i/4)*PH;
+    ctx.fillStyle='#8fa6b3'; ctx.font='9px DM Mono'; ctx.textAlign='left';
+    ctx.fillText(fmtN(Math.round((i/4)*yMaxR)),PAD.l+PW+4,y+3);
+  }
+  // Axis captions
+  ctx.fillStyle='#e74c3c'; ctx.font='7px DM Mono'; ctx.textAlign='left'; ctx.fillText('INFECTIOUS',PAD.l,PAD.t-4);
+  ctx.fillStyle='#8fa6b3'; ctx.textAlign='right'; ctx.fillText('DEATHS/WK',PAD.l+PW+46,PAD.t-4);
   // X labels
-  for(let w=0;w<=12;w++){
-    const x=PAD.l+(w/12)*PW;
-    ctx.fillStyle='#2e4d62'; ctx.font='9px DM Mono'; ctx.textAlign='center';
-    if(w>0) ctx.fillText(w,x,H-2);
-  }
+  for(let w=1;w<=WEEKS;w++){ ctx.fillStyle='#3a5f78'; ctx.font='9px DM Mono'; ctx.textAlign='center'; ctx.fillText(w,xW(w),H-2); }
 
-  // Hospital capacity threshold
+  // Hospital capacity threshold (in infectious units)
   const lastCap=pts[pts.length-1].hospCap||CAP_BASE;
-  const iAtCap=lastCap/HOSP_RATE;
-  if(iAtCap<=yMax){
-    const cy=PAD.t+PH-(iAtCap/yMax)*PH;
+  const iAtCap=lastCap/((HOSP_G+HOSP_V)/2);
+  if(iAtCap<=yMaxL){
+    const cy=yL(iAtCap);
     ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(122,80,0,0.7)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(PAD.l,cy); ctx.lineTo(PAD.l+PW,cy); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle='rgba(122,80,0,0.8)'; ctx.font='8px DM Mono'; ctx.textAlign='left';
-    ctx.fillText('HOSP CAP',PAD.l+3,cy-2);
+    ctx.beginPath(); ctx.moveTo(PAD.l,cy); ctx.lineTo(PAD.l+PW,cy); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(122,80,0,0.9)'; ctx.font='8px DM Mono'; ctx.textAlign='left'; ctx.fillText('HOSP CAP',PAD.l+3,cy-2);
   }
 
-  // Filled I area
+  // Forecast band + line (future weeks)
+  if (fc && fc.length>1){
+    ctx.beginPath();
+    fc.forEach((f,i)=>{ const x=xW(f.week), y=yL(f.hi); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    for(let i=fc.length-1;i>=0;i--){ const x=xW(fc[i].week), y=yL(fc[i].lo); ctx.lineTo(x,y); }
+    ctx.closePath(); ctx.fillStyle='rgba(52,152,219,0.12)'; ctx.fill();
+    ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(52,152,219,0.85)'; ctx.lineWidth=1.5; ctx.beginPath();
+    fc.forEach((f,i)=>{ const x=xW(f.week), y=yL(f.I); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // Filled infectious area
   if(pts.length>=2){
     ctx.beginPath();
-    pts.forEach((h,i)=>{
-      const x=PAD.l+(h.week/12)*PW, y=PAD.t+PH-(h.I/yMax)*PH;
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    });
-    const last=pts[pts.length-1];
-    ctx.lineTo(PAD.l+(last.week/12)*PW,PAD.t+PH);
-    ctx.lineTo(PAD.l,PAD.t+PH); ctx.closePath();
+    pts.forEach((h,i)=>{ const x=xW(h.week), y=yL(h.I); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.lineTo(xW(pts[pts.length-1].week),PAD.t+PH); ctx.lineTo(PAD.l,PAD.t+PH); ctx.closePath();
     const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH);
     g.addColorStop(0,'rgba(231,76,60,0.22)'); g.addColorStop(1,'rgba(231,76,60,0.01)');
     ctx.fillStyle=g; ctx.fill();
   }
-
-  function polyline(data,color,lw,dash=[]) {
-    if(data.length<2) return;
-    ctx.setLineDash(dash); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round';
-    data.forEach((p,i)=>{ const x=PAD.l+(p.w/12)*PW, y=PAD.t+PH-(p.v/yMax)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-    ctx.stroke(); ctx.setLineDash([]);
-  }
-
-  // Deaths ×20 for visibility on same axis
-  polyline(pts.map(h=>({w:h.week,v:h.newDeaths*20})),'rgba(96,125,139,0.7)',1.5);
-  // New cases
-  polyline(pts.map(h=>({w:h.week,v:h.newCases})),'rgba(155,89,182,0.8)',1.5);
-  // Active infected
-  polyline(pts.map(h=>({w:h.week,v:h.I})),'#e74c3c',2.5);
-
+  function poly(data,color,lw,yf,dash){ if(data.length<2)return; ctx.setLineDash(dash||[]); ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round'; data.forEach((p,i)=>{const x=xW(p.w),y=yf(p.v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke(); ctx.setLineDash([]); }
+  // Deaths (right axis, honest secondary scale)
+  poly(pts.map(h=>({w:h.week,v:h.newDeaths})),'rgba(143,166,179,0.85)',1.5,yR);
+  // New cases (left)
+  poly(pts.map(h=>({w:h.week,v:h.newCases})),'rgba(155,89,182,0.8)',1.5,yL);
+  // Infectious (left)
+  poly(pts.map(h=>({w:h.week,v:h.I})),'#e74c3c',2.5,yL);
   // Dots on I
-  pts.forEach(h=>{
-    const x=PAD.l+(h.week/12)*PW, y=PAD.t+PH-(h.I/yMax)*PH;
-    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-    ctx.fillStyle='#e74c3c'; ctx.fill();
-    ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke();
-  });
+  pts.forEach(h=>{ const x=xW(h.week),y=yL(h.I); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle='#e74c3c'; ctx.fill(); ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke(); });
+
+  // Event markers
+  pts.forEach(h=>{ if(h.event){ const x=xW(h.week); ctx.fillStyle='#f5a000'; ctx.font='10px DM Mono'; ctx.textAlign='center'; ctx.fillText(h.event.icon, x, PAD.t+9); } });
 
   // Legend
-  const leg=[
-    {c:'#e74c3c',lw:2.5,label:'Active Infected'},
-    {c:'rgba(155,89,182,.8)',lw:1.5,label:'New Cases/Wk'},
-    {c:'rgba(96,125,139,.7)',lw:1.5,label:'Deaths×20'},
-  ];
+  const leg=[{c:'#e74c3c',label:'Infectious'},{c:'rgba(155,89,182,.8)',label:'New Cases'},{c:'rgba(143,166,179,.85)',label:'Deaths (R)'}];
+  if(fc) leg.push({c:'rgba(52,152,219,.85)',label:'Forecast'});
   let lx=PAD.l+4;
-  leg.forEach(l=>{
-    ctx.strokeStyle=l.c; ctx.lineWidth=l.lw; ctx.setLineDash([]);
-    ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+14,PAD.t+5); ctx.stroke();
-    ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='left';
-    ctx.fillText(l.label,lx+17,PAD.t+8);
-    lx+=17+ctx.measureText(l.label).width+12;
-  });
+  leg.forEach(l=>{ ctx.strokeStyle=l.c; ctx.lineWidth=2; ctx.setLineDash(l.label==='Forecast'?[3,3]:[]); ctx.beginPath(); ctx.moveTo(lx,PAD.t+6); ctx.lineTo(lx+13,PAD.t+6); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='left'; ctx.fillText(l.label,lx+16,PAD.t+9); lx+=16+ctx.measureText(l.label).width+11; });
+
+  EPI_GEOM={PAD,PW,PH,W,H,xW,yMaxL};
 }
 
-// ── CHART 2: Reff TREND ───────────────────────────────────
-function drawReffChart() {
+// Hover on epidemic chart
+(function(){
+  const wrap=document.getElementById('epi-wrap');
+  const tip=document.getElementById('epi-tip');
+  wrap.addEventListener('mousemove',e=>{
+    if(!EPI_GEOM||!G) return;
+    const rect=wrap.getBoundingClientRect();
+    const mx=e.clientX-rect.left;
+    const {PAD,PW}=EPI_GEOM;
+    const rel=(mx-PAD.l)/PW; const wk=Math.round(rel*WEEKS);
+    const h=G.history.find(x=>x.week===wk);
+    if(!h||wk<0){ tip.style.display='none'; return; }
+    let html=`<div class="ct-wk">Week ${h.week}${h.event?' '+h.event.icon:''}</div>`;
+    html+=`<div class="ct-row"><span>Infectious</span><b>${fmtN(h.I)}</b></div>`;
+    html+=`<div class="ct-row"><span>New cases</span><b>${fmtN(h.newCases)}</b></div>`;
+    html+=`<div class="ct-row"><span>Deaths (wk)</span><b>${fmtN(h.newDeaths)}</b></div>`;
+    html+=`<div class="ct-row"><span>Cum. deaths</span><b>${fmtN(h.D)}</b></div>`;
+    html+=`<div class="ct-row"><span>Rₑ</span><b>${h.Reff.toFixed(2)}</b></div>`;
+    html+=`<div class="ct-row"><span>Econ / Sat</span><b>${h.economy} / ${h.satisfaction}</b></div>`;
+    if(h.dec) html+=`<div class="ct-row"><span>Lockdown</span><b>${['None','Mild','Mod','Strict'][h.dec.lock]}</b></div>`;
+    tip.innerHTML=html; tip.style.display='block';
+    let left=mx+14; if(left+165>rect.width) left=mx-165;
+    tip.style.left=Math.max(2,left)+'px'; tip.style.top='26px';
+  });
+  wrap.addEventListener('mouseleave',()=>{ tip.style.display='none'; });
+})();
+
+// ══ CHART 2: Reff ══════════════════════════════════════════
+function drawReffChart(){
   const {ctx,W,H}=setupCanvas('reff-chart');
   const PAD={t:8,r:12,b:20,l:28};
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
-
-  const decPts=G.history.filter(h=>h.week>0);
-  if(decPts.length===0){
-    ctx.fillStyle='#2e4d62'; ctx.font='10px DM Mono'; ctx.textAlign='center';
-    ctx.fillText('No data yet',W/2,H/2); return;
-  }
-
-  const rMax=Math.max(...decPts.map(h=>h.Reff),R0_BASE+0.5,1.5);
+  const pts=G.history.filter(h=>h.week>0);
+  if(!pts.length){ ctx.fillStyle='#2e4d62'; ctx.font='10px DM Mono'; ctx.textAlign='center'; ctx.fillText('No data yet',W/2,H/2); return; }
+  const rMax=Math.max(...pts.map(h=>h.Reff),G.sc.R0+0.5,1.5);
   const yMax=Math.ceil(rMax*11)/10;
-
-  // Y labels at 0.5 intervals
   for(let v=0;v<=yMax;v+=0.5){
     const y=PAD.t+PH-(v/yMax)*PH;
-    ctx.strokeStyle=v===1.0?'rgba(231,76,60,0.12)':'#162535'; ctx.lineWidth=v===1.0?1:0.5;
+    ctx.strokeStyle=v===1?'rgba(231,76,60,0.12)':'#162535'; ctx.lineWidth=v===1?1:0.5;
     ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
-    ctx.fillStyle=v===1.0?'rgba(231,76,60,0.7)':'#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='right';
-    ctx.fillText(v.toFixed(1),PAD.l-3,y+3);
+    ctx.fillStyle=v===1?'rgba(231,76,60,0.7)':'#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='right'; ctx.fillText(v.toFixed(1),PAD.l-3,y+3);
   }
-
-  // Threshold line
-  const thY=PAD.t+PH-(1.0/yMax)*PH;
-  ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(231,76,60,0.5)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(PAD.l,thY); ctx.lineTo(PAD.l+PW,thY); ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Safe zone shading
-  ctx.fillStyle='rgba(39,174,96,0.04)';
-  ctx.fillRect(PAD.l,thY,PW,PAD.t+PH-thY);
-
-  // X labels (every 2 weeks)
-  for(let w=2;w<=12;w+=2){
-    const x=PAD.l+((w-0.5)/12)*PW;
-    ctx.fillStyle='#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='center';
-    ctx.fillText(w,x,H-2);
-  }
-
-  // Coloured line segments
-  for(let i=1;i<decPts.length;i++){
-    const p1=decPts[i-1], p2=decPts[i];
-    const x1=PAD.l+((p1.week-0.5)/12)*PW, x2=PAD.l+((p2.week-0.5)/12)*PW;
+  const thY=PAD.t+PH-(1/yMax)*PH;
+  ctx.setLineDash([4,3]); ctx.strokeStyle='rgba(231,76,60,0.5)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(PAD.l,thY); ctx.lineTo(PAD.l+PW,thY); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(39,174,96,0.04)'; ctx.fillRect(PAD.l,thY,PW,PAD.t+PH-thY);
+  for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle='#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='center'; ctx.fillText(w,PAD.l+((w-0.5)/WEEKS)*PW,H-2); }
+  for(let i=1;i<pts.length;i++){
+    const p1=pts[i-1],p2=pts[i];
+    const x1=PAD.l+((p1.week-0.5)/WEEKS)*PW, x2=PAD.l+((p2.week-0.5)/WEEKS)*PW;
     const y1=PAD.t+PH-(p1.Reff/yMax)*PH, y2=PAD.t+PH-(p2.Reff/yMax)*PH;
     ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
-    ctx.strokeStyle=(p1.Reff+p2.Reff)/2>1?'#e74c3c':'#27ae60';
-    ctx.lineWidth=2; ctx.lineJoin='round'; ctx.setLineDash([]);
-    ctx.stroke();
+    ctx.strokeStyle=(p1.Reff+p2.Reff)/2>1?'#e74c3c':'#27ae60'; ctx.lineWidth=2; ctx.stroke();
   }
-
-  // Dots
-  decPts.forEach(h=>{
-    const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(h.Reff/yMax)*PH;
-    ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-    ctx.fillStyle=h.Reff>1?'#e74c3c':'#27ae60'; ctx.fill();
-    ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke();
-  });
-
-  // Latest value label
-  const last=decPts[decPts.length-1];
-  const lx=PAD.l+((last.week-0.5)/12)*PW, ly=PAD.t+PH-(last.Reff/yMax)*PH;
-  ctx.fillStyle=last.Reff>1?'#e74c3c':'#27ae60'; ctx.font='9px DM Mono'; ctx.textAlign='left';
-  const labelX=Math.min(lx+5, PAD.l+PW-26);
-  ctx.fillText(last.Reff.toFixed(2),labelX,ly-4);
-
-  // R=1 label on right edge
-  ctx.fillStyle='rgba(231,76,60,0.6)'; ctx.font='7px DM Mono'; ctx.textAlign='right';
-  ctx.fillText('R=1',PAD.l+PW,thY-2);
+  pts.forEach(h=>{ const x=PAD.l+((h.week-0.5)/WEEKS)*PW,y=PAD.t+PH-(h.Reff/yMax)*PH; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle=h.Reff>1?'#e74c3c':'#27ae60'; ctx.fill(); ctx.strokeStyle='#07101a'; ctx.lineWidth=1; ctx.stroke(); });
+  const last=pts[pts.length-1];
+  const lx=PAD.l+((last.week-0.5)/WEEKS)*PW, ly=PAD.t+PH-(last.Reff/yMax)*PH;
+  ctx.fillStyle=last.Reff>1?'#e74c3c':'#27ae60'; ctx.font='9px DM Mono'; ctx.textAlign='left'; ctx.fillText(last.Reff.toFixed(2),Math.min(lx+5,PAD.l+PW-26),ly-4);
+  ctx.fillStyle='rgba(231,76,60,0.6)'; ctx.font='7px DM Mono'; ctx.textAlign='right'; ctx.fillText('R=1',PAD.l+PW,thY-2);
 }
 
-// ── CHART 3: ECONOMY & SATISFACTION ─────────────────────
-function drawEconSatChart() {
+// ══ CHART 3: ECON & SAT (with thresholds) ══════════════════
+function drawEconSatChart(){
   const {ctx,W,H}=setupCanvas('econsat-chart');
   const PAD={t:8,r:14,b:20,l:26};
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
-
-  const pts=G.history.filter(h=>h.week>0 && h.economy!==undefined);
-  if(pts.length===0){
-    ctx.fillStyle='#7a9ab8'; ctx.font='9px DM Mono'; ctx.textAlign='center';
-    ctx.fillText('No data yet',W/2,H/2); return;
-  }
-
-  // Grid lines at 0, 25, 50, 75, 100
-  [0,25,50,75,100].forEach(v=>{
-    const y=PAD.t+PH-(v/100)*PH;
-    ctx.strokeStyle = v===50 ? '#1a3048' : '#162535'; ctx.lineWidth=v===50?0.8:0.4;
-    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke();
-    ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='right';
-    ctx.fillText(v,PAD.l-3,y+2.5);
+  const pts=G.history.filter(h=>h.week>0&&h.economy!==undefined);
+  if(!pts.length){ ctx.fillStyle='#7a9ab8'; ctx.font='9px DM Mono'; ctx.textAlign='center'; ctx.fillText('No data yet',W/2,H/2); return; }
+  const yv=v=>PAD.t+PH-(v/100)*PH;
+  [0,25,50,75,100].forEach(v=>{ const y=yv(v); ctx.strokeStyle=v===50?'#1a3048':'#162535'; ctx.lineWidth=v===50?0.8:0.4; ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke(); ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='right'; ctx.fillText(v,PAD.l-3,y+2.5); });
+  // Danger zone < 30
+  ctx.fillStyle='rgba(231,76,60,0.05)'; ctx.fillRect(PAD.l,yv(30),PW,PAD.t+PH-yv(30));
+  // Grade threshold guide lines (composite dimension targets) at 70 (good) and 40 (weak)
+  [[70,'rgba(39,174,96,0.35)','good'],[40,'rgba(245,160,0,0.35)','weak']].forEach(([v,c,lbl])=>{
+    const y=yv(v); ctx.setLineDash([2,3]); ctx.strokeStyle=c; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle=c; ctx.font='6px DM Mono'; ctx.textAlign='left'; ctx.fillText(lbl,PAD.l+2,y-1.5);
   });
-
-  // X labels
-  for(let w=2;w<=12;w+=2){
-    ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='center';
-    ctx.fillText(w, PAD.l+((w-0.5)/12)*PW, H-2);
-  }
-
-  // Danger zone shading below 30
-  ctx.fillStyle='rgba(231,76,60,0.05)';
-  ctx.fillRect(PAD.l, PAD.t+PH-(30/100)*PH, PW, (30/100)*PH);
-
-  function drawLine(data, color, lw) {
-    if(data.length<2) return;
-    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round'; ctx.setLineDash([]);
-    data.forEach((p,i)=>{ const x=PAD.l+((p.w-0.5)/12)*PW, y=PAD.t+PH-(p.v/100)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-    ctx.stroke();
-  }
-
-  // Filled area under economy
-  if(pts.length>=2){
-    ctx.beginPath();
-    pts.forEach((h,i)=>{ const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(h.economy/100)*PH; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-    ctx.lineTo(PAD.l+((pts[pts.length-1].week-0.5)/12)*PW, PAD.t+PH);
-    ctx.lineTo(PAD.l+((pts[0].week-0.5)/12)*PW, PAD.t+PH); ctx.closePath();
-    const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH);
-    g.addColorStop(0,'rgba(39,174,96,0.15)'); g.addColorStop(1,'rgba(39,174,96,0.01)');
-    ctx.fillStyle=g; ctx.fill();
-  }
-
-  drawLine(pts.map(h=>({w:h.week,v:h.economy})),      '#27ae60', 2);
-  drawLine(pts.map(h=>({w:h.week,v:h.satisfaction})),  '#9b59b6', 2);
-
-  // Dots
-  pts.forEach(h=>{
-    [[h.economy,'#27ae60'],[h.satisfaction,'#9b59b6']].forEach(([v,c])=>{
-      const x=PAD.l+((h.week-0.5)/12)*PW, y=PAD.t+PH-(v/100)*PH;
-      ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2);
-      ctx.fillStyle=c; ctx.fill();
-      ctx.strokeStyle='#07101a'; ctx.lineWidth=0.8; ctx.stroke();
-    });
-  });
-
-  // Legend
-  ctx.setLineDash([]);
-  [['#27ae60','Economy'],['#9b59b6','Satisfaction']].forEach((l,i)=>{
-    const lx=PAD.l+4+i*80;
-    ctx.strokeStyle=l[0]; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+12,PAD.t+5); ctx.stroke();
-    ctx.fillStyle='#a8c8e0'; ctx.font='7px DM Mono'; ctx.textAlign='left';
-    ctx.fillText(l[1],lx+14,PAD.t+8);
-  });
+  for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='center'; ctx.fillText(w,PAD.l+((w-0.5)/WEEKS)*PW,H-2); }
+  function line(data,color,lw){ if(data.length<2)return; ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.lineJoin='round'; data.forEach((p,i)=>{const x=PAD.l+((p.w-0.5)/WEEKS)*PW,y=yv(p.v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke(); }
+  if(pts.length>=2){ ctx.beginPath(); pts.forEach((h,i)=>{const x=PAD.l+((h.week-0.5)/WEEKS)*PW,y=yv(h.economy); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.lineTo(PAD.l+((pts[pts.length-1].week-0.5)/WEEKS)*PW,PAD.t+PH); ctx.lineTo(PAD.l+((pts[0].week-0.5)/WEEKS)*PW,PAD.t+PH); ctx.closePath(); const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH); g.addColorStop(0,'rgba(39,174,96,0.15)'); g.addColorStop(1,'rgba(39,174,96,0.01)'); ctx.fillStyle=g; ctx.fill(); }
+  line(pts.map(h=>({w:h.week,v:h.economy})),'#27ae60',2);
+  line(pts.map(h=>({w:h.week,v:h.satisfaction})),'#9b59b6',2);
+  pts.forEach(h=>{ [[h.economy,'#27ae60'],[h.satisfaction,'#9b59b6']].forEach(([v,c])=>{ const x=PAD.l+((h.week-0.5)/WEEKS)*PW,y=yv(v); ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fillStyle=c; ctx.fill(); ctx.strokeStyle='#07101a'; ctx.lineWidth=0.8; ctx.stroke(); }); });
+  [['#27ae60','Economy'],['#9b59b6','Satisfaction']].forEach((l,i)=>{ const lx=PAD.l+4+i*80; ctx.strokeStyle=l[0]; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+12,PAD.t+5); ctx.stroke(); ctx.fillStyle='#a8c8e0'; ctx.font='7px DM Mono'; ctx.textAlign='left'; ctx.fillText(l[1],lx+14,PAD.t+8); });
 }
 
-// ── CHART 4: DECISION HEATMAP ─────────────────────────────
-function drawDecChart() {
-  const {ctx,W,H}=setupCanvas('dec-chart');
+// ══ CHART 4: SEIR STACKED COMPARTMENTS ═════════════════════
+function drawSeirChart(){
+  const {ctx,W,H}=setupCanvas('seir-chart');
+  const PAD={t:8,r:10,b:20,l:30};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
-
-  const decPts=G.history.filter(h=>h.week>0&&h.dec);
-
-  const LABEL_W=34;
-  const WEEK_LABEL_H=14;
-  const nRows=RES_LABELS.length;   // 5 resource rows
-  const LOCK_ROW_H=9;              // thin lock strip
-  const avail=H-WEEK_LABEL_H-LOCK_ROW_H-4;
-  const cellH=Math.max(avail/nRows, 8);
-  const cellW=(W-LABEL_W)/12;
-
-  // Week headers
-  ctx.fillStyle='#2e4d62'; ctx.font='8px DM Mono'; ctx.textAlign='center';
-  for(let w=1;w<=12;w++){
-    const cx=LABEL_W+(w-0.5)*cellW;
-    ctx.fillText(w,cx,WEEK_LABEL_H-2);
-  }
-
-  // Resource rows
-  RES_LABELS.forEach((label,ri)=>{
-    const y=WEEK_LABEL_H+ri*cellH;
-    ctx.fillStyle='#5a7d96'; ctx.font='9px DM Mono'; ctx.textAlign='right';
-    ctx.fillText(label,LABEL_W-3,y+cellH*0.65);
-
-    for(let w=1;w<=12;w++){
-      const cx=LABEL_W+(w-1)*cellW;
-      const h=decPts.find(h=>h.week===w);
-      if(!h){
-        // Future
-        ctx.fillStyle='#0a1620';
-        ctx.fillRect(cx+0.5,y+0.5,cellW-1,cellH-1);
-      } else {
-        const lv=h.dec[RES_KEYS[ri]];
-        const t=lv/5;
-        // amber gradient: dark 0 → full amber 5
-        const r=Math.round(7+t*(245-7));
-        const g2=Math.round(16+t*(160-16));
-        const b=Math.round(26+t*(0-26));
-        ctx.fillStyle=`rgb(${r},${g2},${b})`;
-        ctx.fillRect(cx+0.5,y+0.5,cellW-1,cellH-1);
-        // Level digit if cell wide enough
-        if(lv>0&&cellW>=14){
-          ctx.fillStyle=t>0.45?'rgba(0,0,0,0.8)':'rgba(90,125,150,0.9)';
-          ctx.font='7px DM Mono'; ctx.textAlign='center';
-          ctx.fillText(lv,cx+cellW/2,y+cellH*0.72);
-        }
-      }
-      ctx.strokeStyle='#07101a'; ctx.lineWidth=0.5;
-      ctx.strokeRect(cx+0.5,y+0.5,cellW-1,cellH-1);
-    }
+  const pts=G.history;
+  const xW=w=>PAD.l+(w/WEEKS)*PW;
+  const yv=frac=>PAD.t+PH-frac*PH;
+  // Y grid (% of population)
+  [0,0.25,0.5,0.75,1].forEach(f=>{ const y=yv(f); ctx.strokeStyle='#162535'; ctx.lineWidth=0.4; ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke(); ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='right'; ctx.fillText(Math.round(f*100)+'%',PAD.l-3,y+2.5); });
+  for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle='#5a7d96'; ctx.font='7px DM Mono'; ctx.textAlign='center'; ctx.fillText(w,xW(w),H-2); }
+  // Stacked bands: order bottom→top S, R, E, I, D
+  const bands=[ {k:'S',c:'rgba(52,152,219,0.55)'}, {k:'R',c:'rgba(39,174,96,0.55)'}, {k:'E',c:'rgba(245,160,0,0.6)'}, {k:'I',c:'rgba(231,76,60,0.7)'}, {k:'D',c:'rgba(143,166,179,0.8)'} ];
+  const cum=pts.map(()=>0);
+  bands.forEach(band=>{
+    ctx.beginPath();
+    pts.forEach((h,i)=>{ const base=cum[i], top=cum[i]+(h[band.k]/POP); const x=xW(h.week), y=yv(top); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    for(let i=pts.length-1;i>=0;i--){ const base=cum[i]; ctx.lineTo(xW(pts[i].week),yv(base)); }
+    ctx.closePath(); ctx.fillStyle=band.c; ctx.fill();
+    pts.forEach((h,i)=>{ cum[i]+=h[band.k]/POP; });
   });
-
-  // Lockdown strip
-  const ly=WEEK_LABEL_H+nRows*cellH+2;
-  ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='right';
-  ctx.fillText('Lock',LABEL_W-3,ly+LOCK_ROW_H*0.8);
-  const lockColors=['#0c1a28','#5c3200','#a05800','#f5a000'];
-  for(let w=1;w<=12;w++){
-    const h=decPts.find(h=>h.week===w);
-    const lv=h?h.dec.lock:-1;
-    const cx=LABEL_W+(w-1)*cellW;
-    ctx.fillStyle=lv>=0?lockColors[lv]:'#0a1620';
-    ctx.fillRect(cx+0.5,ly+0.5,cellW-1,LOCK_ROW_H-1);
-    ctx.strokeStyle='#07101a'; ctx.lineWidth=0.5;
-    ctx.strokeRect(cx+0.5,ly+0.5,cellW-1,LOCK_ROW_H-1);
-  }
-
-  // Legend row
-  ctx.fillStyle='#2e4d62'; ctx.font='7px DM Mono'; ctx.textAlign='left';
-  ctx.fillText('Dark=0  Bright amber=5  Lock strip below',LABEL_W,H);
+  // Cumulative deaths callout line (top of stack = deaths band top)
+  const lastD=totals(G.comp).D;
+  ctx.fillStyle='#c4d3dc'; ctx.font='7px DM Mono'; ctx.textAlign='left';
+  ctx.fillText('Deaths (cum): '+fmtN(lastD),PAD.l+2,PAD.t+8);
+  // mini legend
+  const leg=[['#3498db','S'],['#27ae60','R'],['#f5a000','E'],['#e74c3c','I'],['#8fa6b3','D']];
+  let lx=PAD.l+2; const ly=H-2;
+  leg.forEach(l=>{ ctx.fillStyle=l[0]; ctx.fillRect(lx,ly-6,6,6); ctx.fillStyle='#7a9ab8'; ctx.font='7px DM Mono'; ctx.textAlign='left'; ctx.fillText(l[1],lx+8,ly-1); lx+=18; });
 }
 
-// ── DEBRIEF ───────────────────────────────────────────────
-function buildDebrief() {
-  const peakI     = Math.max(...G.history.map(h=>h.I));
-  const overflows = G.history.filter(h=>h.hospLoad>(h.hospCap||CAP_BASE)).length;
-  const deadPct   = (G.D/POP*100).toFixed(3);
-  const finalEcon = G.economy;
-  const finalSat  = G.satisfaction;
+// ══ REFERENCE RUNS (for debrief comparison) ════════════════
+function runStrategy(stratFn){
+  const sc=scenarioParams();
+  let comp=freshComp(sc), econ=100, sat=100;
+  const out=[{week:0, I:totals(comp).I, D:0}];
+  for(let w=1;w<=WEEKS;w++){
+    const d=stratFn(w, comp, econ, sat, sc);
+    // fill defaults
+    const dd=Object.assign({perm:0,surge:0,staff:0,test:0,vax:0,epi:0,poe:0,comms:0,masks:false,schools:false,travel:false,lock:0,shield:0,finance:0,vaxPriority:'elderly'}, d);
+    const r=computeStep(comp,econ,sat,w,dd,sc,baseMods());
+    comp=r.comp; econ=r.economy; sat=r.satisfaction;
+    out.push({week:w, I:r.I, D:r.D});
+  }
+  return { curve:out, deaths:totals(comp).D, econ, sat };
+}
+const REF_STRATS = {
+  nothing: ()=>({}),
+  strict: ()=>({lock:3, comms:1}),
+  balanced: (w,comp,econ,sat,sc)=>{
+    const load = (comp.Ig*HOSP_G+comp.Iv*HOSP_V);
+    return { lock: w<7?2:1, staff:2, test:2, comms:3, shield:1, poe: w<=3?2:1,
+             perm: w<=3?1:0, surge: load>1200?2:0, epi:1,
+             vax: w>=sc.vaxWeek?3:0, masks:true, finance: w<7?1:0 };
+  },
+};
 
-  // Composite score: 40% deaths, 30% economy, 30% satisfaction
-  const deathScore = Math.max(0, 100 - G.D/100);
-  const composite  = Math.round(deathScore*0.40 + finalEcon*0.30 + finalSat*0.30);
+// ══ DEBRIEF ════════════════════════════════════════════════
+function buildDebrief(){
+  const t=totals(G.comp);
+  const peakI=Math.max(...G.history.map(h=>h.I));
+  const overflows=G.history.filter(h=>h.hospLoad>(h.hospCap||CAP_BASE)).length;
+  const deadPct=(t.D/POP*100).toFixed(3);
+  const finalEcon=G.economy, finalSat=G.satisfaction;
+  const deathScore=Math.max(0,100-t.D/100);
+  const composite=Math.round(deathScore*0.40+finalEcon*0.30+finalSat*0.30);
+  const econCollapsed=G.history.some(h=>h.economy===0);
+  const tier=econCollapsed?{g:'F',lbl:'ECONOMIC COLLAPSE',c:'#e74c3c'}:(GRADE_THRESHOLDS.find(t=>composite>=t.min)||GRADE_THRESHOLDS[GRADE_THRESHOLDS.length-1]);
 
-  // Economy collapse override: if economy hit 0 at any point, response is automatically F
-  const econCollapsed = G.history.some(h => h.economy !== undefined && h.economy === 0);
-  const tier = econCollapsed
-    ? { g:'F', lbl:'ECONOMIC COLLAPSE', c:'#e74c3c' }
-    : (GRADE_THRESHOLDS.find(t=>composite>=t.min) || GRADE_THRESHOLDS[GRADE_THRESHOLDS.length-1]);
-  const badge=document.getElementById('db-badge');
-  badge.textContent=tier.g; badge.style.color=badge.style.borderColor=tier.c;
+  const badge=document.getElementById('db-badge'); badge.textContent=tier.g; badge.style.color=badge.style.borderColor=tier.c;
   document.getElementById('db-badge-lbl').textContent=tier.lbl+' RESPONSE';
-
-  // Composite score label
-  const compLabel = composite>=87?'Near-optimal balance of all three outcomes'
-    : composite>=72?'Good balance — room for improvement on one or more dimensions'
-    : composite>=55?'Competent but significant costs incurred on at least one dimension'
-    : composite>=36?'Serious failures in at least one dimension dragged overall performance'
-    : 'Multiple dimensions failed — review your strategy across all three outcomes';
+  document.getElementById('db-sub').innerHTML=`${G.sc.name} · ${G.df.name} · 12-Week Summary — Meridian City, Pop. 500,000`;
 
   document.getElementById('db-stats').innerHTML=[
-    {v:fmtN(G.D),       l:'Total Deaths',    c:'var(--text)'},
-    {v:finalEcon,        l:'Economy Index',   c:finalEcon>=70?'#27ae60':finalEcon>=40?'var(--amber)':'var(--red)'},
-    {v:finalSat,         l:'Satisfaction',    c:finalSat>=70?'#9b59b6':finalSat>=40?'var(--amber)':'var(--red)'},
-    {v:composite+'/100', l:'Composite Score', c:tier.c},
+    {v:fmtN(t.D),l:'Total Deaths',c:'var(--text)'},
+    {v:finalEcon,l:'Economy Index',c:finalEcon>=70?'#27ae60':finalEcon>=40?'var(--amber)':'var(--red)'},
+    {v:finalSat,l:'Satisfaction',c:finalSat>=70?'#9b59b6':finalSat>=40?'var(--amber)':'var(--red)'},
+    {v:composite+'/100',l:'Composite Score',c:tier.c},
   ].map(s=>`<div class="bstat"><div class="bstat-val" style="color:${s.c}">${s.v}</div><div class="bstat-label">${s.l}</div></div>`).join('');
 
   const peakWk=G.history.findIndex(h=>h.I===peakI);
-
-  // Determine what held each student back
-  const weakDim = deathScore<40?'health outcomes':finalEcon<40?'economic impact':finalSat<40?'public satisfaction':'no single clear weakness';
+  const vDead=Math.round(G.comp.Dv), gDead=Math.round(G.comp.Dg);
+  const weakDim=deathScore<40?'health outcomes':finalEcon<40?'economic impact':finalSat<40?'public satisfaction':'no single clear weakness';
 
   document.getElementById('db-outcomes').innerHTML=
-    `${econCollapsed ? '<strong style="color:#e74c3c">⚠ ECONOMIC COLLAPSE: The Economy Index reached zero during the simulation. Regardless of health outcomes, this constitutes a failed response — a city cannot sustain a public health system without a functioning economy.</strong><br><br>' : ''}
-    The 12-week response recorded <strong>${fmtN(G.D)} deaths</strong> (${deadPct}% of population),
-    a final <strong>Economy Index of ${finalEcon}/100</strong>, and a final
-    <strong>Satisfaction Index of ${finalSat}/100</strong>.
-    The epidemic peaked at <strong>${fmtN(peakI)} simultaneous active cases</strong> around week ${peakWk},
-    with hospital capacity exceeded in <strong>${overflows} of 12 weeks</strong>.
-    The composite response score of <strong>${composite}/100</strong> reflects all three dimensions —
-    ${compLabel}.
-    ${weakDim!=='no single clear weakness'?`The principal drag on the composite score was <strong>${weakDim}</strong>.`:''}
-    Total expenditure: <strong>${fmt(G.totalSpent)}</strong> of a possible $120M.`;
+    `${econCollapsed?'<strong style="color:#e74c3c">⚠ ECONOMIC COLLAPSE: the Economy Index reached zero during the run — an automatic failure regardless of health outcomes.</strong><br><br>':''}
+    The 12-week response recorded <strong>${fmtN(t.D)} deaths</strong> (${deadPct}% of population) — <strong>${fmtN(vDead)}</strong> in the clinically vulnerable group and <strong>${fmtN(gDead)}</strong> in the general population.
+    Final Economy Index <strong>${finalEcon}/100</strong>, final Satisfaction <strong>${finalSat}/100</strong>.
+    The epidemic peaked at <strong>${fmtN(peakI)} simultaneous infections</strong> around week ${peakWk}, with hospitals overwhelmed in <strong>${overflows} of 12 weeks</strong>.
+    Composite score <strong>${composite}/100</strong>. ${weakDim!=='no single clear weakness'?`The principal drag was <strong>${weakDim}</strong>.`:''}
+    Total expenditure: <strong>${fmt(G.totalSpent)}</strong>.`;
+
+  // Comparison chart
+  drawCompareChart();
 
   document.getElementById('db-reflect').innerHTML=[
-    {
-      q:'Your composite score weighs deaths, economy, and public satisfaction equally at their respective shares. Do you think that weighting is correct? Who in society benefits from a higher weight on economic outcomes, and who benefits from a higher weight on health outcomes?',
-      ctx:'This is a values question disguised as a technical one. Any weighting embeds a political choice about whose interests count more — a question that was intensely contested during real pandemic responses.'
-    },
-    {
-      q:'Strict lockdown saves lives but destroys economic output and satisfaction. Do nothing preserves the economy short-term but collapses both through deaths. Where in that space did your strategy sit, and was it where you intended to be?',
-      ctx:`Your decision heatmap shows your lockdown choices week by week. Your final economy was ${finalEcon}/100 and satisfaction was ${finalSat}/100. A student who went strict-only from week 1 typically ends with economy ~0–5 and satisfaction ~5–20 despite low deaths.`
-    },
-    {
-      q:'At what point in the simulation did your decisions have the greatest marginal impact on outcomes? Was that also the point of greatest investment?',
-      ctx:`Your active case peak occurred around week ${peakWk}. Interventions before the exponential inflection have multiplicatively larger effects. The same is true for economic damage — lockdown costs compound just as transmission does.`
-    },
-    {
-      q:'The satisfaction index declines under both restrictions and uncontrolled deaths. What real-world institutional mechanisms allow governments to sustain high satisfaction during a health crisis?',
-      ctx:'Comms investment in the model proxies for public trust, transparent communication, and perceived legitimacy of decisions. In reality, this also includes financial support for affected workers, co-produced policy design, and consistent messaging from scientific advisors.'
-    },
-    {
-      q:'This model omits distributional effects entirely. Which groups in a real city would bear the largest economic costs from strict lockdown, and which would bear the largest health costs from no lockdown? Does that asymmetry change your preferred strategy?',
-      ctx:'Low-income workers, the self-employed, and renters bear disproportionate economic costs of lockdown. Elderly people, the immunocompromised, and those in crowded housing bear disproportionate health costs of uncontrolled spread. Optimal aggregate outcomes may be deeply inequitable.'
-    },
+    { q:'Your composite score weights deaths, economy, and satisfaction 40/30/30. Who in society benefits from a higher weight on economic outcomes, and who from a higher weight on health outcomes?',
+      ctx:'Any weighting embeds a political choice about whose interests count — intensely contested in real pandemic responses.' },
+    { q:'This model splits the population into a general and a clinically vulnerable group. Did you protect the vulnerable through targeted shielding, or through suppressing spread for everyone? What are the ethical trade-offs of each?',
+      ctx:`Your run: ${fmtN(vDead)} vulnerable deaths vs ${fmtN(gDead)} general. Shielding concentrates the burden of isolation on one group; blanket suppression spreads economic cost across everyone.` },
+    { q:'Vaccine prioritisation was a live choice: elderly-first minimises deaths, workers-first slows transmission and protects the economy. Which did you pick, and did the outcome match your expectation?',
+      ctx:`You used "${G.vaxPriority}" prioritisation. There is rarely a strategy that is simultaneously best for deaths, economy, and satisfaction.` },
+    { q:'Several shocks could be blunted by investment made BEFORE they hit — port-of-entry screening against variants, staffing against burnout, modelling for early warning. Did you invest pre-emptively or react?',
+      ctx:'Pre-positioning is politically hard: it spends money on a threat that has not yet materialised. Yet the marginal value of early action compounds, just like transmission.' },
+    { q:'This model omits distributional effects within groups. Which people in a real city bear the largest economic costs of lockdown, and which bear the largest health costs of no lockdown?',
+      ctx:'Low-income and self-employed workers bear disproportionate economic costs; the elderly, immunocompromised, and those in crowded housing bear disproportionate health costs. Optimal aggregate outcomes can be deeply inequitable.' },
   ].map((q,i)=>`<div class="rq"><p><strong>${i+1}.</strong> ${q.q}</p><div class="rq-ctx">Context: ${q.ctx}</div></div>`).join('');
 
   showScreen('screen-debrief');
+  requestAnimationFrame(()=>requestAnimationFrame(drawCompareChart));
 }
 
-// ── SCREEN MANAGEMENT ─────────────────────────────────────
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function drawCompareChart(){
+  const canvas=document.getElementById('cmp-chart');
+  const parent=canvas.parentElement;
+  const rect=parent.getBoundingClientRect();
+  if(rect.width<10) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=Math.floor(rect.width), H=Math.floor(rect.height);
+  canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const PAD={t:14,r:14,b:24,l:52};
+  const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+
+  const player=G.history.map(h=>({week:h.week,I:h.I}));
+  const refs={ nothing:runStrategy(REF_STRATS.nothing), strict:runStrategy(REF_STRATS.strict), balanced:runStrategy(REF_STRATS.balanced) };
+  const series=[
+    {name:'Do nothing', c:'#e74c3c', data:refs.nothing.curve, dash:[4,3]},
+    {name:'Strict-only', c:'#3498db', data:refs.strict.curve, dash:[4,3]},
+    {name:'Balanced ref', c:'#f5a000', data:refs.balanced.curve, dash:[4,3]},
+    {name:'Your run', c:'#27ae60', data:player, dash:[]},
+  ];
+  const allI=series.flatMap(s=>s.data.map(p=>p.I));
+  const yMax=Math.max(...allI,500)*1.1;
+  const xW=w=>PAD.l+(w/WEEKS)*PW;
+  const yv=v=>PAD.t+PH-(v/yMax)*PH;
+  for(let i=0;i<=4;i++){ const y=PAD.t+PH-(i/4)*PH; ctx.strokeStyle='#162535'; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke(); ctx.fillStyle='#3a5f78'; ctx.font='9px DM Mono'; ctx.textAlign='right'; ctx.fillText(fmtN(Math.round((i/4)*yMax)),PAD.l-4,y+3); }
+  for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle='#3a5f78'; ctx.font='9px DM Mono'; ctx.textAlign='center'; ctx.fillText(w,xW(w),H-4); }
+  ctx.fillStyle='#5a7d96'; ctx.font='8px DM Mono'; ctx.textAlign='left'; ctx.fillText('Simultaneous infections — reference strategies exclude external shocks',PAD.l,PAD.t-4);
+  series.forEach(s=>{ if(s.data.length<2)return; ctx.setLineDash(s.dash); ctx.beginPath(); ctx.strokeStyle=s.c; ctx.lineWidth=s.name==='Your run'?2.8:1.5; ctx.lineJoin='round'; s.data.forEach((p,i)=>{const x=xW(p.week),y=yv(p.I); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke(); ctx.setLineDash([]); });
+
+  document.getElementById('cmp-legend').innerHTML=series.map(s=>`<span class="cl"><span class="cl-swatch" style="background:${s.c}"></span>${s.name}${s.name!=='Your run'?' — '+fmtN((s===series[0]?refs.nothing:s===series[1]?refs.strict:refs.balanced).deaths)+' deaths':' — '+fmtN(totals(G.comp).D)+' deaths'}</span>`).join('');
+}
+
+// ══ SCREEN MANAGEMENT + SETUP ══════════════════════════════
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+function renderSetup(){
+  const so=document.getElementById('scenario-opts'); so.innerHTML='';
+  Object.entries(SCENARIOS).forEach(([k,v])=>{ const b=document.createElement('div'); b.className='opt-btn'+(SETUP.scenario===k?' on':''); b.innerHTML=`<div class="ob-name">${v.name}</div><div class="ob-desc">${v.desc}</div>`; b.onclick=()=>{SETUP.scenario=k; renderSetup(); updateBriefStats();}; so.appendChild(b); });
+  const df=document.getElementById('difficulty-opts'); df.innerHTML='';
+  Object.entries(DIFFICULTIES).forEach(([k,v])=>{ const b=document.createElement('div'); b.className='opt-btn'+(SETUP.difficulty===k?' on':''); b.innerHTML=`<div class="ob-name">${v.name}</div><div class="ob-desc">${v.desc}</div>`; b.onclick=()=>{SETUP.difficulty=k; renderSetup(); updateBriefStats();}; df.appendChild(b); });
+}
+function updateBriefStats(){
+  const sc=SCENARIOS[SETUP.scenario], df=DIFFICULTIES[SETUP.difficulty];
+  const r0=(sc.R0*df.r0Mult).toFixed(1);
+  document.getElementById('brief-stats').innerHTML=[
+    {v:'500K',l:'Population'},{v:r0,l:'Effective R₀'},
+    {v:(sc.ifrV*100).toFixed(0)+'%',l:'Vulnerable IFR'},{v:fmt(BASE_BUDGET*df.budgetMult),l:'Weekly Budget'},
+  ].map(s=>`<div class="bstat"><div class="bstat-val">${s.v}</div><div class="bstat-label">${s.l}</div></div>`).join('');
 }
 
 function startGame(){
   init();
-  ['r-beds','r-staff','r-test','r-vax','r-comms'].forEach(id=>{ document.getElementById(id).value=0; });
-  ['p-masks','p-schools','p-travel'].forEach(id=>{ document.getElementById(id).checked=false; });
-  document.getElementById('r-vax').disabled=true;
-  document.getElementById('vax-fx').textContent='Unlocks Week 4 — immunises 10,000 people/level/week';
-  document.getElementById('ev-panel').style.display='none';
-  setLock(0);
-  document.getElementById('hdr-wk').textContent='1';
-  updateStatsPanel();
-  onSlide();
-  showScreen('screen-command');
-  requestAnimationFrame(()=>requestAnimationFrame(drawAllCharts));
+  ['r-perm','r-surge','r-staff','r-test','r-vax','r-epi','r-poe','r-comms'].forEach(id=>document.getElementById(id).value=0);
+  ['p-masks','p-schools','p-travel'].forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('r-vax').disabled=true; document.getElementById('ri-vax').classList.add('locked');
+  document.getElementById('vax-fx').textContent='Unlocks Week '+G.sc.vaxWeek+' — immunises ~10,000 people/level/week.';
+  setLock(0); setShield(0); setFinance(0); setVaxPriority('elderly');
+  renderAdvisorShell();
+  enterWeek();
 }
 
-window.addEventListener('resize',()=>{
-  if(document.getElementById('screen-command').classList.contains('active'))
-    requestAnimationFrame(drawAllCharts);
-});
+window.addEventListener('resize',()=>{ if(document.getElementById('screen-command').classList.contains('active')) requestAnimationFrame(drawAllCharts); if(document.getElementById('screen-debrief').classList.contains('active')) requestAnimationFrame(drawCompareChart); });
+
+renderSetup();
+updateBriefStats();
 </script>
 </body>
 </html>
