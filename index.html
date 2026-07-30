@@ -396,7 +396,10 @@ canvas { display:block; }
 [data-mode="class"] .fc-tag { font-size:14px; }
 [data-mode="class"] .fc-metric b { font-size:20px; }
 [data-mode="class"] .chart-title { font-size:13px; }
-[data-mode="class"] .epi-wrap { height:290px; }
+/* The epidemic curve is the artefact the room argues over — it takes the slack,
+   not the three secondary charts. */
+[data-mode="class"] .epi-wrap { height:auto; flex:1 1 auto; min-height:300px; }
+[data-mode="class"] .charts-bottom { flex:0 0 250px; }
 [data-mode="class"] .ftr-info { font-size:17px; }
 [data-mode="class"] .btn-advance { font-size:28px; padding:12px 46px; }
 
@@ -404,6 +407,89 @@ canvas { display:block; }
 [data-mode="class"] .lb-val { font-size:46px; }
 [data-mode="class"] .lb-sub { font-size:12px; }
 [data-mode="class"] .lb-track { height:6px; }
+
+/* ── Fit every control on screen: no scrolling to reach a lever mid-lesson.
+   The static lever descriptions, advisor panel and model notes are the three
+   things a projected room does not need re-reading every week, so they go. ── */
+[data-mode="class"] .res-fx { display:none; }
+[data-mode="class"] .res-item { margin-bottom:9px; }
+[data-mode="class"] .psec { padding:10px 15px; }
+[data-mode="class"] .psec-title { margin-bottom:8px; }
+[data-mode="class"] .pol-item { margin-bottom:9px; }
+[data-mode="class"] .pol-title { margin-bottom:6px; }
+[data-mode="class"] .tog-row { margin-bottom:6px; }
+[data-mode="class"] #advisors-sec, [data-mode="class"] #model-notes { display:none; }
+[data-mode="class"] .bd-box { padding:9px 15px; }
+[data-mode="class"] .bd-row { margin-bottom:3px; }
+
+/* ── Current proposal: the read-only mirror of the controls, so the room can
+   still see what is on the table when the panels are hidden for debate. ── */
+.proposal-bar { display:none; background:#050d16; border-bottom:1px solid var(--bord); flex-shrink:0; padding:9px 16px; }
+.proposal-bar.on { display:block; }
+.pb-row { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:baseline; }
+.pb-item { display:flex; align-items:baseline; gap:7px; }
+.pb-k { font-family:'DM Mono', ui-monospace, monospace; font-size:12px; letter-spacing:1.2px;
+        text-transform:uppercase; color:var(--text3); }
+.pb-v { font-family:'Bebas Neue', 'Arial Narrow', Impact, sans-serif; font-size:26px; line-height:1; color:var(--text); }
+.pb-v.off { color:var(--text3); }
+.pb-v.hot { color:var(--amber); }
+.pb-cost { margin-left:auto; font-family:'Bebas Neue', 'Arial Narrow', Impact, sans-serif; font-size:30px; color:var(--green); }
+.pb-cost.over { color:var(--red); }
+[data-mode="class"] .pb-k { font-size:14px; }
+[data-mode="class"] .pb-v { font-size:34px; }
+[data-mode="class"] .pb-cost { font-size:40px; }
+
+/* Narrower projectors: give the centre back some width by trimming the panels. */
+@media (max-width: 1500px) { [data-mode="class"] .cmd-body { grid-template-columns:300px 1fr 300px; } }
+@media (max-width: 1150px) { [data-mode="class"] .cmd-body { grid-template-columns:262px 1fr 262px; } }
+
+/* ── Shorter projectors (1280x800, 1024x768): compress further rather than
+   clip. Panels keep overflow-y:auto as a safety valve so a control can never
+   become unreachable, but at these heights nothing should need scrolling. ── */
+@media (max-height: 950px) {
+  [data-mode="class"] body { font-size:17px; }
+  [data-mode="class"] .cmd-hdr { height:60px; }
+  [data-mode="class"] .cmd-title { font-size:25px; }
+  [data-mode="class"] .ticker { height:34px; }
+  [data-mode="class"] .ticker-text { font-size:18px; line-height:34px; }
+  [data-mode="class"] .psec { padding:8px 13px; }
+  [data-mode="class"] .psec-title { font-size:12px; margin-bottom:6px; }
+  [data-mode="class"] .res-item { margin-bottom:5px; }
+  [data-mode="class"] .res-name { font-size:16px; }
+  [data-mode="class"] .res-cost { font-size:15px; }
+  [data-mode="class"] input[type=range] { height:5px; }
+  [data-mode="class"] input[type=range]::-webkit-slider-thumb { width:18px; height:18px; }
+  [data-mode="class"] .pol-note { display:none; }
+  [data-mode="class"] .pol-item { margin-bottom:7px; }
+  [data-mode="class"] .pol-title { font-size:16px; }
+  [data-mode="class"] .tk-btn { font-size:14px; padding:7px 2px; }
+  [data-mode="class"] .vp-btn { font-size:12px; padding:6px 2px; }
+  [data-mode="class"] .tog-info .tog-name { font-size:16px; }
+  [data-mode="class"] .tog-info .tog-detail { font-size:11px; }
+  [data-mode="class"] .bd-box { font-size:14px; padding:7px 13px; }
+  [data-mode="class"] .stat-val { font-size:32px; }
+  [data-mode="class"] .econ-val { font-size:22px; }
+  [data-mode="class"] .charts-bottom { flex:0 0 190px; }
+  [data-mode="class"] .btn-advance { font-size:23px; padding:9px 34px; }
+  [data-mode="class"] .cmd-ftr { padding:6px 20px; }
+}
+
+/* ── Debate view: controls out, shared evidence full width. ── */
+[data-view="debate"] .p-left, [data-view="debate"] .p-right { display:none; }
+[data-view="debate"] .cmd-body { grid-template-columns:1fr; }
+[data-view="debate"] .epi-wrap { height:auto; flex:1 1 auto; min-height:320px; }
+[data-view="debate"] .charts-bottom { flex:0 0 180px; }
+@media (max-height: 950px) { [data-view="debate"] .charts-bottom { flex:0 0 150px; } }
+
+/* Header view controls (classroom only) */
+.view-ctl { display:none; gap:6px; align-items:center; margin-left:14px; }
+[data-mode="class"] .view-ctl { display:flex; }
+.vc-btn { background:var(--surf2); border:1px solid var(--bord2); color:var(--text2);
+  font-family:'DM Mono', ui-monospace, monospace; font-size:13px; letter-spacing:1px;
+  padding:6px 12px; cursor:pointer; transition:all .12s; }
+.vc-btn:hover { border-color:var(--amber); color:var(--text); }
+.vc-btn.on { background:rgba(245,160,0,.12); border-color:var(--amber); color:var(--amber); }
+.vc-key { opacity:.55; font-size:11px; }
 
 [data-mode="class"] .evt-title { font-size:42px; }
 [data-mode="class"] .evt-kicker { font-size:15px; }
@@ -508,6 +594,10 @@ canvas { display:block; }
   <div class="cmd-hdr">
     <div class="cmd-title">OUTBREAK</div>
     <div class="cmd-scn" id="hdr-scn">—</div>
+    <div class="view-ctl">
+      <button class="vc-btn" id="vc-debate" onclick="toggleDebate()">DEBATE <span class="vc-key">D</span></button>
+      <button class="vc-btn" id="vc-scores" onclick="toggleScores()">SCORES <span class="vc-key">S</span></button>
+    </div>
     <div class="cmd-wk">WEEK <span id="hdr-wk">1</span>&nbsp;/&nbsp;12</div>
     <div class="cmd-budget">
       <span>BUDGET REMAINING</span>
@@ -521,7 +611,10 @@ canvas { display:block; }
     <div class="ticker-mask"><div class="ticker-text" id="ticker-text"></div></div>
   </div>
 
-  <!-- Live lobby scoreboard (classroom mode) -->
+  <!-- Current proposal — read-only mirror of the controls, for debate view -->
+  <div class="proposal-bar" id="proposal-bar"></div>
+
+  <!-- Live lobby scoreboard — off by default, toggled with S -->
   <div class="lobby-bar" id="lobby-bar"></div>
 
   <div class="cmd-body">
@@ -699,7 +792,7 @@ canvas { display:block; }
         </div>
       </div>
 
-      <div class="psec">
+      <div class="psec" id="advisors-sec">
         <div class="psec-title">Consult Advisors</div>
         <div id="advisors"></div>
       </div>
@@ -709,7 +802,7 @@ canvas { display:block; }
         <div class="event-panel-body" id="ev-body"></div>
       </div>
 
-      <div class="psec" style="font-size:11px;color:var(--text2);line-height:1.6">
+      <div class="psec" id="model-notes" style="font-size:11px;color:var(--text2);line-height:1.6">
         <div class="psec-title">Model Notes</div>
         <p>Two-group SEIR with waning immunity. Vulnerable group has far higher fatality. Overflow sharply raises mortality.</p>
         <br>
@@ -1317,7 +1410,11 @@ function fmtN(n){ return Math.round(n).toLocaleString(); }
 function onSlide(){
   const d = getDecisions();
   ['perm','surge','staff','test','vax','epi','poe','comms'].forEach(k=>{
-    document.getElementById('c-'+k).textContent = fmt(parseInt(document.getElementById('r-'+k).value)*RES_COST[k]);
+    const lv = parseInt(document.getElementById('r-'+k).value);
+    // Class mode hides the lever descriptions to fit every control on screen, so
+    // the level has to be legible from the cost readout instead of the thumb.
+    document.getElementById('c-'+k).textContent =
+      (CLASSMODE && lv ? 'L'+lv+' · ' : '') + fmt(lv*RES_COST[k]);
   });
   const budget = G.budget + (G.eventMods.bonusBudget||0);
   const rem = budget - d.total;
@@ -1341,6 +1438,7 @@ function onSlide(){
   }
   updateForecast(d);
   updateAdvisors();
+  updateProposalBar();
 }
 
 // Forecasting capability is bought a week in advance: what you see now was paid
@@ -1547,7 +1645,7 @@ function showCommand(){
   document.getElementById('hdr-scn').innerHTML = `<b>${G.sc.name}</b> · ${G.df.name}`;
   updateStatsPanel();
   updateTicker();
-  updateLobbyBar();
+  applyViewState();
   onSlide();
   showScreen('screen-command');
   requestAnimationFrame(()=>requestAnimationFrame(drawAllCharts));
@@ -2162,25 +2260,71 @@ function fallbackCopy(text, done){
 
 // ══ DISPLAY MODE (solo / classroom) ════════════════════════
 let CLASSMODE = false;
+let DEBATEVIEW = false;   // controls hidden, shared evidence full width
+let SHOWSCORES = false;   // live lobby scoreboard — opt-in, not permanent chrome
 function setMode(m){
   CLASSMODE = (m === 'class');
   document.documentElement.dataset.mode = m;
   try { localStorage.setItem('outbreak-mode', m); } catch(e){}
   document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('on', b.dataset.m===m));
-  document.getElementById('lobby-bar').classList.toggle('on', CLASSMODE);
-  if (G) updateLobbyBar();
+  if (!CLASSMODE) setDebate(false);   // debate view is a classroom-only layout
+  applyViewState();
   if (document.getElementById('screen-command').classList.contains('active')) requestAnimationFrame(drawAllCharts);
   if (document.getElementById('screen-debrief').classList.contains('active')) requestAnimationFrame(drawCompareChart);
+}
+function setDebate(on){
+  DEBATEVIEW = !!on && CLASSMODE;
+  if (DEBATEVIEW) document.documentElement.dataset.view = 'debate';
+  else delete document.documentElement.dataset.view;
+  applyViewState();
+  if (document.getElementById('screen-command').classList.contains('active')) requestAnimationFrame(drawAllCharts);
+}
+function toggleDebate(){ setDebate(!DEBATEVIEW); }
+function toggleScores(){ SHOWSCORES = !SHOWSCORES; applyViewState(); }
+function applyViewState(){
+  const db = document.getElementById('vc-debate'), sc = document.getElementById('vc-scores');
+  if (db) db.classList.toggle('on', DEBATEVIEW);
+  if (sc) sc.classList.toggle('on', SHOWSCORES);
+  // The proposal mirror only earns its space when the controls are hidden.
+  document.getElementById('proposal-bar').classList.toggle('on', DEBATEVIEW && !!G);
+  updateLobbyBar();
+  updateProposalBar();
+}
+
+// Read-only mirror of the current plan, so a room that cannot see the sliders
+// still knows exactly what is on the table.
+function updateProposalBar(){
+  const bar = document.getElementById('proposal-bar');
+  if (!DEBATEVIEW || !G){ bar.classList.remove('on'); return; }
+  const d = getDecisions();
+  const budget = G.budget + (G.eventMods.bonusBudget||0);
+  const rem = budget - d.total;
+  const cell = (k,v,cls)=>`<div class="pb-item"><span class="pb-k">${k}</span><span class="pb-v ${cls||''}">${v}</span></div>`;
+  const onoff = (b,label)=>cell(label, b?'ON':'off', b?'hot':'off');
+  let html = '<div class="pb-row">';
+  html += cell('Lockdown', ['None','Mild','Moderate','Strict'][d.lock], d.lock?'hot':'off');
+  html += cell('Shield',   ['None','Voluntary','Mandatory'][d.shield],  d.shield?'hot':'off');
+  html += cell('Support',  ['None','Partial','Full'][d.finance],        d.finance?'hot':'off');
+  html += onoff(d.masks,'Masks') + onoff(d.schools,'Schools shut') + onoff(d.travel,'Travel');
+  html += '</div><div class="pb-row" style="margin-top:7px">';
+  [['Test',d.test],['Comms',d.comms],['Staff',d.staff],['Beds',d.perm+d.surge],
+   ['Model',d.epi],['Border',d.poe]].forEach(([k,v])=>{ html += cell(k, 'L'+v, v?'':'off'); });
+  if (G.week >= G.sc.vaxWeek) html += cell('Vaccine', 'L'+d.vax+' · '+G.vaxPriority, d.vax?'hot':'off');
+  html += `<span class="pb-cost ${rem<0?'over':''}">${rem<0?'OVER '+fmt(-rem):fmt(d.total)+' committed'}</span>`;
+  html += '</div>';
+  bar.innerHTML = html;
+  bar.classList.add('on');
 }
 function setLobbyCount(n){
   SETUP.lobbies = n;
   document.querySelectorAll('.lob-btn').forEach(b=>b.classList.toggle('on', +b.dataset.l===n));
   if (G) updateLobbyBar();
 }
-// Live scoreboard so every lobby can see its stake move on each decision.
+// Live scoreboard, shown on request rather than permanently: the underlying
+// metrics are already on screen, so this is for checkpoint moments only.
 function updateLobbyBar(){
   const bar = document.getElementById('lobby-bar');
-  if (!CLASSMODE || !G){ bar.classList.remove('on'); return; }
+  if (!CLASSMODE || !SHOWSCORES || !G){ bar.classList.remove('on'); return; }
   bar.classList.add('on');
   const s = computeLobbyScores(), act = activeLobbies();
   bar.style.gridTemplateColumns = `repeat(${act.length+1},1fr)`;
@@ -2231,12 +2375,20 @@ function startGame(){
 
 window.addEventListener('resize',()=>{ if(document.getElementById('screen-command').classList.contains('active')) requestAnimationFrame(drawAllCharts); if(document.getElementById('screen-debrief').classList.contains('active')) requestAnimationFrame(drawCompareChart); });
 
-// Ctrl/Cmd + Alt + C toggles the projection view mid-lesson.
+// Ctrl/Cmd+Alt+C toggles projection mode anywhere. D and S are bare keys so a
+// presenter remote or a single tap works mid-lesson; they are ignored while a
+// text field has focus and only act on the command screen.
 window.addEventListener('keydown', e=>{
   if ((e.ctrlKey||e.metaKey) && e.altKey && (e.key==='c'||e.key==='C')){
-    e.preventDefault();
-    setMode(CLASSMODE ? 'solo' : 'class');
+    e.preventDefault(); setMode(CLASSMODE ? 'solo' : 'class'); return;
   }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target, tag = t && t.tagName;
+  if (tag==='INPUT' && t.type!=='range' && t.type!=='checkbox') return;
+  if (tag==='TEXTAREA' || (t && t.isContentEditable)) return;
+  if (!CLASSMODE || !document.getElementById('screen-command').classList.contains('active')) return;
+  if (e.key==='d'||e.key==='D'){ e.preventDefault(); toggleDebate(); }
+  else if (e.key==='s'||e.key==='S'){ e.preventDefault(); toggleScores(); }
 });
 
 renderSetup();
