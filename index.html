@@ -183,7 +183,9 @@ input[type=range]:disabled { opacity:.25; cursor:not-allowed; }
 .econ-fill { height:100%; transition:width .4s,background .4s; }
 
 /* Forecast preview strip */
-.fc-strip { display:flex; align-items:center; gap:14px; padding:6px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; background:rgba(52,152,219,.04); font-family:'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace; font-size:10px; }
+.fc-strip { display:flex; align-items:center; flex-wrap:wrap; gap:4px 14px; padding:6px 16px; border-bottom:1px solid var(--bord); flex-shrink:0; background:rgba(52,152,219,.04); font-family:'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace; font-size:10px; }
+.fc-horizon { display:block; width:100%; color:var(--text3); margin-top:3px; }
+.fc-horizon b { color:var(--text2); }
 .fc-tag { color:var(--blue); letter-spacing:1.5px; text-transform:uppercase; font-size:9px; }
 .fc-tag.locked { color:var(--text3); }
 .fc-metric { color:var(--text2); }
@@ -1437,6 +1439,8 @@ function onSlide(){
     document.getElementById('ftr-info').textContent='Set resources and policies, then run the week.';
   }
   updateForecast(d);
+  // After the forecast so the hospital bar can show next week's projected load.
+  updateStatsPanel();
   updateAdvisors();
   updateProposalBar();
 }
@@ -1468,21 +1472,51 @@ function updateForecast(d){
   const horizon = Math.min(6, 2+funded);
   const unc = 0.30/funded;
   let comp = Object.assign({}, G.comp), econ=G.economy, sat=G.satisfaction;
-  const pts=[{ week:G.week-1, I: totals(G.comp).I, lo: totals(G.comp).I, hi: totals(G.comp).I }];
+  const last = G.history[G.history.length-1];
+  const nowD = totals(G.comp).D;
+  const nowCap = last.hospCap || CAP_BASE;
+  // Anchor point: today, with zero uncertainty.
+  const pts=[{ week:G.week-1, I: totals(G.comp).I, lo: totals(G.comp).I, hi: totals(G.comp).I,
+               economy:G.economy, econLo:G.economy, econHi:G.economy,
+               satisfaction:G.satisfaction, satLo:G.satisfaction, satHi:G.satisfaction,
+               cumD:nowD, newDeaths:last.newDeaths||0, hospPct:(last.hospLoad||0)/nowCap*100 }];
   let firstNext=null;
+  // Index bands widen with the size of the projected move plus a small floor,
+  // so a flat forecast is not shown as though it were certain.
+  const idxBand = (proj, base, k) =>
+    Math.min(35, Math.abs(proj-base)*unc*k + unc*k*4);
   for (let k=1;k<=horizon;k++){
     const wk = G.week-1+k;
     const r = computeStep(comp, econ, sat, wk, d, G.sc, baseMods());
     comp=r.comp; econ=r.economy; sat=r.satisfaction;
     const band = r.I * unc * k;
-    pts.push({ week:wk, I:r.I, lo:Math.max(0,r.I-band), hi:r.I+band });
+    const eB = idxBand(r.economy, G.economy, k), sB = idxBand(r.satisfaction, G.satisfaction, k);
+    const clamp = v => Math.round(Math.max(0, Math.min(100, v)));
+    pts.push({ week:wk, I:r.I, lo:Math.max(0,r.I-band), hi:r.I+band,
+      economy:r.economy, econLo:clamp(r.economy-eB), econHi:clamp(r.economy+eB),
+      satisfaction:r.satisfaction, satLo:clamp(r.satisfaction-sB), satHi:clamp(r.satisfaction+sB),
+      cumD:r.D, newDeaths:r.newDeaths, hospPct:r.hospLoad/r.hospCap*100 });
     if (k===1) firstNext = r;
   }
   G.forecast = pts;
-  msg.innerHTML = `Next week if you commit this plan: <span class="fc-metric"><b>${fmtN(firstNext.newCases)}</b> new cases</span> · `
+  const end = pts[pts.length-1];
+  // Signed delta against today, so each lobby can read its own direction at a glance.
+  const delta = (proj, base, goodUp) => {
+    const dv = proj - base;
+    if (!dv) return `<span style="color:var(--text3)">±0</span>`;
+    const good = goodUp ? dv>0 : dv<0;
+    return `<span style="color:${good?'var(--green)':'var(--red)'}">${dv>0?'▲+':'▼'}${Math.abs(dv)}</span>`;
+  };
+  const hospPct = Math.round(firstNext.hospLoad/firstNext.hospCap*100);
+  msg.innerHTML = `Next week if you commit this plan: `
+    + `<span class="fc-metric"><b>${fmtN(firstNext.newCases)}</b> cases</span> · `
     + `<span class="fc-metric"><b>${fmtN(firstNext.newDeaths)}</b> deaths</span> · `
-    + `<span class="fc-metric">Rₑ <b>${firstNext.Reff.toFixed(2)}</b></span> · `
-    + `<span class="fc-metric">hosp <b>${Math.round(firstNext.hospLoad/firstNext.hospCap*100)}%</b></span>`
+    + `<span class="fc-metric">econ <b>${firstNext.economy}</b> ${delta(firstNext.economy, G.economy, true)}</span> · `
+    + `<span class="fc-metric">sat <b>${firstNext.satisfaction}</b> ${delta(firstNext.satisfaction, G.satisfaction, true)}</span> · `
+    + `<span class="fc-metric">hosp <b${hospPct>=100?' style="color:var(--red)"':''}>${hospPct}%</b></span> · `
+    + `<span class="fc-metric">Rₑ <b>${firstNext.Reff.toFixed(2)}</b></span>`
+    + (horizon>1 ? ` <span class="fc-horizon">by week ${end.week}: `
+        + `<b>${fmtN(end.cumD)}</b> cumulative deaths · econ <b>${end.economy}</b> · sat <b>${end.satisfaction}</b> · hosp <b>${Math.round(end.hospPct)}%</b></span>` : '')
     + (funded>=3 ? ` <span style="color:var(--text3)">(±${Math.round(unc*100)}% band, ${horizon}-wk horizon)</span>`
                  : ` <span style="color:var(--text3)">(coarse — raise modelling for a tighter band next week)</span>`)
     + (pending<1 ? ` <span style="color:var(--amber)">⚠ modelling unfunded this week — forecast stops next week</span>`
@@ -1663,7 +1697,9 @@ function updateStatsPanel(){
   const load=last.hospLoad||0, cap=last.hospCap||CAP_BASE, pct=load/cap, pctR=Math.round(pct*100);
   document.getElementById('sv-H').textContent=pctR+'%';
   document.getElementById('sv-H').style.color=pct>=1?'var(--red)':pct>=0.75?'var(--amber)':'var(--green)';
-  document.getElementById('hosp-txt').textContent=fmtN(load)+' / '+fmtN(cap)+' beds';
+  const proj = G.forecast && G.forecast.length>1 ? G.forecast[1] : null;
+  document.getElementById('hosp-txt').innerHTML = fmtN(load)+' / '+fmtN(cap)+' beds'
+    + (proj ? ` <span style="color:${proj.hospPct>=100?'var(--red)':proj.hospPct>=75?'var(--amber)':'var(--text3)'}">· next wk ${Math.round(proj.hospPct)}%${proj.hospPct>=100?' ⚠ OVERFLOW':''}</span>` : '');
   const fill=document.getElementById('hosp-fill');
   fill.style.width=Math.min(100,pctR)+'%';
   fill.style.background=pct>=1?'var(--red)':pct>=0.75?'var(--amber)':'var(--green)';
@@ -1749,6 +1785,13 @@ const CHART_COLORS = {
   class: { axis:'#a9cbe4', axis2:'#a9cbe4', axis3:'#bcd8ea', grid:'#2b4763', grid50:'#3d6285', empty:'#7fa6c4' },
 };
 function CC(k){ return CHART_COLORS[CLASSMODE?'class':'solo'][k]; }
+// Axis gutters must grow with the type, or class-mode labels get clipped
+// (a 16px "27,231" needs ~58px of gutter, not the 52px solo mode allows).
+function CPAD(p){
+  return CLASSMODE
+    ? { t:Math.round(p.t*2.0), r:Math.round(p.r*1.75), b:Math.round(p.b*1.6), l:Math.round(p.l*1.75) }
+    : p;
+}
 
 // ══ CANVAS SETUP ═══════════════════════════════════════════
 function setupCanvas(id){
@@ -1772,7 +1815,7 @@ function drawAllCharts(){ drawEpiChart(); drawReffChart(); drawEconSatChart(); d
 let EPI_GEOM=null;
 function drawEpiChart(){
   const {ctx,W,H}=setupCanvas('epi');
-  const PAD={t:14,r:52,b:22,l:52};
+  const PAD=CPAD({t:14,r:52,b:22,l:52});
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
   const pts=G.history;
@@ -1780,7 +1823,10 @@ function drawEpiChart(){
 
   const maxI = Math.max(...pts.map(h=>h.I), fc?Math.max(...fc.map(f=>f.hi)):0, 500);
   const yMaxL = maxI*1.2;
-  const maxD = Math.max(...pts.map(h=>h.newDeaths), 10);
+  // The right axis must cover the projected deaths too, or the forecast line
+  // runs off the top of the plot. Matches how maxI already covers the band.
+  const maxD = Math.max(...pts.map(h=>h.newDeaths),
+                        fc?Math.max(...fc.map(f=>f.newDeaths)):0, 10);
   const yMaxR = maxD*1.25;
 
   const xW = w => PAD.l+(w/WEEKS)*PW;
@@ -1802,8 +1848,12 @@ function drawEpiChart(){
     ctx.fillText(fmtN(Math.round((i/4)*yMaxR)),PAD.l+PW+4,y+3);
   }
   // Axis captions
-  ctx.fillStyle='#e74c3c'; ctx.font=CFS(7); ctx.textAlign='left'; ctx.fillText('INFECTIOUS',PAD.l,PAD.t-4);
-  ctx.fillStyle='#8fa6b3'; ctx.textAlign='right'; ctx.fillText('DEATHS/WK',PAD.l+PW+46,PAD.t-4);
+  // Pinned to the canvas edges above the gutters, clear of the top axis labels.
+  const capY = CLASSMODE ? 11 : 8;
+  ctx.fillStyle='#e74c3c'; ctx.font=CFS(7); ctx.textAlign='left';  ctx.fillText('INFECTIOUS',2,capY);
+  // The canvas is a little wider than its padded container and overflows to the
+  // right, so keep the caption clear of that clipped strip.
+  ctx.fillStyle='#8fa6b3';                   ctx.textAlign='right'; ctx.fillText('DEATHS/WK',W-28,capY);
   // X labels
   for(let w=1;w<=WEEKS;w++){ ctx.fillStyle=CC('axis'); ctx.font=CFS(9); ctx.textAlign='center'; ctx.fillText(w,xW(w),H-2); }
 
@@ -1825,6 +1875,10 @@ function drawEpiChart(){
     ctx.closePath(); ctx.fillStyle='rgba(52,152,219,0.12)'; ctx.fill();
     ctx.setLineDash([3,3]); ctx.strokeStyle='rgba(52,152,219,0.85)'; ctx.lineWidth=CLW(1.5); ctx.beginPath();
     fc.forEach((f,i)=>{ const x=xW(f.week), y=yL(f.I); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.stroke(); ctx.setLineDash([]);
+    // Projected weekly deaths on the right axis, matching the history series.
+    ctx.setLineDash([2,3]); ctx.strokeStyle='rgba(143,166,179,0.75)'; ctx.lineWidth=CLW(1.4); ctx.beginPath();
+    fc.forEach((f,i)=>{ const x=xW(f.week), y=yR(f.newDeaths); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
     ctx.stroke(); ctx.setLineDash([]);
   }
 
@@ -1848,7 +1902,8 @@ function drawEpiChart(){
   pts.forEach(h=>{ const x=xW(h.week),y=yL(h.I); ctx.beginPath(); ctx.arc(x,y,CDOT(3),0,Math.PI*2); ctx.fillStyle='#e74c3c'; ctx.fill(); ctx.strokeStyle='#07101a'; ctx.lineWidth=CLW(1); ctx.stroke(); });
 
   // Event markers
-  pts.forEach(h=>{ if(h.event){ const x=xW(h.week); ctx.fillStyle='#f5a000'; ctx.font=CFS(10); ctx.textAlign='center'; ctx.fillText(h.event.icon, x, PAD.t+9); } });
+  // Below the legend row, which sits at PAD.t+9, so the two do not collide.
+  pts.forEach(h=>{ if(h.event){ const x=xW(h.week); ctx.fillStyle='#f5a000'; ctx.font=CFS(10); ctx.textAlign='center'; ctx.fillText(h.event.icon, x, PAD.t+(CLASSMODE?34:22)); } });
 
   // Legend
   const leg=[{c:'#e74c3c',label:'Infectious'},{c:'rgba(155,89,182,.8)',label:'New Cases'},{c:'rgba(143,166,179,.85)',label:'Deaths (R)'}];
@@ -1889,7 +1944,7 @@ function drawEpiChart(){
 // ══ CHART 2: Reff ══════════════════════════════════════════
 function drawReffChart(){
   const {ctx,W,H}=setupCanvas('reff-chart');
-  const PAD={t:8,r:12,b:20,l:28};
+  const PAD=CPAD({t:8,r:12,b:20,l:28});
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
   const pts=G.history.filter(h=>h.week>0);
@@ -1923,7 +1978,7 @@ function drawReffChart(){
 // ══ CHART 3: ECON & SAT (with thresholds) ══════════════════
 function drawEconSatChart(){
   const {ctx,W,H}=setupCanvas('econsat-chart');
-  const PAD={t:8,r:14,b:20,l:26};
+  const PAD=CPAD({t:8,r:14,b:20,l:26});
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
   const pts=G.history.filter(h=>h.week>0&&h.economy!==undefined);
@@ -1940,16 +1995,40 @@ function drawEconSatChart(){
   for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle=CC('axis3'); ctx.font=CFS(7); ctx.textAlign='center'; ctx.fillText(w,PAD.l+((w-0.5)/WEEKS)*PW,H-2); }
   function line(data,color,lw){ if(data.length<2)return; ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=CLW(lw); ctx.lineJoin='round'; data.forEach((p,i)=>{const x=PAD.l+((p.w-0.5)/WEEKS)*PW,y=yv(p.v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke(); }
   if(pts.length>=2){ ctx.beginPath(); pts.forEach((h,i)=>{const x=PAD.l+((h.week-0.5)/WEEKS)*PW,y=yv(h.economy); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.lineTo(PAD.l+((pts[pts.length-1].week-0.5)/WEEKS)*PW,PAD.t+PH); ctx.lineTo(PAD.l+((pts[0].week-0.5)/WEEKS)*PW,PAD.t+PH); ctx.closePath(); const g=ctx.createLinearGradient(0,PAD.t,0,PAD.t+PH); g.addColorStop(0,'rgba(39,174,96,0.15)'); g.addColorStop(1,'rgba(39,174,96,0.01)'); ctx.fillStyle=g; ctx.fill(); }
+  // Forecast: same foresight the epidemiologist gets, for the two indices the
+  // business and public lobbies actually argue over.
+  const fc = G.forecast;
+  const fx = w => PAD.l+((w-0.5)/WEEKS)*PW;
+  if (fc && fc.length>1){
+    [['econ','economy','econLo','econHi','39,174,96'],
+     ['sat','satisfaction','satLo','satHi','155,89,182']].forEach(([,vk,lok,hik,rgb])=>{
+      ctx.beginPath();
+      fc.forEach((f,i)=>{ const x=fx(f.week), y=yv(f[hik]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      for(let i=fc.length-1;i>=0;i--) ctx.lineTo(fx(fc[i].week), yv(fc[i][lok]));
+      ctx.closePath(); ctx.fillStyle=`rgba(${rgb},0.13)`; ctx.fill();
+      ctx.setLineDash([3,3]); ctx.beginPath(); ctx.strokeStyle=`rgba(${rgb},0.85)`;
+      ctx.lineWidth=CLW(1.5); ctx.lineJoin='round';
+      fc.forEach((f,i)=>{ const x=fx(f.week), y=yv(f[vk]); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+      ctx.stroke(); ctx.setLineDash([]);
+    });
+  }
   line(pts.map(h=>({w:h.week,v:h.economy})),'#27ae60',2);
   line(pts.map(h=>({w:h.week,v:h.satisfaction})),'#9b59b6',2);
   pts.forEach(h=>{ [[h.economy,'#27ae60'],[h.satisfaction,'#9b59b6']].forEach(([v,c])=>{ const x=PAD.l+((h.week-0.5)/WEEKS)*PW,y=yv(v); ctx.beginPath(); ctx.arc(x,y,CDOT(2.5),0,Math.PI*2); ctx.fillStyle=c; ctx.fill(); ctx.strokeStyle='#07101a'; ctx.lineWidth=CLW(0.8); ctx.stroke(); }); });
-  [['#27ae60','Economy'],['#9b59b6','Satisfaction']].forEach((l,i)=>{ const lx=PAD.l+4+i*80; ctx.strokeStyle=l[0]; ctx.lineWidth=CLW(2); ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+12,PAD.t+5); ctx.stroke(); ctx.fillStyle='#a8c8e0'; ctx.font=CFS(7); ctx.textAlign='left'; ctx.fillText(l[1],lx+14,PAD.t+8); });
+  const leg=[['#27ae60','Economy'],['#9b59b6','Satisfaction']];
+  if (fc && fc.length>1) leg.push(['rgba(160,190,210,0.9)','Forecast']);
+  let lx=PAD.l+4;
+  leg.forEach(l=>{ ctx.strokeStyle=l[0]; ctx.lineWidth=CLW(2);
+    ctx.setLineDash(l[1]==='Forecast'?[3,3]:[]);
+    ctx.beginPath(); ctx.moveTo(lx,PAD.t+5); ctx.lineTo(lx+12,PAD.t+5); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#a8c8e0'; ctx.font=CFS(7); ctx.textAlign='left'; ctx.fillText(l[1],lx+14,PAD.t+8);
+    lx += 14 + ctx.measureText(l[1]).width + 10; });
 }
 
 // ══ CHART 4: SEIR STACKED COMPARTMENTS ═════════════════════
 function drawSeirChart(){
   const {ctx,W,H}=setupCanvas('seir-chart');
-  const PAD={t:8,r:10,b:20,l:30};
+  const PAD=CPAD({t:8,r:10,b:20,l:30});
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
   ctx.clearRect(0,0,W,H);
   const pts=G.history;
@@ -2069,7 +2148,7 @@ function drawCompareChart(){
   canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
   const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,W,H);
-  const PAD={t:14,r:14,b:24,l:52};
+  const PAD=CPAD({t:14,r:14,b:24,l:52});
   const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
 
   const player=G.history.map(h=>({week:h.week,I:h.I}));
