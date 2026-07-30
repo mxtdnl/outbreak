@@ -566,7 +566,7 @@ canvas { display:block; }
         </div>
         <div class="res-item">
           <div class="res-row"><span class="res-name">Epidemic Modelling</span><span class="res-cost" id="c-epi">$0</span></div>
-          <div class="res-fx">Unlocks <b>forecasts &amp; live projections</b>. Higher = clearer, further ahead. Early warning of variants.</div>
+          <div class="res-fx">Funds <b>forecasts &amp; projections from next week</b> — buy it before you need it. Higher = clearer, further ahead. Early warning of variants. Stops if defunded.</div>
           <input type="range" min="0" max="5" value="0" id="r-epi" oninput="onSlide()">
         </div>
         <div class="res-item">
@@ -1343,20 +1343,32 @@ function onSlide(){
   updateAdvisors();
 }
 
+// Forecasting capability is bought a week in advance: what you see now was paid
+// for last week, and what you fund now arrives next week. Gating on the live
+// slider instead let you drag modelling to L5, read the projection, drag it back
+// to 0 and pay nothing — which also broke the lesson that foresight has to be
+// bought before you know you need it.
 function updateForecast(d){
   const strip = document.getElementById('fc-strip');
   const tag = document.getElementById('fc-tag');
   const msg = document.getElementById('fc-msg');
-  if (d.epi < 1){
+  const funded  = G.lastEpi;  // committed last week — drives this week's forecast
+  const pending = d.epi;      // being funded now — drives next week's
+
+  if (funded < 1){
     G.forecast = null;
-    tag.className='fc-tag locked'; tag.textContent='◷ Forecast — locked';
-    msg.innerHTML='<span class="fc-locked-msg">Invest in Epidemic Modelling to unlock next-week projections and the forecast band.</span>';
+    tag.className='fc-tag locked';
+    tag.textContent = pending>=1 ? '◷ Forecast — active next week' : '◷ Forecast — locked';
+    msg.innerHTML = pending>=1
+      ? `<span class="fc-locked-msg">Modelling funded at L${pending} this week — projections and the forecast band begin <b>next week</b>.</span>`
+      : '<span class="fc-locked-msg">No modelling funded. Fund Epidemic Modelling to receive projections from next week onward.</span>';
     if (document.getElementById('screen-command').classList.contains('active')) drawEpiChart();
     return;
   }
-  tag.className='fc-tag'; tag.textContent='◷ Forecast · modelling L'+d.epi;
-  const horizon = Math.min(6, 2+d.epi);
-  const unc = 0.30/d.epi;
+
+  tag.className='fc-tag'; tag.textContent='◷ Forecast · modelling L'+funded;
+  const horizon = Math.min(6, 2+funded);
+  const unc = 0.30/funded;
   let comp = Object.assign({}, G.comp), econ=G.economy, sat=G.satisfaction;
   const pts=[{ week:G.week-1, I: totals(G.comp).I, lo: totals(G.comp).I, hi: totals(G.comp).I }];
   let firstNext=null;
@@ -1373,7 +1385,10 @@ function updateForecast(d){
     + `<span class="fc-metric"><b>${fmtN(firstNext.newDeaths)}</b> deaths</span> · `
     + `<span class="fc-metric">Rₑ <b>${firstNext.Reff.toFixed(2)}</b></span> · `
     + `<span class="fc-metric">hosp <b>${Math.round(firstNext.hospLoad/firstNext.hospCap*100)}%</b></span>`
-    + (d.epi>=3 ? ` <span style="color:var(--text3)">(±${Math.round(unc*100)}% band, ${horizon}-wk horizon)</span>` : ` <span style="color:var(--text3)">(coarse — raise modelling for a tighter band)</span>`);
+    + (funded>=3 ? ` <span style="color:var(--text3)">(±${Math.round(unc*100)}% band, ${horizon}-wk horizon)</span>`
+                 : ` <span style="color:var(--text3)">(coarse — raise modelling for a tighter band next week)</span>`)
+    + (pending<1 ? ` <span style="color:var(--amber)">⚠ modelling unfunded this week — forecast stops next week</span>`
+       : pending!==funded ? ` <span style="color:var(--text3)">· L${pending} funded, effective next week</span>` : '');
   if (document.getElementById('screen-command').classList.contains('active')) drawEpiChart();
 }
 
