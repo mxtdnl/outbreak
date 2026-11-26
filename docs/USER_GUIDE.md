@@ -79,6 +79,9 @@ At the end you get two sets of results:
 ## 4. Before you start: the setup screen
 
 Your facilitator may already have chosen these settings for you.
+![The setup screen](images/setup.jpg)
+*The setup screen.*
+
 
 **Scenario: which disease you face.**
 
@@ -103,6 +106,9 @@ Press **ASSUME COMMAND** to begin.
 
 ## 5. The main screen
 
+![The main screen](images/command-solo.jpg)
+*The main screen part-way through a game. In Classroom mode it looks similar, with larger text and fewer descriptions.*
+
 | Area | What it shows |
 |---|---|
 | **Top bar** | The scenario, the week (out of 12) and **Budget Remaining**: green is fine, amber means under 20% left, red means you are overspending |
@@ -112,15 +118,23 @@ Press **ASSUME COMMAND** to begin.
 | **Right side** | Your **policies**, plus advisors who give you advice (in Solo mode) |
 | **Bottom** | The **RUN WEEK →** button. It is greyed out while you are over budget |
 
+If your facilitator is projecting the game in **Classroom mode**, the screen uses larger text and hides the descriptions. They may also switch to **Debate view**, which hides the controls and shows a summary of the plan on the table while the room argues:
+
+![Debate view](images/debate.jpg)
+*Debate view in Classroom mode.*
+
 ---
 
 ## 6. Your resources (left side)
 
-Each resource is a slider from **0 (none) to 5 (maximum)**. The price shown is what it costs **this week**, and you pay again every week the slider is above 0.
+Each resource is a slider from **0 (none) to 5 (maximum)**. The price shown is what it costs **this week**. For most resources you pay again every week the slider is above 0; Permanent Capacity is the exception.
+![The resource sliders](images/panel-resources.png)
+*The resource sliders.*
+
 
 ### Permanent Capacity: $1.5M per level
 Builds **250 extra hospital beds per level, which you keep for the rest of the game**. The city starts with 1,000 beds.
-> **Watch out:** every week the slider is above 0 you build *more* beds and pay again. Once you have enough, move it back to 0. The beds you have already built stay.
+> This is a **one-off order**. You pay once, the beds stay, and the slider goes back to 0 after the week runs. The label next to the name shows how many beds you have built so far (for example "500 built"). To build more, order again in a later week.
 
 ### Surge Capacity: $0.6M per level
 **300 extra beds per level, for this week only.** Cheaper, but temporary. "Surge" means a short-term boost to deal with a peak, the busiest point of the outbreak.
@@ -133,7 +147,7 @@ Finding infected people quickly and tracing their contacts (the people they have
 
 ### Vaccination: $1.0M per level
 Available from **week 4** (week 5 in Fast & Deadly). Each level vaccinates about **10,000 people a week**. Vaccinated people become **immune**, meaning protected against catching it.
-> Immunity **wears off over time** ("waning immunity"), from vaccines as well as from having had the disease. In Slow Burn it wears off quickly.
+> Immunity **wears off over time** ("waning immunity"). In this game, vaccine immunity wears off at the same speed as immunity from having had the disease. In Slow Burn it wears off quickly.
 
 Below the slider, choose who goes first:
 - **Elderly first:** the vulnerable group first. This saves the most lives soonest.
@@ -141,7 +155,7 @@ Below the slider, choose who goes first:
 - **Balanced:** both groups at once.
 
 ### Epidemic Modelling: $0.5M per level
-Pays for experts to **forecast**, or predict, what will happen next. **Paying this week gives you forecasts from next week onwards.** A higher level lets you see further ahead. At level 3 or above, your experts also give you early warning of a more contagious variant, which makes it less damaging when it arrives. See [§9](#9-forecasts).
+Pays for experts to **forecast**, or predict, what will happen next. **Paying this week gives you forecasts from next week onwards.** A higher level lets you see further ahead, with a narrower range shown around the prediction. At level 3 or above, your experts also give you early warning of a more contagious variant, which makes it less damaging when it arrives. See [§9](#9-forecasts).
 
 ### Port-of-Entry Screening: $0.5M per level
 Checking people arriving at the city's borders: airports, stations and ports. It slightly slows the spread every week. Its main value is that **it builds up over time**. When a new, more contagious version of the disease (a **variant**) arrives, every level-week of screening you have already paid for makes it weaker, up to 75% weaker. The first variant always arrives in week 3, 4 or 5, so screening needs to start early. It costs the economy a little.
@@ -151,12 +165,21 @@ Public messaging: adverts, briefings and announcements. This raises **compliance
 
 ### Weekly Budget box
 Shows your income for the week, your spending on resources, policies and any event response, and what remains. If the remaining figure is red, you cannot run the week until you cut something.
+![The weekly budget box](images/budget.png)
+*Within budget.*
+
+![The weekly budget box, over budget](images/budget-over.png)
+*Over budget: you must cut something before you can run the week.*
+
 
 ---
 
 ## 7. Your policies (right side)
 
 Click a button to choose a level, or flip a switch to turn a policy on or off. Every policy is paid for **every week** it is active.
+![The policy panel](images/panel-policies.png)
+*The policy panel, with advisors below (Solo mode).*
+
 
 Several policies show a figure such as "R₀ ×0.65". This means the policy cuts the spread of the disease to 65% of its normal level, **if everyone complies**. With lower compliance, the effect is smaller.
 
@@ -208,6 +231,9 @@ It also raises satisfaction and compliance. It is expensive: Full support uses m
 
 ### The six numbers along the top
 Everyone in the city is in one of these groups:
+![The six population numbers](images/stats-row.png)
+*The six population numbers.*
+
 
 | Number | Plain meaning |
 |---|---|
@@ -219,6 +245,10 @@ Everyone in the city is in one of these groups:
 | **Hosp. Load** | How full the hospitals were last week, as a percentage of beds. Above 100% means more patients than beds |
 
 ### Hospital bar
+
+![Hospital bar, score bars and forecast](images/status-forecast.png)
+*The hospital bar, the Economy and Satisfaction bars, and the forecast strip.*
+
 Beds in use out of beds available. **When hospitals overflow** (more patients than beds), far more people die, and public satisfaction drops. Keeping beds ahead of demand is one of the most important things you can do.
 
 ### Economy and Satisfaction bars
@@ -229,11 +259,13 @@ Both scores run from 0 to 100. Green or purple is good (70+), amber is weak (40�
 
 ### The charts
 
-- **Epidemic curve** (the big chart): how many people are infectious each week (red), new cases (purple) and deaths per week (grey, measured on the right-hand scale). A dashed blue line shows the forecast if you have one. A dashed "HOSP CAP" line gives a rough idea of when hospitals fill up; it usually warns a little early. Small icons mark the weeks when events happened. **Hover** over a week for details.
-- **Effective Rₑ over time**: Rₑ ("R-effective") is the average number of people each infected person passes the disease to **after your policies** are taken into account. Below 1 (green), each case leads to less than one new case. Above 1 (red), each case leads to more than one.
-  > This figure does **not** count people who are already immune. Late in the game, cases can fall even when Rₑ is above 1, because there are fewer people left to infect. Check the epidemic curve to see whether infections are really rising.
+- **Epidemic curve** (the big chart): how many people are infectious each week (red), new cases (purple) and deaths per week (grey, measured on the right-hand scale). A dashed blue line shows the forecast if you have one. A dashed "HOSP CAP" line shows roughly how many infectious people it would take to fill the hospitals, based on who is currently infected; the hospital bar gives the exact figure. Small icons mark the weeks when events happened. **Hover** over a week for details.
+- **Effective Rₑ over time**: Rₑ ("R-effective") is the average number of people each infected person actually passed the disease to that week. It takes into account both your policies and the people who are already immune. Below 1 (green), each case leads to less than one new case, so the outbreak is shrinking. Above 1 (red), each case leads to more than one, so it is growing.
 - **Economy & Satisfaction**: both scores over time, with guide lines at 70 (good) and 40 (weak).
 - **Population compartments**: the whole city as a stacked chart, showing what share of people are susceptible, recovered, exposed, infectious or dead. "Compartment" just means one of these groups.
+![The four charts](images/charts.png)
+*The epidemic curve (with a forecast), and the Rₑ, economy & satisfaction, and population charts.*
+
 
 ### Advisors (Solo mode)
 Three advisors give advice based on the current situation: an **epidemiologist** (a disease expert), a **treasurer** (in charge of the city's finances) and a **communications chief**. Each sees only their own side of the problem, so they may disagree.
@@ -245,8 +277,9 @@ Three advisors give advice based on the current situation: an **epidemiologist**
 If you paid for **Epidemic Modelling last week**, the strip above the epidemic curve shows what will happen **next week if you commit to your current plan**: new cases, deaths, economy, satisfaction, hospital use and Rₑ. It also shows how things will stand a few weeks ahead.
 
 - The forecast **updates as you move the sliders**, so you can try out different plans before you commit.
-- The shaded band around the forecast line shows the range of possible outcomes. More modelling gives a narrower band and a longer view (3 to 6 weeks).
-- The forecast assumes you keep the same plan and that **no events happen**, including any event you are dealing with this week.
+- **Next week's figures are exact** if you don't change your plan. They already include any event you are dealing with this week.
+- Weeks after that assume you keep the same plan and that **no new events happen**, so they can turn out differently.
+- The shaded band around the forecast line is an **indicative range**: a rough guide to how far things might move, not a precise prediction. More modelling gives a narrower range and a longer view (3 to 6 weeks).
 - If you set modelling to 0, the forecast stops next week.
 
 You have to pay for modelling **before** you need it.
@@ -254,6 +287,10 @@ You have to pay for modelling **before** you need it.
 ---
 
 ## 10. Events
+
+
+![An event card](images/event.png)
+*An event card. The teal text shows how earlier choices have softened the blow.*
 
 Events appear as a card at the start of a week. At most one happens per week. You **must** choose a response. Any cost comes out of this week's budget, and **the effects last for this week only**.
 
@@ -273,9 +310,9 @@ These only happen in weeks without a planned event, and never two weeks running.
 
 | Event | What it does | Options (cheapest last) |
 |---|---|---|
-| 🧬 **More Transmissible Variant** | The disease spreads more easily this week. Earlier border screening, and modelling at level 3+, make it weaker | Close borders ($1.5M) · targeted containment ($0.7M) · monitor only (free) |
-| 🏥 **Healthcare Worker Burnout** | Exhausted staff mean more deaths | Retention bonuses ($1.2M) · redeploy reserves ($0.5M) · push through (free, and satisfaction falls) |
-| 📱 **Misinformation Surge** | False information spreads, so fewer people follow the rules | Counter-messaging ($1.0M) · trusted local voices ($0.4M) · ignore it (free, and satisfaction falls) |
+| 🧬 **More Transmissible Variant** | A one-week surge in how easily the disease spreads. Earlier border screening, and modelling at level 3+, make it weaker | Close borders ($1.5M) · targeted containment ($0.7M) · monitor only (free) |
+| 🏥 **Healthcare Worker Burnout** | Exhausted staff mean more deaths this week. Only your response changes how bad it is | Retention bonuses ($1.2M) · redeploy reserves ($0.5M) · push through (free, and satisfaction falls) |
+| 📱 **Misinformation Surge** | False information spreads, so fewer people follow the rules this week. Only your response changes how bad it is | Counter-messaging ($1.0M) · trusted local voices ($0.4M) · ignore it (free, and satisfaction falls) |
 | 😮‍💨 **Lockdown Fatigue** | People are tired of restrictions, so lockdown works less well | Support package ($1.0M) · renewed messaging ($0.5M) · do nothing (free, and satisfaction falls) |
 | 🤝 **International Aid Grant** (good news) | Extra money this week | $4M extra · or $3M extra plus 8,000 vaccine doses |
 | 💉 **Vaccine Supply Windfall** (good news) | Extra vaccine doses this week | Fast-track ($0.4M, 22,000 doses) · standard (free, 13,000 doses) |
@@ -285,19 +322,31 @@ These only happen in weeks without a planned event, and never two weeks running.
 
 The card tells you, in teal text, when an earlier investment has softened the blow.
 
+**Vaccine doses arriving early.** If extra doses arrive before vaccination has started, they are kept in storage and given out in the first week of vaccination. The card and the weekly report tell you when this happens.
+
 ---
 
 ## 11. After the game
 
 ### Weekly report (after every week)
 Shows new cases, deaths, hospital use, Rₑ, the economy and satisfaction, with the change from last week, a short **intelligence report** (a summary of what happened and any warnings), and a **reflection question** to think or talk about.
+![A weekly report](images/report.png)
+*A weekly report.*
+
 
 ### Debrief (after week 12)
+
+![The debrief screen](images/debrief.jpg)
+*The debrief screen.*
+
 - A **letter grade** from A+ to F, based on a **composite score**, a single number made by combining several. It is 40% deaths, 30% final economy and 30% final satisfaction. The deaths part drops to 0 at 10,000 deaths.
-- A chart comparing your outbreak with three example strategies, each played without any events: **do nothing**, **strict lockdown only**, and a **balanced** approach. The balanced example ignores the budget, so you could not actually afford it.
+- A chart comparing your outbreak with three example strategies, each played without any events: **do nothing**, **strict lockdown only**, and a **balanced** approach. The balanced example is labelled "no budget limit": it costs more than any weekly budget, so you could not actually afford it.
 - A summary of your results and some discussion questions.
 
 ### Class Scorecard
+
+![The Class Scorecard](images/scorecard.jpg)
+*The Class Scorecard.*
 Each **lobby**, an interest group that pushes the government to serve its interests, scores you from 0 to 100:
 
 | Lobby | Cares about |
@@ -346,17 +395,19 @@ You can **copy**, **download** (as a spreadsheet file or a data file) or **print
 | **Horizon** | How many weeks ahead a forecast can see |
 | **Hospital load** | How full the hospitals are, as a percentage of available beds |
 | **Immune / immunity** | Protected from catching the disease, for now |
+| **Indicative range** | A rough guide to how far a forecast might be off, not a precise prediction |
 | **Index** | A score on a fixed scale, here 0 to 100 |
 | **Infectious** | Can pass the disease on to others |
 | **Lobby** | An interest group that pushes the government to serve its interests |
 | **Lockdown** | Rules requiring people to stay at home and closing non-essential places |
 | **Log scale** | A scale where each step means "ten times more" rather than "ten more" |
+| **One-off order** | Something you pay for once, not every week |
 | **Overflow** | More patients needing a hospital bed than there are beds |
 | **Pathogen** | The germ (for example, a virus) that causes the disease |
 | **Peak** | The point when the most people are infected at once |
 | **Port of entry** | A place where people arrive in the city, such as an airport, station or port |
 | **R₀ (R-nought)** | How many people, on average, one infected person passes the disease to when nobody is immune and nothing is being done |
-| **Rₑ (R-effective)** | How many people, on average, one infected person passes the disease to after your policies. In this game, it does not count people who are already immune |
+| **Rₑ (R-effective)** | How many people, on average, one infected person actually passes the disease to, allowing for your policies and for people who are already immune |
 | **Recovered** | Had the disease (or was vaccinated) and is currently immune |
 | **Reference strategy** | An example plan the game plays automatically, for comparison |
 | **Satisfaction (Public Satisfaction)** | A score from 0 to 100 for how happy the public is with your handling of the crisis |

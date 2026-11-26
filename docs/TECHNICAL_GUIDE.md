@@ -19,7 +19,7 @@ This document specifies the simulation engine, every mechanic and constant, the 
 11. [Exports](#11-exports)
 12. [Rendering and display modes](#12-rendering-and-display-modes)
 13. [Determinism and reproducibility](#13-determinism-and-reproducibility)
-14. [Known modelling simplifications and discrepancies](#14-known-modelling-simplifications-and-discrepancies)
+14. [Resolved discrepancies and remaining simplifications](#14-resolved-discrepancies-and-remaining-simplifications)
 15. [Extending the simulation](#15-extending-the-simulation)
 16. [Glossary](#16-glossary)
 
@@ -27,10 +27,10 @@ This document specifies the simulation engine, every mechanic and constant, the 
 
 ## 1. Architecture
 
-- **One file**: `index.html`, containing the CSS (lines 9–548), the markup for all screens (550–926) and the script (928–2481). It has no dependencies, build step or server. The only external resource is Google Fonts, which have system fallbacks.
-- **Screens** are `div.screen`s. Exactly one has `.active` at a time (`showScreen`, line 2427): `screen-briefing`, `screen-command`, `screen-event`, `screen-report`, `screen-debrief`, `screen-scorecard`.
+- **One file**: `index.html`, containing the CSS (lines 9–550), the markup for all screens (552–930) and the script (932–2521). It has no dependencies, build step or server. The only external resource is Google Fonts, which have system fallbacks.
+- **Screens** are `div.screen`s. Exactly one has `.active` at a time (`showScreen`, line 2467): `screen-briefing`, `screen-command`, `screen-event`, `screen-report`, `screen-debrief`, `screen-scorecard`.
 - **Global state**: `G` (the current game, built by `init()`), `SETUP` (scenario, difficulty and lobby count chosen on the briefing), plus the display flags `CLASSMODE`, `DEBATEVIEW` and `SHOWSCORES`.
-- **Pure core**: `computeStep(comp, econ, sat, week, d, sc, mods)` (line 1289) has no side effects and does not touch the DOM. Gameplay (`advanceWeek`), forecasting (`updateForecast`) and the reference strategies (`runStrategy`) all call it, so all three use exactly the same dynamics.
+- **Pure core**: `computeStep(comp, econ, sat, week, d, sc, mods)` (line 1295) has no side effects and does not touch the DOM. Gameplay (`advanceWeek`), forecasting (`updateForecast`) and the reference strategies (`runStrategy`) all call it, so all three use exactly the same dynamics.
 - **The DOM holds the decision state**: slider and toggle values are read back from the DOM by `getDecisions()` every time they are needed. Tiered policies and vaccine priority are kept in `G` (`G.lock`, `G.shield`, `G.finance`, `G.vaxPriority`). Neither is reset between weeks, so the plan persists.
 - **Persistence**: only `localStorage['outbreak-mode']` (`solo` | `class`). Game state is not saved.
 
@@ -56,7 +56,7 @@ This document specifies the simulation engine, every mechanic and constant, the 
 
 ## 2. Constants and parameter tables
 
-### Global (lines 932–942)
+### Global (lines 936–946)
 
 | Constant | Value | Meaning |
 |---|---|---|
@@ -147,8 +147,10 @@ These are **continuous** values (floats). Displays round them.
 |---|---|---|
 | `sc`, `df`, `rng` | — | Scenario parameters (R0 already scaled), difficulty, seeded RNG |
 | `week` | 1 | The week about to be played |
-| `economy`, `satisfaction` | 100, 100 | Integer indices from 0 to 100 |
-| `compliance` | 0.7 | Stored from the last step; **not read** by the model (it is recomputed every step) |
+| `economy`, `satisfaction` | 100, 100 | Indices from 0 to 100, rounded to integers, used for every display and score |
+| `econX`, `satX` | 100, 100 | The same indices unrounded. These are what is carried into the next step, so changes smaller than half a point accumulate |
+| `vaxBank` | 0 | Event doses received before `vaxWeek`, held until vaccination opens |
+| `vaxReleased` | 0 | Doses released from the bank this week (for the report) |
 | `lock`, `shield`, `finance`, `vaxPriority` | 0, 0, 0, `'elderly'` | Tiered policy state |
 | `budget` | `BASE_BUDGET × budgetMult` | Base weekly budget |
 | `poeCum` | 0 | Sum of POE levels over completed weeks |
@@ -165,14 +167,14 @@ These are **continuous** values (floats). Displays round them.
 One record is pushed per week in `advanceWeek` (week 0 is a synthetic baseline):
 
 ```
-{ week, S, E, I, R, D, newCases, newDeaths, hospLoad, hospCap, Reff,
+{ week, S, E, I, R, D, newCases, newDeaths, hospLoad, hospCap, Reff, Rpolicy,
   economy, satisfaction, compliance,
   dec: { perm, surge, staff, test, vax, epi, poe, comms, lock, shield, finance,
          masks, schools, travel, vaxPriority, spend },
   event: { icon, title } | null }
 ```
 
-The week-0 record sets `newCases = seed0`, `hospLoad = round(I × 0.1)`, `Reff = R0`, and `dec = null`.
+The week-0 record sets `newCases = seed0`, `hospLoad = round(I × 0.1)`, `Reff = R0`, and `dec = null`. Because almost everyone is susceptible at the start, R0 is also the correct immunity-adjusted value for week 0.
 
 ---
 
@@ -208,7 +210,7 @@ pf ×= (1 − 0.01·poe)
 Reff = max(0.05, (R0 + mods.r0Delta) · pf)
 ```
 
-Testing, travel restrictions and POE do not depend on compliance. `Reff` is returned rounded to 2 decimal places, but the unrounded value is used inside the step.
+Testing, travel restrictions and POE do not depend on compliance. Inside the step, this policy-adjusted `Reff` drives transmission (§4.5). It is returned as `Rpolicy`. The `Reff` the step **returns** and the interface shows also allows for immunity (§4.5, *susceptible share*). Both are rounded to 2 decimal places for output.
 
 The best possible policy multiplier, at cf = 1 with every intervention at maximum, is 0.40 × 0.84 × 0.89 × 0.94 × 0.725 × 0.95 ≈ 0.19.
 
@@ -221,7 +223,7 @@ ifrBaseG  = sc.ifrG · (1 − 0.09·staff) · mods.ifrMult
 ifrBaseV  = sc.ifrV · (1 − 0.07·staff) · mods.ifrMult
 ```
 
-Beds bought with `perm` this week count towards **this week's** capacity, as well as being added to `permBeds` for later weeks.
+Beds ordered with `perm` this week count towards **this week's** capacity, as well as being added to `permBeds` for later weeks. Permanent capacity is a one-off order: after each week, `advanceWeek` resets the `r-perm` slider to 0, so beds are not bought again unless the player orders more (§5).
 
 ### 4.4 Super-spreader injection
 If `mods.extraInf > 0`, before integration:
@@ -238,6 +240,7 @@ For each sub-step:
 
 ```
 N      = Sg+Eg+Ig+Rg + Sv+Ev+Iv+Rv                 (living population)
+share += (Sg + Sv·(1 − shieldEff)) / N / 7          (susceptible share, averaged over the week)
 λ      = Reff · γ · (Ig + Iv) / N · dt               (force of infection per sub-step)
 newE_g = min(Sg, λ·Sg)
 newE_v = min(Sv, λ·Sv·(1 − shieldEff))
@@ -262,19 +265,22 @@ Notes:
 - Fatality is applied **per removal**, so it is an infection fatality ratio taken at the end of the infectious period. The overflow multiplier is assessed separately in each sub-step.
 - The overflow multiplier om rises from 1 (no overflow) through 3 (demand = 2 × capacity) towards 5 as capMet → 0. The caps apply **only during overflow**. The base IFR is never capped.
 - `newCases` sums the S→E flows over the sub-steps. `newDeaths` sums the deaths.
+- **Reported Rₑ** = policy `Reff` × the week's average susceptible share, where shielded vulnerable people count only in proportion to their remaining susceptibility. This is the average number of new infections each case actually causes that week, so a value above 1 means infections are growing. The relationship is approximate, because infections pass through E before I, and waning adds people back to S.
 - `hospLoad` returned = **peak** sub-step demand. `capMet` returned = **worst** sub-step capMet.
 
 ### 4.6 Vaccination (once, after integration)
 
 ```
-doses = (week ≥ sc.vaxWeek ? vax·10,000 : 0) + mods.bonusVax
+doses = week ≥ sc.vaxWeek ? vax·10,000 + mods.bonusVax : 0
 elderly : V first (up to Sv), the rest to G
 workers : G first (up to Sg), the rest to V
 balanced: split in proportion to Sg : Sv
 S → R
 ```
 
-Unused doses (when the susceptible pool is exhausted) are lost. Vaccinated people join **R**, so they wane with the scenario's waning rate.
+Unused doses (when the susceptible pool is exhausted) are lost. Vaccinated people join **R**, so they wane with the scenario's waning rate; the interface says so on the vaccination lever and in the model notes.
+
+Event doses (`bonusVax`) arriving before `vaxWeek` are not given out early. `advanceWeek` adds them to `G.vaxBank`, and in the first week with `week ≥ vaxWeek`, `enterWeek` moves the bank into that week's `eventMods.bonusVax`. The event card and the weekly report say when doses are being held and when they are released.
 
 ### 4.7 Waning (once, after vaccination)
 
@@ -290,7 +296,7 @@ All compartments are then clamped to ≥ 0. `permBeds ← comp.permBeds + 250·p
 restrictionEcon = LOCK_ECON[lock] + 2·schools + 1.5·travel + SHIELD_ECON[shield]
 Δecon = −restrictionEcon · (1 − FIN_RELIEF[finance]) − newDeaths/90 − 0.25·poe
 if lock = 0 and not schools and not travel and shield < 2:  Δecon += 1.2
-economy' = round(clamp(econ + Δecon, 0, 100))
+economyX' = clamp(econ + Δecon, 0, 100)          economy' = round(economyX')
 ```
 
 ### 4.9 Satisfaction
@@ -302,24 +308,26 @@ if lock > 0 or schools or travel or shield > 0:  Δsat += 0.5·comms
 Δsat −= newDeaths/180
 if capMet < 1:  Δsat −= 4
 Δsat −= min(4, newCases/10,000)
-satisfaction' = round(clamp(sat + Δsat, 0, 100))
+satisfactionX' = clamp(sat + Δsat, 0, 100)       satisfaction' = round(satisfactionX')
 ```
 
-Masks appear in neither the economy nor the satisfaction formula. Both indices are rounded to integers **every week**, so a net weekly change of less than ±0.5 is lost.
+Masks appear in neither the economy nor the satisfaction formula. The caller passes in the **unrounded** values from the previous step (`G.econX`, `G.satX`), so small weekly changes accumulate. The rounded values are used for display, history, scoring and the economic-collapse test (history economy = 0).
+
+Across 4,000 random 12-week policies (4 scenarios × Standard/Hard × 500), changing from weekly rounding to carrying the unrounded value moved the Business and General Public lobby indices by a mean of −0.02 and +0.34 points (mean absolute change 0.53 and 0.61, largest ±3). Deaths were unchanged. That is too small to affect the calibrated grade bands (§10).
 
 ### 4.10 Return value
 
 ```
-{ comp, economy, satisfaction, compliance: cf, S, E, I, R, D,
-  newCases, newDeaths, hospLoad, hospCap: cap, capMet,
-  Reff (2 dp), ifrEff: newDeaths / newCases }
+{ comp, economy, satisfaction (rounded), economyX, satisfactionX (unrounded), compliance: cf,
+  S, E, I, R, D, newCases, newDeaths, hospLoad, hospCap: cap, capMet,
+  Reff (immunity-adjusted, 2 dp), Rpolicy (policy-only, 2 dp), ifrEff: newDeaths / newCases }
 ```
 
 ---
 
 ## 5. Decisions and costing
 
-`getDecisions()` (line 1390) reads:
+`getDecisions()` (line 1406) reads:
 - the sliders `r-perm … r-comms` (integers 0–5); `vax` is forced to 0 if `G.week < sc.vaxWeek`;
 - the toggles `p-masks`, `p-schools`, `p-travel`;
 - `G.lock`, `G.shield`, `G.finance`, `G.vaxPriority`.
@@ -333,7 +341,7 @@ polCost = LOCK_COST[lock] + SHIELD_COST[shield] + FIN_COST[finance]
 total   = resCost + polCost + G.eventCost
 ```
 
-Available budget = `G.budget + G.eventMods.bonusBudget`. `advanceWeek` returns early if `total > budget`, and `onSlide` disables the button in that case. Budget does not roll over: `G.budget` is constant for the whole game.
+Available budget = `G.budget + G.eventMods.bonusBudget`. After a week runs, the Permanent Capacity slider is reset to 0, so the order is not repeated by accident. The lever's label shows the number of beds already built (`G.comp.permBeds`). `advanceWeek` returns early if `total > budget`, and `onSlide` disables the button in that case. Budget does not roll over: `G.budget` is constant for the whole game.
 
 `onSlide()` is the single re-render entry point for any control change. It runs: cost labels → budget box → header colour (amber below 20% remaining) → `updateForecast` → `updateStatsPanel` → `updateAdvisors` → `updateProposalBar`.
 
@@ -341,7 +349,7 @@ Available budget = `G.budget + G.eventMods.bonusBudget`. `advanceWeek` returns e
 
 ## 6. Forecasting engine
 
-`updateForecast(d)` (line 1453).
+`updateForecast(d)` (line 1471).
 
 ### Gating
 - `funded = G.lastEpi` (the level committed in the previous completed week). `pending = d.epi` (the live slider).
@@ -354,17 +362,20 @@ Available budget = `G.budget + G.eventMods.bonusBudget`. `advanceWeek` returns e
 horizon = min(6, 2 + funded)          → 3, 4, 5, 6, 6
 unc     = 0.30 / funded               → 0.30, 0.15, 0.10, 0.075, 0.06
 for k = 1..horizon:
-    r = computeStep(comp, econ, sat, G.week−1+k, d, G.sc, baseMods())
+    r = k = 1 ? computeStep(comp, econ, sat, G.week, d,            G.sc, G.eventMods)
+              : computeStep(comp, econ, sat, G.week−1+k, d with perm=0, G.sc, baseMods())
+    econ, sat ← r.economyX, r.satisfactionX
     band_I  = r.I · unc · k
     band_ix = min(35, |proj − current|·unc·k + 4·unc·k)     (economy, satisfaction)
 ```
 
-Point 0 is the current state with zero width. The current decisions `d` are held fixed for every future week.
+Point 0 is the current state with zero width. The first projected week is the week being planned, so it uses this week's event modifiers (the response already chosen). Later weeks assume no events, keep every other decision fixed, and do not repeat a one-off permanent-bed order.
 
 ### Properties
-- The projection is **deterministic** and uses the same function as gameplay. The band is **presentational**: it is a heuristic width, not a stochastic ensemble. When no event is active and the plan is unchanged, the k = 1 central value equals the next week's actual outcome exactly. In practice, the modelling level changes the horizon and the displayed band width, not the accuracy of the next-week projection.
-- The forecast uses `baseMods()`, so it **ignores the current week's event modifiers** (variant r0Delta, extraInf, ifrMult, capMult, compliance changes and bonus doses), as well as all future events.
-- The forecast's week index is passed to `computeStep`, but `d.vax` is already 0 before `vaxWeek`. Vaccination therefore never enters a projection made before vaccines unlock.
+- The projection is **deterministic** and uses the same function as gameplay. If the plan is not changed, the next-week projection (k = 1) equals the actual outcome exactly, including weeks with events, because this week's event response is already known. This was checked by playing a full game in a headless browser, with and without events.
+- Weeks beyond the first assume no further events, so projections further ahead are uncertain only because events may occur and the player may change the plan.
+- The band is a **heuristic** width that grows with distance ahead. It is presented as "indicative", not as a statistical interval. The strip says the next-week figure is exact if no event fires and the plan is unchanged. Higher modelling levels buy a longer horizon and a narrower band; they do not change the central projection.
+- `d.vax` is 0 before `vaxWeek`, so vaccination does not enter a projection made before vaccines unlock. Banked doses enter the first projected week once they are released.
 - Outputs: `G.forecast[]` with `{week, I, lo, hi, economy, econLo, econHi, satisfaction, satLo, satHi, cumD, newDeaths, hospPct}`. These feed the strip, the hospital bar's "next wk" figure, the dashed lines and bands on the epidemic curve and the economy/satisfaction chart.
 
 ### Side effect: variant forewarning
@@ -381,15 +392,15 @@ baseMods() = { r0Delta:0, ifrMult:1, lockEffMult:1, complyMult:1, capMult:1,
                bonusVax:0, extraInf:0, satDelta:0, bonusBudget:0 }
 ```
 
-`enterWeek` resets `G.eventMods` to `baseMods()` and `G.eventCost` to 0. An event response's `apply(m)` changes `G.eventMods`, and its `cost` sets `G.eventCost`. **All event effects last one week.**
+`enterWeek` resets `G.eventMods` to `baseMods()` and `G.eventCost` to 0, then adds any banked vaccine doses (§4.6). An event response's `apply(m)` changes `G.eventMods`, and its `cost` sets `G.eventCost`. **All event effects last one week**, and the event text says so: the variant card describes a "one-week surge", and the burnout and misinformation cards state the effect "this week" and no longer claim that staffing or communications reduce them, since neither is modelled.
 
-### 7.2 Scheduling (`buildEventSchedule`, line 1240)
+### 7.2 Scheduling (`buildEventSchedule`, line 1244)
 Uses the seeded RNG:
 1. A **variant** is placed in week `3 + floor(rng·3)`, which is week 3, 4 or 5.
 2. Further events, up to `df.events` in total, are placed in distinct weeks chosen uniformly from `[3..11]`. Each event type is drawn uniformly from the pool `['variant','fatigue','misinfo','erosion','aid','vaxboost']`. For `storm`, a second `'variant'` entry is added at the front, giving 2/7 odds per draw. There is a guard of 100 iterations.
 3. The same event type can occur more than once. Weeks 1, 2 and 12 never hold a scheduled event. (The code comment says "weeks 2..11"; the candidate list actually starts at 3.)
 
-### 7.3 Triggered events (`pickEvent`, line 1614)
+### 7.3 Triggered events (`pickEvent`, line 1644)
 These are evaluated in `enterWeek` only if the week has no scheduled event and `G.week − G.lastCondWeek ≥ 2`. The conditions use `last = G.history[-1]` (the week just completed) and its `dec`. They are checked in this order, and the first match fires:
 
 | Event | Condition |
@@ -428,6 +439,7 @@ startGame()
 
 enterWeek()
   eventMods ← baseMods(); eventCost ← 0; activeEvent ← null
+  if week ≥ vaxWeek and vaxBank > 0: eventMods.bonusVax += vaxBank; vaxBank ← 0
   if week ≥ vaxWeek: enable the vaccine slider
   ev ← pickEvent()
   ev ? showEventModal(ev) → chooseEventOption(opt) → showCommand()
@@ -437,10 +449,12 @@ showCommand()  → updateStatsPanel, updateTicker, applyViewState, onSlide, draw
 
 advanceWeek()                                   (RUN WEEK)
   d ← getDecisions(); abort if over budget
-  res ← computeStep(G.comp, G.economy, G.satisfaction, G.week, d, G.sc, G.eventMods)
+  res ← computeStep(G.comp, G.econX, G.satX, G.week, d, G.sc, G.eventMods)
+  if week < vaxWeek: vaxBank += eventMods.bonusVax
   poeCum += d.poe; lastEpi ← d.epi
   lockStreak ← (d.lock ≥ 2) ? lockStreak+1 : 0
-  push the history record; totalSpent += d.total; commit comp/economy/satisfaction
+  push the history record; totalSpent += d.total; commit comp, economy/satisfaction and econX/satX
+  reset the Permanent Capacity slider to 0
   buildReport(); week++
 
 afterReport()                                   (CONTINUE)
@@ -453,7 +467,7 @@ afterReport()                                   (CONTINUE)
 
 ## 9. Debrief scoring and reference strategies
 
-### Composite (`buildDebrief`, line 2087)
+### Composite (`buildDebrief`, line 2126)
 
 ```
 deathScore = max(0, 100 − totalDeaths/100)
@@ -473,24 +487,24 @@ Each strategy runs `computeStep` for 12 weeks from `freshComp(scenarioParams())`
 | `strict` | lock 3, comms 1 |
 | `balanced` | lock 2 (wk < 7) else 1; staff 2; test 2; comms 3; shield 1; poe 2 (wk ≤ 3) else 1; perm 1 (wk ≤ 3); surge 2 if bed demand at the start of the week > 1,200; epi 1; vax 3 from vaxWeek; masks; finance 1 (wk < 7) |
 
-The `balanced` strategy costs **$14.0M in week 1**, more than any difficulty's budget.
+The `balanced` strategy costs **$14.0M in week 1**, more than any difficulty's budget. The debrief labels it "Balanced ref (no budget limit)", and the chart caption says the reference strategies exclude events and budget limits. Reference runs also carry unrounded economy and satisfaction between weeks (§4.9).
 
 Reference outcomes (total deaths / final economy / final satisfaction), computed by running the engine headless:
 
 | Scenario / difficulty | Do nothing | Strict-only | Balanced |
 |---|---|---|---|
-| baseline / standard | 26,948 / 0 / 0 | 990 / 0 / 0 | 65 / 28 / 46 |
-| baseline / hard | 31,289 / 0 / 0 | 3,115 / 0 / 0 | 103 / 28 / 46 |
+| baseline / standard | 26,948 / 0 / 0 | 990 / 0 / 0 | 65 / 29 / 47 |
+| baseline / hard | 31,289 / 0 / 0 | 3,115 / 0 / 0 | 103 / 29 / 46 |
 | baseline / nightmare | 33,823 / 0 / 0 | 6,892 / 0 / 0 | 163 / 28 / 44 |
-| fast / standard | 46,075 / 0 / 0 | 20,774 / 0 / 0 | 893 / 21 / 32 |
-| fast / hard | 46,828 / 0 / 0 | 29,375 / 0 / 0 | 1,432 / 15 / 24 |
-| fast / nightmare | 47,244 / 0 / 0 | 35,948 / 0 / 0 | 2,206 / 7 / 8 |
-| slow / standard | 5,395 / 47 / 36 | 95 / 0 / 0 | 15 / 28 / 46 |
-| slow / hard | 10,053 / 0 / 1 | 162 / 0 / 0 | 21 / 28 / 46 |
-| slow / nightmare | 14,952 / 0 / 0 | 270 / 0 / 0 | 30 / 28 / 46 |
-| storm / standard | 24,665 / 0 / 0 | 619 / 0 / 0 | 59 / 28 / 46 |
-| storm / hard | 30,465 / 0 / 0 | 1,751 / 0 / 0 | 91 / 28 / 46 |
-| storm / nightmare | 34,135 / 0 / 0 | 4,543 / 0 / 0 | 141 / 28 / 44 |
+| fast / standard | 46,075 / 0 / 0 | 20,774 / 0 / 0 | 893 / 20 / 32 |
+| fast / hard | 46,828 / 0 / 0 | 29,375 / 0 / 0 | 1,432 / 14 / 23 |
+| fast / nightmare | 47,244 / 0 / 0 | 35,948 / 0 / 0 | 2,206 / 5 / 7 |
+| slow / standard | 5,395 / 47 / 35 | 95 / 0 / 0 | 15 / 30 / 49 |
+| slow / hard | 10,053 / 0 / 1 | 162 / 0 / 0 | 21 / 30 / 48 |
+| slow / nightmare | 14,952 / 0 / 0 | 270 / 0 / 0 | 30 / 30 / 48 |
+| storm / standard | 24,665 / 0 / 0 | 619 / 0 / 0 | 59 / 29 / 48 |
+| storm / hard | 30,465 / 0 / 0 | 1,751 / 0 / 0 | 91 / 29 / 47 |
+| storm / nightmare | 34,135 / 0 / 0 | 4,543 / 0 / 0 | 141 / 28 / 45 |
 
 In a "do nothing" run the economy reaches 0 because of deaths (−newDeaths/90), not restrictions. Storm differs from baseline only in its parameters here, because reference runs have no events.
 
@@ -498,7 +512,7 @@ In a "do nothing" run the economy reaches 0 because of deaths (−newDeaths/90),
 
 ## 10. Lobby scoring (Class Scorecard)
 
-`computeLobbyScores()` (line 1034). Here `wk` is the set of history records with week > 0, and `cal = LOBBY_CAL[difficulty]`, falling back to `hard`.
+`computeLobbyScores()` (line 1038). Here `wk` is the set of history records with week > 0, and `cal = LOBBY_CAL[difficulty]`, falling back to `hard`.
 
 ### Calibration table
 
@@ -539,12 +553,12 @@ Compares a value against `cal.bands`: ≥ b0 is A+, ≥ b1 A, ≥ b2 B, ≥ b3 C
 ```
 restrict = lock + schools + travel
 served   = restrict ≥ 3 ? 'Vulnerable'
-         : restrict = 0 ? 'Business'
-         : (shield > 0 and lock ≤ 1) ? 'Vuln·targeted' : 'Mixed'
+         : (shield > 0 and lock ≤ 1) ? 'Vuln·targeted'
+         : restrict = 0 ? 'Business' : 'Mixed'
 if finance > 0: served += '+Public'
 ```
 
-Because `restrict = 0` is tested before shielding, a week with shielding but no other restriction is labelled "Business".
+Shielding is tested before the no-restriction case, so a week with shielding but no lockdown, school closure or travel restriction is labelled "Vuln·targeted".
 
 ---
 
@@ -579,8 +593,8 @@ All charts are drawn with the Canvas 2D API without a library. `setupCanvas` siz
 
 | Chart | Function | Notes |
 |---|---|---|
-| Epidemic curve | `drawEpiChart` | Dual axis (left: I and new cases; right: weekly deaths). The left maximum covers the forecast `hi`, and the right maximum covers forecast deaths. HOSP CAP line at `cap / ((HOSP_G+HOSP_V)/2)` = cap/0.135. Event icons; hover tooltip via `EPI_GEOM` (history only) |
-| Rₑ | `drawReffChart` | Segments coloured by whether the mean of the two endpoints is above 1; R = 1 reference line |
+| Epidemic curve | `drawEpiChart` | Dual axis (left: I and new cases; right: weekly deaths). The left maximum covers the forecast `hi`, and the right maximum covers forecast deaths. HOSP CAP line at `cap / rate`, where `rate` = (Ig·0.05 + Iv·0.22)/(Ig + Iv) from the current compartments, or the population-weighted 0.0806 when no one is infectious. The line therefore marks the infectious count at which beds would be full with the current mix of patients. Event icons; hover tooltip via `EPI_GEOM` (history only) |
+| Rₑ | `drawReffChart` | Plots the immunity-adjusted Rₑ. Segments coloured by whether the mean of the two endpoints is above 1; R = 1 reference line |
 | Economy and satisfaction | `drawEconSatChart` | Guide lines at 70 and 40, red zone below 30, forecast bands |
 | Compartments | `drawSeirChart` | Stacked S, R, E, I, D as fractions of `POP` |
 | Debrief comparison | `drawCompareChart` | The player's I curve against the three reference runs, which are recomputed on each draw |
@@ -598,7 +612,7 @@ The chart helpers `CFS` (font ×1.8), `CLW` (line ×1.9), `CDOT` (dot ×1.7), `C
 - **Keys**: Ctrl/Cmd+Alt+C works globally. Bare `D` and `S` work only in class mode on the command screen, and are ignored while focus is in a text input, textarea or contenteditable element.
 
 ### Advisors and ticker
-Both are pure functions of `G`, the current decisions and the last history record. They hold no state of their own. See `ADVISORS` (line 1737) and `updateTicker` (line 1716) for the exact conditions.
+Both are pure functions of `G`, the current decisions and the last history record. They hold no state of their own. See `ADVISORS` (line 1772) and `updateTicker` (line 1751) for the exact conditions.
 
 ---
 
@@ -611,30 +625,47 @@ Both are pure functions of `G`, the current decisions and the last history recor
 
 ---
 
-## 14. Known modelling simplifications and discrepancies
+## 14. Resolved discrepancies and remaining simplifications
 
-This section lists places where the model is deliberately simple, or where the code's behaviour differs from what the interface text suggests. Each was confirmed by reading the code.
+### 14.1 Resolved
+An earlier version of this guide listed eighteen discrepancies. Items 1–16 have been addressed, either by fixing the code or by correcting the on-screen text to describe what the code does. None of the changes alters the game's balance beyond the small rounding effect measured in §4.9, so the lobby calibration (§10) still applies.
 
-| # | Area | Behaviour | Consequence |
+| # | Area | Previous behaviour | Resolution |
 |---|---|---|---|
-| 1 | Rₑ display | `Reff` = R0 × policy multiplier. It excludes susceptible depletion (S/N) | "Above 1.0 — growing" can be shown while infections are falling, late in an outbreak or with high immunity |
-| 2 | HOSP CAP line | Uses the unweighted mean hospitalisation rate (0.135), not the rate weighted by the population mix | The line is a rough guide. When infections are spread in proportion to group size (weighted rate ≈ 0.081), the real threshold is about 1.7× higher than drawn, so the line signals overflow early |
-| 3 | Permanent capacity | Each week with perm > 0 buys and pays for new beds | Leaving the slider set buys beds every week. Players may expect a one-off purchase |
-| 4 | Variant duration | The variant's r0Delta lasts only the week of the event | A variant is a one-week shock, not a lasting change in transmissibility |
-| 5 | Vaccine immunity | Vaccinated people move to R and wane at `sc.waning` | Vaccine protection decays like natural immunity |
-| 6 | Bonus doses | `bonusVax` is applied even before `vaxWeek` | An aid grant or windfall in week 3 vaccinates people before vaccines officially unlock |
-| 7 | Forecast vs events | The forecast uses `baseMods()` | The projection ignores the current week's event effects |
-| 8 | Forecast accuracy | The band is a heuristic width; the central value is exact without events | Modelling level affects horizon and the displayed band, not real accuracy |
-| 9 | Event text vs mechanics | Burnout says "well-staffed systems weather this far better"; misinformation says counter-messaging is "best with high comms" | Neither interaction is modelled. Staffing and comms do not change those events' parameters |
-| 10 | Strike and protest severity | `strike.mult` is fixed at 0.68 and `protests` ignores `sev` | These two do not scale with difficulty |
-| 11 | Reference "Balanced" | No budget check; costs $14M in week 1 | It is a benchmark that cannot be afforded in play |
-| 12 | Integer indices | Economy and satisfaction are rounded each week | Net weekly changes of less than ±0.5 are lost (for example, a small recovery bonus offset by small losses) |
-| 13 | Economy recovery bonus | Requires shield < 2 but ignores masks and POE | Voluntary shielding and masks do not block the +1.2 bonus |
-| 14 | "Served" label | Shield-only weeks are labelled Business | The label can understate targeted protection |
-| 15 | Schedule comment | The comment says weeks 2..11; the code uses 3..11 | Documentation only |
-| 16 | `G.compliance` | Stored but never read by the model | None |
-| 17 | Homogeneous mixing | One force of infection for both groups | No age or contact structure; shielding only reduces vulnerable susceptibility |
-| 18 | Hospital demand | Prevalence-based (beds = a fraction of current I), with no length of stay | Bed occupancy follows infections immediately, with no lag |
+| 1 | Rₑ display | Excluded immunity, so "above 1 — growing" could appear while infections fell | **Code.** Reported Rₑ = policy R × susceptible share (§4.5). The policy-only value is kept as `Rpolicy` |
+| 2 | HOSP CAP line | Used an unweighted mean hospitalisation rate | **Code.** Weighted by the current infectious mix (§12) |
+| 3 | Permanent capacity | The order repeated every week the slider stayed up | **Code.** The slider resets to 0 after each week, and the lever shows beds built (§5) |
+| 4 | Variant duration | The text implied a lasting change | **Text.** The card describes a one-week surge, and the options refer to "this week's" surge |
+| 5 | Vaccine immunity | Waning of vaccine immunity was not mentioned | **Text.** The vaccination lever and model notes say vaccine immunity wanes at the natural rate |
+| 6 | Bonus doses | Given out before vaccination opened | **Code.** Banked until `vaxWeek` (§4.6) |
+| 7 | Forecast vs events | The forecast ignored this week's event | **Code.** The first projected week uses this week's event modifiers (§6) |
+| 8 | Forecast accuracy | The band implied uncertainty that the central projection does not have | **Text.** The strip calls the range "indicative" and says next week is exact if no event fires and the plan is unchanged; the modelling lever says higher levels mean "further ahead, narrower indicative range" |
+| 9 | Event text vs mechanics | Burnout and misinformation claimed interactions with staffing and comms | **Text.** Those claims were removed |
+| 11 | Reference "Balanced" | Over budget without saying so | **Text.** Labelled "no budget limit" on the debrief |
+| 12 | Integer indices | Weekly rounding lost changes below ±0.5 | **Code.** Unrounded values carried between weeks (§4.9) |
+| 13 | Economy recovery bonus | The rule was not stated | **Text.** The model notes state the exact condition |
+| 14 | "Served" label | Shield-only weeks labelled Business | **Code.** Now labelled Vuln·targeted (§10) |
+| 15 | Schedule comment | Said weeks 2..11 | **Code comment** corrected to 3..11 |
+| 16 | `G.compliance` | Stored but never read | **Code.** Removed |
+
+The permanent-capacity forecast was also corrected: projections no longer assume that a one-off bed order repeats in later weeks.
+
+### 14.2 Remaining simplifications
+These are deliberate simplifications of the model. They are described accurately in the interface and the guides, and changing them would alter game balance and require recalibration. A brief for that work is in [`docs/prompts/mechanics-and-calibration.md`](prompts/mechanics-and-calibration.md).
+
+| # | Area | Behaviour |
+|---|---|---|
+| 4 | Variant | A one-week rise in R₀, not a permanent change in the pathogen |
+| 5 | Vaccine immunity | Wanes at the same rate as natural immunity |
+| 8 | Forecast | The band is a heuristic width; modelling level does not change how accurate the central projection is |
+| 9 | Events | Staffing and communications do not interact with the burnout and misinformation events |
+| 10 | Strike and protest severity | `strike.mult` is fixed at 0.68 and `protests` ignores `sev`, so neither scales with difficulty |
+| 17 | Homogeneous mixing | One force of infection for both groups, with no age or contact structure; shielding only reduces vulnerable susceptibility |
+| 18 | Hospital demand | Prevalence-based (beds = a fraction of current I), with no length of stay, so bed occupancy follows infections with no lag |
+| — | Reference strategies | Run without events and without a budget limit |
+
+### 14.3 Interface limitation noted while capturing screenshots
+In Classroom mode at 1920×1080, Debate view (D) on its own fits the screen. With the live scoreboard (S) shown, the bottom row of three charts is slightly clipped, and with both D and S on together it is heavily clipped. This is a layout issue, not a model issue, and has not been changed.
 
 ---
 
@@ -670,7 +701,9 @@ The terms below appear in this guide or in the code, and are not plain English. 
 | **Prevalence** | The number of people infected at a given moment (here, I). Contrast with **incidence**. |
 | **Incidence** | The number of *new* infections in a period (here, `newCases` per week). |
 | **R₀ (basic reproduction number)** | The average number of people one infectious person infects in a fully susceptible population with no interventions. A scenario parameter. |
-| **Rₑ / Reff (effective reproduction number)** | The average number of people one infectious person infects under current conditions. **In this code**, `Reff` = R₀ × the policy multiplier only. It does not include the effect of immunity in the population (see **susceptible depletion**). |
+| **Rₑ / Reff (effective reproduction number)** | The average number of people one infectious person infects under current conditions. **In this code**, the reported `Reff` = R₀ × the policy multiplier × the susceptible share, so it includes immunity. Inside `computeStep`, the name `Reff` refers to the policy-only value before that adjustment. |
+| **Rpolicy** | R₀ after policy effects only, without allowing for immunity. Stored in history for reference. |
+| **Susceptible share** | The fraction of the living population that can still be infected, counting shielded vulnerable people in proportion to their remaining susceptibility. |
 | **Epidemic threshold** | R = 1. Above it, each case causes more than one new case on average, so infections grow; below it, they shrink. |
 | **Susceptible depletion** | The slowing of an outbreak as fewer people remain who can be infected. In the model this enters through the S/N term in the force of infection. |
 | **Force of infection (λ)** | The rate at which susceptible people become infected, here per sub-step. Proportional to Rₑ, γ and the fraction of the population that is infectious. |
@@ -697,6 +730,7 @@ The terms below appear in this guide or in the code, and are not plain English. 
 
 | Term | Definition |
 |---|---|
+| **Unrounded (exact) value** | A number kept with its decimal places instead of being rounded to a whole number. |
 | **Explicit Euler method** | A simple way to step equations forward in time: the change over a short step is the current rate multiplied by the step length. |
 | **Sub-step / dt** | One of the 7 short (daily) steps inside each simulated week. `dt` is the step length, 1/7 of a week. Smaller steps reduce numerical error. |
 | **Numerical stability** | Whether a step-by-step calculation stays well-behaved (for example, never producing negative people). Daily sub-steps are used for this reason. |
@@ -737,6 +771,8 @@ The terms below appear in this guide or in the code, and are not plain English. 
 | **Modifier (`mods`)** | A temporary adjustment that an event applies to the model for one week, such as `r0Delta` or `capMult`. |
 | **Severity (`sev`)** | The difficulty's multiplier for event strength. |
 | **Cumulative** | Added up over time. `poeCum` is the total of POE levels over all completed weeks. |
+| **Bank (vaccine doses)** | A store of event doses received before vaccination opens, released in the first vaccine week. |
+| **One-off order** | A purchase made once, not repeated each week. Permanent Capacity works this way. |
 | **Lag / in arrears** | Taking effect later than when paid for. Modelling funded this week produces a forecast next week. |
 
 ### Software and web

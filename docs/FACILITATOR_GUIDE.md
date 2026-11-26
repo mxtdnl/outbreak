@@ -93,6 +93,10 @@ Your settings **carry over** from week to week. Nothing resets automatically. If
 
 ## 4. Screen 1 — Briefing and setup
 
+
+![The briefing and setup screen](images/setup.jpg)
+*The briefing screen: scenario, difficulty, seed, display mode and lobby count, with the summary tiles below.*
+
 ### Situation briefing
 The opening text explains the premise. It has no controls.
 
@@ -142,7 +146,11 @@ Starts the game. All sliders and toggles reset to zero/off, policies to None, an
 
 ## 5. Screen 2 — Command Centre
 
-This is where you spend almost all of your time. It has six areas:
+This is where you spend almost all of your time.
+![The Command Centre in Solo mode](images/command-solo.jpg)
+*The Command Centre in Solo mode, week 5, with modelling funded and two advisors open.*
+
+It has six areas:
 
 | Area | Position | Contents |
 |---|---|---|
@@ -169,12 +177,16 @@ Scrolling headlines generated from the current state: the week, any breaking eve
 
 Every resource is a slider from **level 0 to level 5**. The figure on the right of each slider is its cost **this week** (level × unit cost). In Classroom mode it is prefixed with the level, for example `L3 · $1.5M`.
 
-Resources are charged **every week they are set above zero**.
+Resources are charged **every week they are set above zero**. The exception is Permanent Capacity, which is a one-off order (below).
+![The resource sliders](images/panel-resources.png)
+*The resource panel. The teal note beside Permanent Capacity shows the beds already built.*
 
-### Permanent Capacity — $1.5M per level per week
+
+### Permanent Capacity — $1.5M per level, one-off order
 - Adds **250 hospital beds per level**, available immediately and **kept for the rest of the game**.
 - The base hospital system has 1,000 beds.
-- **Important:** each week the slider is above zero, you buy *more* beds and pay again. Leaving it at level 2 for three weeks adds 1,500 beds and costs $9M in total. Once you have enough beds, set it back to 0. The beds you bought stay.
+- It is a **one-off order**: after the week runs, the slider returns to 0, and the label shows the total built (for example `· 500 built`). To build more, order again in a later week.
+- The weekly report confirms the beds commissioned and the new total.
 - Best bought early: beds bought in week 1 serve for 12 weeks.
 
 ### Surge Capacity — $0.6M per level per week
@@ -195,7 +207,7 @@ Resources are charged **every week they are set above zero**.
 ### Vaccination — $1.0M per level per week
 - **Locked** (greyed out) until the scenario's vaccine week (week 4, or week 5 for Fast & Deadly).
 - Each level immunises about **10,000 susceptible people per week**, so 50,000 per week at level 5.
-- Vaccinated people become immune, but that immunity **wears off at the same rate as natural immunity** for the scenario. In Slow Burn (9% per week), vaccination needs to be sustained.
+- Vaccinated people become immune, but that immunity **wears off at the same rate as natural immunity** for the scenario. The lever's description says so. In Slow Burn (9% per week), vaccination needs to be sustained.
 - **Prioritisation** (three buttons below the slider) decides who gets doses first:
 
 | Option | Who is vaccinated first | Effect |
@@ -204,11 +216,11 @@ Resources are charged **every week they are set above zero**.
 | **Balanced** | Both groups in proportion to how many are still susceptible | A middle course |
 | **Workers first** | All susceptible general-group people, then the vulnerable | Removes more of the population driving transmission |
 
-Bonus doses from events also follow this setting, and they arrive even if the vaccine week has not yet been reached.
+Bonus doses from events also follow this setting. Doses received **before** the vaccine week are held in storage and administered in the first vaccine week; the event card and weekly report say so.
 
 ### Epidemic Modelling — $0.5M per level per week
 - Funds the **forecast**. Modelling is **bought a week in advance**: what you fund this week produces projections **next** week. See [§10](#10-forecasting).
-- Higher levels give a longer forecast horizon and a narrower uncertainty band.
+- Higher levels give a longer forecast horizon and a narrower indicative range.
 - At **level 3 or higher**, your modelling team spots variants early, which makes a variant event less severe (see [§12](#12-screen-3--events)).
 - If you defund it, the forecast stops the following week.
 
@@ -229,6 +241,9 @@ Bonus doses from events also follow this setting, and they arrive even if the va
 ## 7. Policy levers (right panel)
 
 Tiered policies are a row of buttons; click one to select it. Toggles are on/off switches. All policies are charged **every week they are active**.
+![The policy levers and advisors](images/panel-policies.png)
+*The policy panel: tiered levers, toggles, and the advisors (Solo mode only).*
+
 
 The "R₀ ×" figures shown in the panel are what each policy achieves at **100% compliance**. At lower compliance they achieve proportionally less. With no communications and no financial support, compliance is 55%, so a "×0.40" strict lockdown actually gives about ×0.67.
 
@@ -280,6 +295,12 @@ All transmission reductions **multiply** together. For example, at full complian
 ## 8. The weekly budget
 
 The **Weekly Budget** box under the sliders shows:
+![The weekly budget box](images/budget.png)
+*Within budget.*
+
+![The weekly budget box when over budget](images/budget-over.png)
+*Over budget: Remaining turns red, the header shows a negative figure, and RUN WEEK is disabled.*
+
 
 | Line | Meaning |
 |---|---|
@@ -300,6 +321,9 @@ Rules:
 
 ### Population counters
 Six figures across the top:
+![The population counters](images/stats-row.png)
+*Population counters.*
+
 
 | Counter | Meaning |
 |---|---|
@@ -309,6 +333,10 @@ Six figures across the top:
 | **Recovered** | Currently immune, through recovery or vaccination |
 | **Deaths (cum.)** | Total deaths so far |
 | **Hosp. Load** | Last week's peak bed demand as a percentage of capacity. Green below 75%, amber 75–99%, red at 100% or above |
+
+
+![Hospital bar, economy and satisfaction bars, and forecast strip](images/status-forecast.png)
+*The hospital bar (with next week's projected load), the Economy and Satisfaction bars, and the forecast strip.*
 
 ### Hospital Capacity Usage bar
 Shows the beds in use out of the beds available (for example `812 / 1,250 beds`). When a forecast is active, the projected load for next week is shown alongside it, with **⚠ OVERFLOW** if it would reach 100%.
@@ -342,14 +370,18 @@ A one-line projection. See [§10](#10-forecasting).
 - **Grey line**: deaths each week, on the **right axis**, which has its own scale.
 - **Dashed blue line with shaded band**: forecast of infectious people, when modelling is active.
 - **Dashed grey line**: forecast of weekly deaths.
-- **Dashed amber "HOSP CAP" line**: a rough guide to the number of infectious people at which hospitals fill. It assumes a 50/50 mix of the two groups, so it usually sits lower than the true point at which hospitals fill. Treat it as an early warning, not an exact threshold. Use the hospital bar for the actual figure.
+- **Dashed amber "HOSP CAP" line**: the number of infectious people at which hospitals would be full, given the current mix of patients between the two groups. It appears only when it falls within the chart's range. Because the mix can change from week to week, treat it as a guide; the hospital bar is the exact figure.
 - **Event icons** above the curve mark the weeks in which events fired.
 - **Hover** over a week to see its infectious count, new cases, weekly and cumulative deaths, Rₑ, economy and satisfaction, and lockdown tier.
+![The four charts](images/charts.png)
+*The epidemic curve with forecast band, and the Rₑ, economy & satisfaction, and population compartment charts.*
+
+![The epidemic curve hover tooltip](images/chart-tooltip.png)
+*Hovering over a week shows that week's figures.*
+
 
 ### Effective Rₑ over time
-The transmission number your policies produced each week. The line is red above 1 and green at or below 1, and a dashed line marks R = 1.
-
-> Rₑ here is the R₀ after the effect of your policies. It does **not** account for how many people are already immune. Late in an outbreak, when many people have recovered or been vaccinated, infections can fall even while this figure is above 1. Use the infectious curve to judge whether the outbreak is actually growing.
+The average number of new infections each case caused that week. It combines the effect of your policies with how many people are already immune (or shielded). The line is red above 1 and green at or below 1, and a dashed line marks R = 1. Above 1 means infections are growing; below 1 means they are shrinking. This is approximate: there is a lag of a few days while newly infected people incubate, and waning immunity adds people back to the susceptible group.
 
 ### Economy & Satisfaction chart
 Both indices over time. Dotted guide lines mark 70 ("good") and 40 ("weak"), and the shaded red zone below 30 is the danger area. Forecast lines and bands appear when modelling is active.
@@ -373,13 +405,13 @@ Forecasts are a capability you **buy in advance**:
 |---|---|
 | Not funded last week, not funded now | "Forecast — locked" |
 | Not funded last week, funded now | "Forecast — active next week" |
-| Funded last week | A projection of next week if you commit to the current plan: new cases, deaths, economy (with change), satisfaction (with change), hospital load and Rₑ, then the position at the end of the horizon |
+| Funded last week | A projection of next week if you commit to the current plan: new cases, deaths, economy (with change), satisfaction (with change), hospital load and Rₑ, then the position at the end of the horizon, the horizon length and the indicative range |
 
 The projection **updates live** as you move sliders and change policies, so you can compare plans before you commit to one.
 
 ### Horizon and band by level funded last week
 
-| Level | Horizon | Band (± per week ahead) |
+| Level | Horizon | Indicative range (± per week ahead) |
 |---|---|---|
 | 1 | 3 weeks | ±30% |
 | 2 | 4 weeks | ±15% |
@@ -387,14 +419,15 @@ The projection **updates live** as you move sliders and change policies, so you 
 | 4 | 6 weeks | ±7.5% |
 | 5 | 6 weeks | ±6% |
 
-The band widens with each week further ahead. Below level 3, the strip is labelled "coarse".
+The range widens with each week further ahead. Below level 3, the strip adds "raise modelling to see further". The range is indicative: it is a visual guide to how far the projection might move, not a statistical interval.
 
 ### What the forecast assumes
-- You keep **exactly the current plan** for every future week.
-- **No events occur**. That includes this week's event: the forecast does not include the effect of the response you just chose (for example a variant surge or super-spreader cluster).
+- You keep **exactly the current plan** for every future week, except that a one-off Permanent Capacity order is not repeated.
+- The first projected week (the week you are planning) **includes this week's event and the response you chose**.
+- **No further events occur** after this week.
 - Vaccination counts only if it is already available this week.
 
-If no event is active and your plan does not change, the next-week projection matches what actually happens. The difference between projection and outcome therefore comes from events and from your own later changes. See the Technical Guide, §6.
+If your plan does not change, the next-week projection matches what actually happens, including in event weeks, and the strip says so. Differences further ahead come from later events and from your own later changes. Higher modelling buys a longer view and a narrower range, not a more accurate next week. See the Technical Guide, §6.
 
 Warnings in the strip:
 - **"⚠ modelling unfunded this week — forecast stops next week"** when the slider is at 0.
@@ -419,7 +452,7 @@ Advisors each see one side of the problem and can contradict each other.
 After you respond to an event, a red-edged panel restates the event and your choice. It lasts for the current week only.
 
 ### Model Notes (Solo mode only)
-A short summary of the model's assumptions and how the scores are weighted.
+A short summary of the model's assumptions: two groups, waning immunity (including vaccine immunity), that Rₑ includes immunity, the exact condition for the economy's +1.2 weekly recovery, and how the scores are weighted.
 
 ---
 
@@ -428,6 +461,9 @@ A short summary of the model's assumptions and how the scores are weighted.
 At the start of a week, an event card may appear **before** the Command Centre. At most one event occurs per week. You **must** pick one response; there is no option to close the card without choosing. The response's cost is taken from this week's budget, and its effects last **this week only**.
 
 The card has a red top edge for a crisis and a green one for good news. Text in teal tells you when an earlier investment you made has reduced the impact.
+![An event card](images/event.png)
+*The variant event card. The teal text shows that border screening and modelling have reduced its impact.*
+
 
 ### How events are chosen
 - **Scheduled events** are fixed at the start by the seed, scenario and difficulty: 3, 4 or 5 of them in weeks 3–11. A **variant always appears** in week 3, 4 or 5.
@@ -439,7 +475,7 @@ The card has a red top edge for a crisis and a green one for good news. Text in 
 "Severity" below is the difficulty's event severity (×1.0, ×1.25 or ×1.5).
 
 ### 🧬 More Transmissible Variant (scheduled)
-Raises R₀ this week by **1.4 × severity**, or **1.1 × severity** if you funded modelling at level 3+ last week. Accumulated port-of-entry screening then cuts this by 6% per level-week (maximum 75%).
+A **one-week surge** in R₀ of **1.4 × severity**, or **1.1 × severity** if you funded modelling at level 3+ last week. Accumulated port-of-entry screening then cuts this by 6% per level-week (maximum 75%). The card states that the surge lasts one week.
 
 | Response | Cost | Effect |
 |---|---|---|
@@ -448,7 +484,7 @@ Raises R₀ this week by **1.4 × severity**, or **1.1 × severity** if you fund
 | Monitor only | Free | The full surge applies |
 
 ### 🏥 Healthcare Worker Burnout (scheduled)
-Raises fatality by 25% × severity.
+Raises fatality this week by 25% × severity. The Medical Staff level does not change this event; only the response does.
 
 | Response | Cost | Effect |
 |---|---|---|
@@ -457,7 +493,7 @@ Raises fatality by 25% × severity.
 | Ask staff to push through | Free | The full increase; −3 satisfaction |
 
 ### 📱 Misinformation Surge (scheduled)
-Cuts compliance by 28% × severity.
+Cuts compliance this week by 28% × severity. The Communications level does not change this event; only the response does.
 
 | Response | Cost | Effect |
 |---|---|---|
@@ -479,14 +515,16 @@ Cuts lockdown effectiveness by 26% × severity.
 | Response | Cost | Effect |
 |---|---|---|
 | Accept — general relief fund | Free | +$4M budget this week |
-| Accept — earmarked, plus matched vaccines | Free | +$3M budget and 8,000 doses this week |
+| Accept — earmarked, plus matched vaccines | Free | +$3M budget and 8,000 doses (held until vaccination opens, if it has not yet) |
 
 ### 💉 Vaccine Supply Windfall (scheduled, good news)
 
 | Response | Cost | Effect |
 |---|---|---|
-| Fast-track distribution | $0.4M | +22,000 doses this week |
-| Standard rollout | Free | +13,000 doses this week |
+| Fast-track distribution | $0.4M | +22,000 doses |
+| Standard rollout | Free | +13,000 doses |
+
+If the windfall arrives before vaccination opens, the doses are held and administered in the first vaccine week.
 
 ### 📢 Anti-Restriction Protests (triggered)
 
@@ -518,6 +556,9 @@ About 9,000 × severity extra people are infected at once at the start of the we
 ## 13. Screen 4 — Weekly report
 
 After each week, a report summarises it.
+![The weekly report](images/report.png)
+*A weekly report.*
+
 
 ### Six headline figures
 
@@ -526,7 +567,7 @@ After each week, a report summarises it.
 | New Cases | Change from last week: red if up, green if down |
 | Deaths This Wk | Cumulative deaths |
 | Hosp. Load | Peak beds in use / beds available |
-| Effective R | "✓ Below epidemic threshold" or "⚠ Above 1.0 — growing" (see the note on Rₑ in [§9](#9-reading-the-centre-panel)) |
+| Effective R | "✓ Below epidemic threshold" or "⚠ Above 1.0 — growing" (see Rₑ in [§9](#9-reading-the-centre-panel)) |
 | Economy | Change in points |
 | Satisfaction | Change in points |
 
@@ -536,7 +577,8 @@ Automatic notes on what happened. These cover:
 - Hospital status: overflowing, approaching overflow (above 75%), or managing.
 - Deaths by group, and whether shielding is active.
 - Whether an event shaped this week's figures.
-- Vaccine availability, in the week vaccines unlock.
+- Vaccine availability, in the week vaccines unlock; donated doses in storage, and when they are administered.
+- Permanent beds commissioned this week, with the new total.
 - A warning if you spent less than half the budget.
 - Warnings if the economy falls below 40 or satisfaction below 35.
 
@@ -548,6 +590,10 @@ A different question each week, designed for discussion or written reflection.
 ---
 
 ## 14. Screen 5 — Debrief
+
+
+![The debrief screen](images/debrief.jpg)
+*The debrief: grade, summary tiles, comparison chart, outcomes and reflection questions.*
 
 ### Grade
 A letter grade based on a **composite score**: 40% deaths, 30% final economy, 30% final satisfaction. The deaths part is 100 with no deaths and falls by 1 point per 100 deaths, so it reaches 0 at 10,000 deaths.
@@ -572,9 +618,9 @@ Your infection curve against three reference strategies. Each was run on the sam
 |---|---|
 | **Do nothing** | No spending at all |
 | **Strict-only** | Strict lockdown and communications level 1, every week |
-| **Balanced ref** | Moderate then mild lockdown, staff 2, testing 2, communications 3, voluntary shielding, masks, early border screening and permanent beds, modelling 1, vaccination 3 when available, partial financial support for the first six weeks |
+| **Balanced ref (no budget limit)** | Moderate then mild lockdown, staff 2, testing 2, communications 3, voluntary shielding, masks, early border screening and permanent beds, modelling 1, vaccination 3 when available, partial financial support for the first six weeks |
 
-The legend shows each strategy's total deaths. **Note:** the Balanced reference ignores the budget limit (it costs about $14M in week 1). It is a teaching benchmark, not a plan you can afford. Strict-only typically drives the economy and satisfaction to zero.
+The legend shows each strategy's total deaths. The Balanced reference ignores the budget limit (it costs about $14M in week 1), and its label says so. It is a teaching benchmark, not a plan you can afford. Strict-only typically drives the economy and satisfaction to zero.
 
 ### Final Outcomes
 A paragraph covering total and per-group deaths, final indices, peak infections and the week it occurred, the number of weeks hospitals overflowed, the composite score, your weakest dimension, and total spending.
@@ -591,6 +637,9 @@ Five discussion questions on how the score is weighted, shielding versus suppres
 ## 15. Screen 6 — Class Scorecard
 
 The scorecard scores the same run from the point of view of each interest group, then scores the government on how well it served **all** of them.
+![The Class Scorecard](images/scorecard.jpg)
+*The Class Scorecard in 5-lobby mode.*
+
 
 ### Lobby cards (0–100 each)
 
@@ -629,8 +678,8 @@ A table with one row per week: lockdown, shielding, financial support, masks, sc
 | Label | Rule |
 |---|---|
 | Vulnerable | Lockdown tier + schools closed + travel restricted adds up to 3 or more |
-| Business | None of lockdown, school closures or travel restrictions (even if shielding is on) |
-| Vuln·targeted | Shielding active with lockdown at None or Mild |
+| Vuln·targeted | Shielding active with lockdown at None or Mild (and the Vulnerable rule not met) |
+| Business | None of lockdown, school closures, travel restrictions or shielding |
 | Mixed | Anything else |
 | …+Public | Added when any financial support was given |
 
@@ -656,12 +705,22 @@ Select **Classroom** on the briefing screen, or press **Ctrl+Alt+C** (Cmd+Alt+C 
 - To fit every control on screen without scrolling, the following are **hidden**: lever descriptions, Advisors and Model Notes. On short screens (950px high or less), policy notes are hidden too.
 - Slider cost readouts show the level, for example `L2 · $1.2M`.
 - Two view buttons appear in the header: **DEBATE** and **SCORES**.
+![The Command Centre in Classroom mode](images/command-class.jpg)
+*Classroom mode at 1920×1080: every control fits on screen without scrolling.*
+
 
 ### Debate view (D)
 Hides both control panels so the charts fill the screen. A **Current Proposal** bar shows the plan on the table in read-only form: every policy, every resource level, the vaccine setting, and the total committed (or **OVER** by how much). Use it while the room argues, then press D again to return to the controls.
+![Debate view](images/debate.jpg)
+*Debate view: the controls are hidden and the Current Proposal bar shows the plan on the table.*
+
 
 ### Scores view (S)
 Shows a live **lobby scoreboard** under the ticker: each lobby's current index and grade, and the government composite with its capture spread. It is off by default, for use at checkpoints. Before any week has run, all averages equal the starting values.
+![The live lobby scoreboard](images/scores.jpg)
+*The live lobby scoreboard (S).*
+
+> On a 1920×1080 projector, showing the scoreboard slightly clips the bottom row of charts, and turning on Debate view at the same time clips them heavily. Use one view at a time.
 
 ---
 
@@ -685,7 +744,7 @@ These follow directly from how the model works. They are useful prompts when a g
 |---|---|---|
 | Acting late | Transmission compounds. Restrictions applied after the peak cost the economy and satisfaction while saving few lives | "What did weeks 1–3 decide?" |
 | Ignoring communications | Without them, compliance is 55%. Lockdown, mask and shielding spending achieves only about half of what the panel suggests | "Why is your strict lockdown only giving ×0.67?" |
-| Leaving Permanent Capacity on | Each week it stays on, more beds are bought and paid for | "How many beds did you actually need?" |
+| Ordering beds late, or too few | Permanent beds ordered in week 1 serve all 12 weeks; the order resets each week, so groups that wait often forget to order at all | "How many beds did you actually need, and when?" |
 | No border screening before week 3 | The variant arrives in week 3–5, and screening only helps if it has accumulated by then | "Could you have known the variant was coming?" |
 | No modelling before it is needed | Modelling works a week in arrears. Level 3+ in the previous week also softens the variant | "When did you decide you needed a forecast?" |
 | Blanket suppression instead of shielding | Shielding cuts vulnerable deaths at far less economic cost | "Who bore the cost of your strategy?" |
@@ -698,21 +757,20 @@ These follow directly from how the model works. They are useful prompts when a g
 
 ## 19. Model behaviours to pre-empt
 
-The simulation is a simplified teaching model. The behaviours below are not bugs that stop play, but participants regularly notice them and ask about them. Knowing them in advance lets you answer confidently, or turn them into discussion about the limits of models. The Technical Guide, §14, lists the full set.
+The simulation is a simplified teaching model. The behaviours below are deliberate simplifications, and the interface describes them accurately, but participants regularly ask about them. Knowing them in advance lets you answer confidently, or turn them into discussion about the limits of models. The Technical Guide, §14, lists the full set, including the issues that have been fixed.
 
 | Behaviour | What to tell the room |
 |---|---|
-| The report says "Above 1.0 — growing" while infections are falling | Rₑ here is the R number after the effect of policies. It ignores how many people are already immune. Look at the infectious curve to see whether the outbreak is growing |
-| The forecast was exactly right | The model has no randomness. Without events and with an unchanged plan, next week's projection is exact. Higher modelling buys a longer view and a narrower displayed band, not more real accuracy |
-| The forecast missed this week's event | The forecast ignores events, including the response chosen this week |
-| A variant's effect disappeared the next week | A variant raises transmission for one week only |
-| Vaccinated people became susceptible again | Vaccine immunity wears off at the same rate as natural immunity |
-| Bonus doses arrived before vaccines unlocked | Doses from aid or a windfall apply whenever the event happens |
-| The Balanced reference did far better than we could | It ignores the budget and costs about $14M in week 1. It is a benchmark, not an achievable plan |
+| The forecast was exactly right | The model has no randomness. With an unchanged plan, next week's projection is exact, and the strip says so. Higher modelling buys a longer view and a narrower range, not a more accurate next week |
+| The forecast for later weeks was wrong | It assumes no further events and that you keep the same plan |
+| A variant's effect disappeared the next week | A variant is a one-week surge, as the card states. Real variants usually persist; this is a simplification worth discussing |
+| Vaccinated people became susceptible again | Vaccine immunity wears off at the same rate as natural immunity, as the lever states |
+| Medical staff did not help with the burnout event, and communications did not help with misinformation | Only the response chosen changes those events. Staffing and communications still help in general |
+| Hospital strikes and protests were no worse on Hard | Those two events do not scale with difficulty |
+| The Balanced reference did far better than we could | It is labelled "no budget limit": it costs about $14M in week 1. It is a benchmark, not an achievable plan |
 | Strict-only did worst on economy | Strict-only drives the economy and satisfaction to 0 in every scenario |
-| The HOSP CAP line was crossed but hospitals were not full | The line is an approximation that usually signals overflow early. The hospital bar is the accurate figure |
-| The burnout event said staffing would help; it did not | The event's text describes an interaction that is not modelled. Staffing lowers fatality generally but does not change the event. The same applies to "best with high comms" on misinformation |
-| A shield-only week was labelled "Business" in the decision log | The "Served" label checks for no lockdown, schools or travel restrictions before checking shielding |
+| Rₑ is above 1 but the curve is flattening | Rₑ includes immunity, but there is a short lag while infected people incubate, and waning adds people back to the susceptible group. Rₑ is a guide, not an exact growth rate |
+| Hospitals filled the moment infections rose | Bed use follows the number infected immediately; the model has no length-of-stay delay |
 
 ---
 

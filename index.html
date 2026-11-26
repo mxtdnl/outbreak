@@ -109,6 +109,7 @@ body { background:var(--bg); color:var(--text);
 .res-row { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px; }
 .res-name { font-size:12px; font-weight:600; }
 .res-cost { font-family:'DM Mono', ui-monospace, 'SF Mono', Consolas, monospace; font-size:11px; color:var(--amber); }
+.res-built { font-family:'DM Mono', ui-monospace, monospace; font-size:9px; font-weight:400; color:var(--teal); }
 .res-fx { font-size:10px; color:var(--text3); margin-bottom:4px; line-height:1.3; }
 input[type=range] { width:100%; height:3px; -webkit-appearance:none; background:var(--bord2); outline:none; cursor:pointer; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:13px; height:13px; background:var(--amber); cursor:pointer; border-radius:0; }
@@ -367,6 +368,7 @@ canvas { display:block; }
 [data-mode="class"] .res-name { font-size:18px; }
 [data-mode="class"] .res-cost { font-size:17px; }
 [data-mode="class"] .res-fx { font-size:14px; }
+[data-mode="class"] .res-built { font-size:13px; }
 [data-mode="class"] input[type=range] { height:7px; }
 [data-mode="class"] input[type=range]::-webkit-slider-thumb { width:22px; height:22px; }
 [data-mode="class"] .bd-box { font-size:16px; }
@@ -627,8 +629,8 @@ canvas { display:block; }
         <div class="psec-title">Resource Allocation</div>
 
         <div class="res-item">
-          <div class="res-row"><span class="res-name">Permanent Capacity</span><span class="res-cost" id="c-perm">$0</span></div>
-          <div class="res-fx">+250 beds/level — <b>persists all game</b>. Build early, benefit for weeks.</div>
+          <div class="res-row"><span class="res-name">Permanent Capacity <span class="res-built" id="perm-built"></span></span><span class="res-cost" id="c-perm">$0</span></div>
+          <div class="res-fx">+250 beds/level — <b>one-off order, beds kept all game</b>. Resets to 0 after each week; order again to build more.</div>
           <input type="range" min="0" max="5" value="0" id="r-perm" oninput="onSlide()">
         </div>
         <div class="res-item">
@@ -661,7 +663,7 @@ canvas { display:block; }
         </div>
         <div class="res-item">
           <div class="res-row"><span class="res-name">Epidemic Modelling</span><span class="res-cost" id="c-epi">$0</span></div>
-          <div class="res-fx">Funds <b>forecasts &amp; projections from next week</b> — buy it before you need it. Higher = clearer, further ahead. Early warning of variants. Stops if defunded.</div>
+          <div class="res-fx">Funds <b>forecasts &amp; projections from next week</b> — buy it before you need it. Higher = further ahead, narrower indicative range. L3+ gives early warning of variants. Stops if defunded.</div>
           <input type="range" min="0" max="5" value="0" id="r-epi" oninput="onSlide()">
         </div>
         <div class="res-item">
@@ -806,7 +808,9 @@ canvas { display:block; }
 
       <div class="psec" id="model-notes" style="font-size:11px;color:var(--text2);line-height:1.6">
         <div class="psec-title">Model Notes</div>
-        <p>Two-group SEIR with waning immunity. Vulnerable group has far higher fatality. Overflow sharply raises mortality.</p>
+        <p>Two-group SEIR with waning immunity (vaccine immunity wanes at the same rate). Vulnerable group has far higher fatality. Overflow sharply raises mortality.</p>
+        <br>
+        <p>Rₑ includes immunity: above 1 means infections are growing. The economy recovers +1.2/wk only with no lockdown, school closure or travel restriction, and at most voluntary shielding.</p>
         <br>
         <p>Compliance (from comms + financial support) scales how effective restrictions really are. Unspent budget does not carry forward.</p>
         <br>
@@ -1109,24 +1113,24 @@ const EVENTS = {
       const foreseen = G.lastEpi >= 3;
       const baseDelta = (foreseen ? 1.1 : 1.4) * sev;
       const eff = baseDelta * (1 - poeMit);
-      let body = `Genomic surveillance flags a variant with materially higher transmissibility (baseline R₀ +${baseDelta.toFixed(2)}). `;
+      let body = `Genomic surveillance flags a variant with materially higher transmissibility: a <b>one-week surge</b> of R₀ +${baseDelta.toFixed(2)} as it seeds the city. `;
       if (poeMit > 0.05) body += `<span class="evt-syn">Your port-of-entry screening (cumulative level ${G.poeCum}) delayed its introduction, cutting the impact by ${Math.round(poeMit*100)}%.</span> `;
       else body += `With no border screening in place, it seeded the city unimpeded. `;
       if (foreseen) body += `<span class="evt-syn">Your modelling team saw the signal early, buying reaction time.</span>`;
       return { body, effDelta: eff };
     },
     opts(ctx){ return [
-      { name:'Close borders & sequence aggressively', cost:1.5e6, note:'−60% of the variant surge · −2 satisfaction',
+      { name:'Close borders & sequence aggressively', cost:1.5e6, note:'−60% of this week\'s variant surge · −2 satisfaction',
         apply(m){ m.r0Delta += ctx.effDelta*0.4; m.satDelta -= 2; } },
-      { name:'Targeted containment of clusters', cost:0.7e6, note:'−30% of the variant surge',
+      { name:'Targeted containment of clusters', cost:0.7e6, note:'−30% of this week\'s variant surge',
         apply(m){ m.r0Delta += ctx.effDelta*0.7; } },
-      { name:'Monitor only', cost:0, note:'Full variant transmissibility this week',
+      { name:'Monitor only', cost:0, note:'Full variant surge this week',
         apply(m){ m.r0Delta += ctx.effDelta; } },
     ]; }
   },
   fatigue: {
     icon:'🏥', kicker:'WORKFORCE ALERT', title:'Healthcare Worker Burnout',
-    build(G, sev){ return { body:`Sustained surge has exhausted frontline staff. Fatality risk is elevated (+${Math.round(25*sev)}%) unless you act. Well-staffed systems weather this far better.`, mult:1+0.25*sev }; },
+    build(G, sev){ return { body:`Sustained surge has exhausted frontline staff. Fatality risk is elevated (+${Math.round(25*sev)}%) this week unless you act. Your response decides how much of the spike applies.`, mult:1+0.25*sev }; },
     opts(ctx){ return [
       { name:'Emergency retention bonuses', cost:1.2e6, note:'Neutralises the fatality spike',
         apply(m){ m.ifrMult *= 1.0; } },
@@ -1138,9 +1142,9 @@ const EVENTS = {
   },
   misinfo: {
     icon:'📱', kicker:'INFORMATION ENVIRONMENT', title:'Misinformation Surge',
-    build(G, sev){ const drop = 0.28*sev; return { body:`A viral disinformation campaign is undermining trust in guidance. Compliance is collapsing (−${Math.round(drop*100)}% policy effectiveness) and satisfaction is falling. Strong comms blunts it.`, drop }; },
+    build(G, sev){ const drop = 0.28*sev; return { body:`A viral disinformation campaign is undermining trust in guidance. Compliance is collapsing (−${Math.round(drop*100)}% compliance this week) and satisfaction is falling. Your response decides how much of the loss applies.`, drop }; },
     opts(ctx){ return [
-      { name:'Rapid counter-messaging campaign', cost:1.0e6, note:'Restores most compliance (best with high comms)',
+      { name:'Rapid counter-messaging campaign', cost:1.0e6, note:'Restores most compliance',
         apply(m){ m.complyMult *= (1 - ctx.drop*0.15); m.satDelta -= 1; } },
       { name:'Partner with trusted local voices', cost:0.4e6, note:'Restores about half',
         apply(m){ m.complyMult *= (1 - ctx.drop*0.5); m.satDelta -= 2; } },
@@ -1210,9 +1214,9 @@ const EVENTS = {
     icon:'💉', kicker:'GOOD NEWS', title:'Vaccine Supply Windfall', positive:true,
     build(G, sev){ return { body:`A manufacturer has released additional doses to Meridian City ahead of schedule.`, }; },
     opts(){ return [
-      { name:'Fast-track distribution', cost:0.4e6, note:'+22,000 doses this week (uses your priority setting)',
+      { name:'Fast-track distribution', cost:0.4e6, note:'+22,000 doses (uses your priority setting)',
         apply(m){ m.bonusVax += 22000; } },
-      { name:'Standard rollout', cost:0, note:'+13,000 doses this week',
+      { name:'Standard rollout', cost:0, note:'+13,000 doses',
         apply(m){ m.bonusVax += 13000; } },
     ]; }
   },
@@ -1238,7 +1242,7 @@ function freshComp(sc){
 function totals(c){ return { S:c.Sg+c.Sv, E:c.Eg+c.Ev, I:c.Ig+c.Iv, R:c.Rg+c.Rv, D:c.Dg+c.Dv }; }
 
 function buildEventSchedule(sc, df, rng){
-  // Choose weeks (2..11) for scripted events from a pool; conditional events fire dynamically.
+  // Choose weeks (3..11) for scripted events from a pool; conditional events fire dynamically.
   const pool = ['variant','fatigue','misinfo','erosion','aid','vaxboost'];
   if (sc.extraVariant) pool.unshift('variant'); // storm gets a second variant chance
   const weeks = [];
@@ -1270,7 +1274,9 @@ function init(){
     sc, df, rng,
     week:1,
     comp,
-    economy:100, satisfaction:100, compliance:0.7,
+    economy:100, satisfaction:100,
+    econX:100, satX:100,          // unrounded indices carried between weeks
+    vaxBank:0, vaxReleased:0,     // event doses received before vaccination opens
     lock:0, shield:0, finance:0,
     vaxPriority:'elderly',
     budget: BASE_BUDGET*df.budgetMult,
@@ -1320,9 +1326,12 @@ function computeStep(comp, econ, sat, week, d, sc, mods){
 
   // Sub-stepped SEIR (daily integration for numerical stability)
   const dt = 1/SUBSTEPS;
-  let newCases=0, newDeaths=0, peakDemand=0, worstCapMet=1;
+  let newCases=0, newDeaths=0, peakDemand=0, worstCapMet=1, suscShare=0;
   for (let s=0; s<SUBSTEPS; s++){
     const alive = Math.max(1, c.Sg+c.Eg+c.Ig+c.Rg + c.Sv+c.Ev+c.Iv+c.Rv);
+    // Share of contacts that land on someone who can still be infected: this is
+    // what turns the policy-adjusted R into the R that actually governs growth.
+    suscShare += (c.Sg + c.Sv*(1-shieldEff)) / alive / SUBSTEPS;
     const lambda = Reff * GAMMA / alive * (c.Ig+c.Iv) * dt;
     const neG = Math.min(c.Sg, lambda*c.Sg);
     const neV = Math.min(c.Sv, lambda*c.Sv*(1-shieldEff));
@@ -1341,7 +1350,9 @@ function computeStep(comp, econ, sat, week, d, sc, mods){
   }
 
   // Vaccination distributed by priority (once per week, S→R)
-  let doses = (week >= sc.vaxWeek ? d.vax*VAX_LEVEL : 0) + (mods.bonusVax||0);
+  // Event doses received before vaccination opens are banked by the caller and
+  // released in the first vaccine week, so nothing is administered early.
+  let doses = week >= sc.vaxWeek ? d.vax*VAX_LEVEL + (mods.bonusVax||0) : 0;
   if (doses>0){
     let vaxG=0, vaxV=0; const availG=Math.max(0,c.Sg), availV=Math.max(0,c.Sv);
     if (d.vaxPriority==='elderly'){ vaxV=Math.min(availV,doses); doses-=vaxV; vaxG=Math.min(availG,doses); }
@@ -1366,7 +1377,8 @@ function computeStep(comp, econ, sat, week, d, sc, mods){
   const restrictionEcon = LOCK_ECON[d.lock] + (d.schools?2:0) + (d.travel?1.5:0) + SHIELD_ECON[d.shield];
   let econDelta = -restrictionEcon*(1 - FIN_RELIEF[d.finance]) - newDeaths/90 - d.poe*0.25;
   if (d.lock===0 && !d.schools && !d.travel && d.shield<2) econDelta += 1.2;
-  const newEcon = Math.round(Math.max(0, Math.min(100, econ + econDelta)));
+  // Carried unrounded so sub-point weekly changes accumulate instead of being lost.
+  const econX = Math.max(0, Math.min(100, econ + econDelta));
 
   // Satisfaction
   const restrictionSat = LOCK_SAT[d.lock] + (d.schools?1.5:0) + (d.travel?0.5:0) + SHIELD_SAT[d.shield];
@@ -1375,14 +1387,18 @@ function computeStep(comp, econ, sat, week, d, sc, mods){
   satDelta -= newDeaths/180;
   if (capMet < 1) satDelta -= 4;
   satDelta -= Math.min(4, newCases/10000);
-  const newSat = Math.round(Math.max(0, Math.min(100, sat + satDelta)));
+  const satX = Math.max(0, Math.min(100, sat + satDelta));
 
   const tt = totals(nc);
   return {
-    comp:nc, economy:newEcon, satisfaction:newSat, compliance:cf,
+    comp:nc, economy:Math.round(econX), satisfaction:Math.round(satX),
+    economyX:econX, satisfactionX:satX, compliance:cf,
     S:tt.S, E:tt.E, I:tt.I, R:tt.R, D:tt.D,
     newCases, newDeaths, hospLoad:hospDemand, hospCap:cap, capMet,
-    Reff:Math.round(Reff*100)/100, ifrEff:newDeaths/Math.max(1,newCases),
+    // Reported R includes immunity, so "above 1" means infections really are growing.
+    // Rpolicy is R0 after policies only — what the policy panel's multipliers describe.
+    Reff:Math.round(Reff*suscShare*100)/100, Rpolicy:Math.round(Reff*100)/100,
+    ifrEff:newDeaths/Math.max(1,newCases),
   };
 }
 
@@ -1418,6 +1434,8 @@ function onSlide(){
     document.getElementById('c-'+k).textContent =
       (CLASSMODE && lv ? 'L'+lv+' · ' : '') + fmt(lv*RES_COST[k]);
   });
+  document.getElementById('perm-built').textContent =
+    G.comp.permBeds ? '· '+fmtN(G.comp.permBeds)+' built' : '';
   const budget = G.budget + (G.eventMods.bonusBudget||0);
   const rem = budget - d.total;
   document.getElementById('bd-inc').textContent = '+'+fmt(budget);
@@ -1471,7 +1489,7 @@ function updateForecast(d){
   tag.className='fc-tag'; tag.textContent='◷ Forecast · modelling L'+funded;
   const horizon = Math.min(6, 2+funded);
   const unc = 0.30/funded;
-  let comp = Object.assign({}, G.comp), econ=G.economy, sat=G.satisfaction;
+  let comp = Object.assign({}, G.comp), econ=G.econX, sat=G.satX;
   const last = G.history[G.history.length-1];
   const nowD = totals(G.comp).D;
   const nowCap = last.hospCap || CAP_BASE;
@@ -1487,8 +1505,12 @@ function updateForecast(d){
     Math.min(35, Math.abs(proj-base)*unc*k + unc*k*4);
   for (let k=1;k<=horizon;k++){
     const wk = G.week-1+k;
-    const r = computeStep(comp, econ, sat, wk, d, G.sc, baseMods());
-    comp=r.comp; econ=r.economy; sat=r.satisfaction;
+    // Week 1 of the projection is the week being planned, so it carries the event
+    // response already chosen. Later weeks assume no events, and no repeat of a
+    // one-off permanent-bed order.
+    const r = k===1 ? computeStep(comp, econ, sat, wk, d, G.sc, G.eventMods)
+                    : computeStep(comp, econ, sat, wk, Object.assign({}, d, {perm:0}), G.sc, baseMods());
+    comp=r.comp; econ=r.economyX; sat=r.satisfactionX;
     const band = r.I * unc * k;
     const eB = idxBand(r.economy, G.economy, k), sB = idxBand(r.satisfaction, G.satisfaction, k);
     const clamp = v => Math.round(Math.max(0, Math.min(100, v)));
@@ -1517,8 +1539,8 @@ function updateForecast(d){
     + `<span class="fc-metric">Rₑ <b>${firstNext.Reff.toFixed(2)}</b></span>`
     + (horizon>1 ? ` <span class="fc-horizon">by week ${end.week}: `
         + `<b>${fmtN(end.cumD)}</b> cumulative deaths · econ <b>${end.economy}</b> · sat <b>${end.satisfaction}</b> · hosp <b>${Math.round(end.hospPct)}%</b></span>` : '')
-    + (funded>=3 ? ` <span style="color:var(--text3)">(±${Math.round(unc*100)}% band, ${horizon}-wk horizon)</span>`
-                 : ` <span style="color:var(--text3)">(coarse — raise modelling for a tighter band next week)</span>`)
+    + ` <span style="color:var(--text3)">(${horizon}-wk horizon · indicative ±${Math.round(unc*100)}%/wk range — exact for next week if no event fires and the plan is unchanged`
+    + (funded<3 ? ` · raise modelling to see further` : ``) + `)</span>`
     + (pending<1 ? ` <span style="color:var(--amber)">⚠ modelling unfunded this week — forecast stops next week</span>`
        : pending!==funded ? ` <span style="color:var(--text3)">· L${pending} funded, effective next week</span>` : '');
   if (document.getElementById('screen-command').classList.contains('active')) drawEpiChart();
@@ -1535,7 +1557,8 @@ function advanceWeek(){
   const d = getDecisions();
   const budget = G.budget + (G.eventMods.bonusBudget||0);
   if (d.total > budget) return;
-  const res = computeStep(G.comp, G.economy, G.satisfaction, G.week, d, G.sc, G.eventMods);
+  const res = computeStep(G.comp, G.econX, G.satX, G.week, d, G.sc, G.eventMods);
+  if (G.week < G.sc.vaxWeek) G.vaxBank += G.eventMods.bonusVax||0;
   const prev = G.history[G.history.length-1];
   G.poeCum += d.poe;
   G.lastEpi = d.epi;
@@ -1543,7 +1566,7 @@ function advanceWeek(){
   G.history.push({
     week:G.week, S:res.S, E:res.E, I:res.I, R:res.R, D:res.D,
     newCases:res.newCases, newDeaths:res.newDeaths,
-    hospLoad:res.hospLoad, hospCap:res.hospCap, Reff:res.Reff,
+    hospLoad:res.hospLoad, hospCap:res.hospCap, Reff:res.Reff, Rpolicy:res.Rpolicy,
     economy:res.economy, satisfaction:res.satisfaction, compliance:res.compliance,
     dec:{ perm:d.perm, surge:d.surge, staff:d.staff, test:d.test, vax:d.vax, epi:d.epi, poe:d.poe, comms:d.comms,
           lock:d.lock, shield:d.shield, finance:d.finance,
@@ -1551,8 +1574,12 @@ function advanceWeek(){
     event: G.activeEvent ? { icon:EVENTS[G.activeEvent].icon, title:EVENTS[G.activeEvent].title } : null,
   });
   G.totalSpent += d.total;
-  G.comp=res.comp; G.economy=res.economy; G.satisfaction=res.satisfaction; G.compliance=res.compliance;
+  G.comp=res.comp; G.economy=res.economy; G.satisfaction=res.satisfaction;
+  G.econX=res.economyX; G.satX=res.satisfactionX;
+  // Permanent capacity is a one-off purchase: the beds stay, the order does not repeat.
+  document.getElementById('r-perm').value = 0;
   buildReport(G.week, prev, res, d);
+  G.vaxReleased = 0;
   G.week++;
 }
 
@@ -1596,6 +1623,9 @@ function buildReport(week, prev, res, d){
   items.push({ico:'👵',txt:`Deaths by group: vulnerable ${fmtN(vDead)} · general ${fmtN(gDead)}. ${d.shield>0?'Shielding is active.':'The vulnerable group is unshielded.'}`});
   if (G.activeEvent) { const e=EVENTS[G.activeEvent]; items.push({ico:e.icon, txt:`SITUATION — ${e.title.replace(/&amp;/g,'&')}: your response is reflected in this week's figures.`}); }
   if (week===G.sc.vaxWeek) items.push({ico:'💉', txt:`Vaccine supply now available. Prioritisation is set to "${G.vaxPriority}".`});
+  if (G.vaxReleased>0) items.push({ico:'💉', txt:`${fmtN(G.vaxReleased)} donated doses held before vaccination opened were administered this week.`});
+  if (G.week < G.sc.vaxWeek && G.vaxBank>0) items.push({ico:'📦', txt:`${fmtN(G.vaxBank)} donated doses are in storage and will be administered when vaccination opens in week ${G.sc.vaxWeek}.`});
+  if (d.perm>0) items.push({ico:'🏗️', txt:`${fmtN(d.perm*250)} permanent beds commissioned (total permanent capacity ${fmtN(CAP_BASE+G.comp.permBeds)} beds). The Permanent Capacity order has been reset to 0.`});
   if (d.total<0.5*G.budget) items.push({ico:'💰', txt:`Only ${fmt(d.total)} of ${fmt(G.budget)} deployed. Unspent funds do not carry forward.`});
   if (res.economy<40) items.push({ico:'📉', txt:`Economy index critical at ${res.economy}/100. ${d.finance>0?'Financial support is cushioning the blow.':'Consider financial support to cushion restrictions.'}`});
   if (res.satisfaction<35) items.push({ico:'😤', txt:`Public satisfaction critically low at ${res.satisfaction}/100 — risk of non-compliance and unrest.`});
@@ -1628,12 +1658,15 @@ function pickEvent(){
 
 function enterWeek(){
   G.eventMods = baseMods(); G.eventCost=0; G.activeEvent=null;
+  if (G.week >= G.sc.vaxWeek && G.vaxBank > 0){
+    G.eventMods.bonusVax += G.vaxBank; G.vaxReleased = G.vaxBank; G.vaxBank = 0;
+  }
   document.getElementById('ev-panel').style.display='none';
   // unlock vaccination
   if (G.week >= G.sc.vaxWeek){
     document.getElementById('r-vax').disabled=false;
     document.getElementById('ri-vax').classList.remove('locked');
-    document.getElementById('vax-fx').textContent='Immunises ~10,000 people / level / week.';
+    document.getElementById('vax-fx').textContent='Immunises ~10,000 people / level / week. Vaccine immunity wanes at the same rate as natural immunity.';
   }
   document.getElementById('hdr-wk').textContent=G.week;
   const evId = pickEvent();
@@ -1655,6 +1688,8 @@ function showEventModal(evId){
   document.querySelector('.evt-kicker').style.color = e.positive ? 'var(--green)' : 'var(--red)';
   const box = document.getElementById('evt-opts'); box.innerHTML='';
   e.opts(ctx).forEach(opt=>{
+    if (/doses/.test(opt.note) && G.week < G.sc.vaxWeek)
+      opt = Object.assign({}, opt, { note: opt.note + ` — held until vaccination opens in week ${G.sc.vaxWeek}` });
     const div=document.createElement('div'); div.className='evt-opt';
     div.innerHTML=`<div><div class="eo-name">${opt.name}</div><div class="eo-note">${opt.note}</div></div>`
       +`<div class="eo-cost ${opt.cost>0?'':'free'}">${opt.cost>0?fmt(opt.cost):'FREE'}</div>`;
@@ -1746,7 +1781,7 @@ const ADVISORS = [
     advice(G,d,last){
       if (G.economy<40) return `The economy is at ${G.economy}. Prolonged shutdowns are doing lasting damage. If you must restrict, pair it with financial support, or target the vulnerable rather than closing everything.`;
       if (d.lock>=3) return `Strict lockdown costs us dearly every week. Is a moderate tier plus masks and testing enough? Financial support softens the blow but eats over half the budget.`;
-      return `Economy at ${G.economy} is manageable. Watch that permanent capacity — it's a one-time buy that pays off for the rest of the crisis, unlike surge beds.`;
+      return `Economy at ${G.economy} is manageable. Permanent capacity is a one-off order that pays off for the rest of the crisis, unlike surge beds — order it early, then let it reset.`;
     } },
   { key:'comms', ico:'🎙️', name:'Vance', role:'Communications Chief', color:'var(--purple)',
     advice(G,d,last){
@@ -1859,7 +1894,11 @@ function drawEpiChart(){
 
   // Hospital capacity threshold (in infectious units)
   const lastCap=pts[pts.length-1].hospCap||CAP_BASE;
-  const iAtCap=lastCap/((HOSP_G+HOSP_V)/2);
+  // Beds per infectious person depends on who is infected, so weight by the
+  // current group mix (population mix before anyone is infectious).
+  const Ig=G.comp.Ig, Iv=G.comp.Iv;
+  const hospRate = (Ig+Iv)>0 ? (Ig*HOSP_G+Iv*HOSP_V)/(Ig+Iv) : (1-VULN_FRAC)*HOSP_G + VULN_FRAC*HOSP_V;
+  const iAtCap=lastCap/hospRate;
   if(iAtCap<=yMaxL){
     const cy=yL(iAtCap);
     ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(122,80,0,0.7)'; ctx.lineWidth=CLW(1);
@@ -2067,10 +2106,10 @@ function runStrategy(stratFn){
     // fill defaults
     const dd=Object.assign({perm:0,surge:0,staff:0,test:0,vax:0,epi:0,poe:0,comms:0,masks:false,schools:false,travel:false,lock:0,shield:0,finance:0,vaxPriority:'elderly'}, d);
     const r=computeStep(comp,econ,sat,w,dd,sc,baseMods());
-    comp=r.comp; econ=r.economy; sat=r.satisfaction;
+    comp=r.comp; econ=r.economyX; sat=r.satisfactionX;
     out.push({week:w, I:r.I, D:r.D});
   }
-  return { curve:out, deaths:totals(comp).D, econ, sat };
+  return { curve:out, deaths:totals(comp).D, econ:Math.round(econ), sat:Math.round(sat) };
 }
 const REF_STRATS = {
   nothing: ()=>({}),
@@ -2156,7 +2195,7 @@ function drawCompareChart(){
   const series=[
     {name:'Do nothing', c:'#e74c3c', data:refs.nothing.curve, dash:[4,3]},
     {name:'Strict-only', c:'#3498db', data:refs.strict.curve, dash:[4,3]},
-    {name:'Balanced ref', c:'#f5a000', data:refs.balanced.curve, dash:[4,3]},
+    {name:'Balanced ref (no budget limit)', c:'#f5a000', data:refs.balanced.curve, dash:[4,3]},
     {name:'Your run', c:'#27ae60', data:player, dash:[]},
   ];
   const allI=series.flatMap(s=>s.data.map(p=>p.I));
@@ -2165,7 +2204,7 @@ function drawCompareChart(){
   const yv=v=>PAD.t+PH-(v/yMax)*PH;
   for(let i=0;i<=4;i++){ const y=PAD.t+PH-(i/4)*PH; ctx.strokeStyle=CC('grid'); ctx.lineWidth=CLW(0.5); ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+PW,y); ctx.stroke(); ctx.fillStyle=CC('axis'); ctx.font=CFS(9); ctx.textAlign='right'; ctx.fillText(fmtN(Math.round((i/4)*yMax)),PAD.l-4,y+3); }
   for(let w=2;w<=WEEKS;w+=2){ ctx.fillStyle=CC('axis'); ctx.font=CFS(9); ctx.textAlign='center'; ctx.fillText(w,xW(w),H-4); }
-  ctx.fillStyle=CC('axis3'); ctx.font=CFS(8); ctx.textAlign='left'; ctx.fillText('Simultaneous infections — reference strategies exclude external shocks',PAD.l,PAD.t-4);
+  ctx.fillStyle=CC('axis3'); ctx.font=CFS(8); ctx.textAlign='left'; ctx.fillText('Simultaneous infections — reference strategies exclude events and budget limits',PAD.l,PAD.t-4);
   series.forEach(s=>{ if(s.data.length<2)return; ctx.setLineDash(s.dash); ctx.beginPath(); ctx.strokeStyle=s.c; ctx.lineWidth=CLW(s.name==='Your run'?2.8:1.5); ctx.lineJoin='round'; s.data.forEach((p,i)=>{const x=xW(p.week),y=yv(p.I); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke(); ctx.setLineDash([]); });
 
   document.getElementById('cmp-legend').innerHTML=series.map(s=>`<span class="cl"><span class="cl-swatch" style="background:${s.c}"></span>${s.name}${s.name!=='Your run'?' — '+fmtN((s===series[0]?refs.nothing:s===series[1]?refs.strict:refs.balanced).deaths)+' deaths':' — '+fmtN(totals(G.comp).D)+' deaths'}</span>`).join('');
@@ -2227,8 +2266,9 @@ function buildScorecard(){
   wk.forEach(h=>{
     const d = h.dec||{};
     const restrict = (d.lock||0) + (d.schools?1:0) + (d.travel?1:0);
-    let served = restrict>=3 ? 'Vulnerable' : restrict===0 ? 'Business'
-               : (d.shield>0 && (d.lock||0)<=1) ? 'Vuln·targeted' : 'Mixed';
+    let served = restrict>=3 ? 'Vulnerable'
+               : (d.shield>0 && (d.lock||0)<=1) ? 'Vuln·targeted'
+               : restrict===0 ? 'Business' : 'Mixed';
     if ((d.finance||0)>0) served += '+Public';
     rows += `<tr><td class="hi">${h.week}${h.event?' <span class="ev-cell">'+h.event.icon+'</span>':''}</td>
       <td>${['None','Mild','Mod','Strict'][d.lock||0]}</td>
@@ -2446,7 +2486,7 @@ function startGame(){
   ['r-perm','r-surge','r-staff','r-test','r-vax','r-epi','r-poe','r-comms'].forEach(id=>document.getElementById(id).value=0);
   ['p-masks','p-schools','p-travel'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('r-vax').disabled=true; document.getElementById('ri-vax').classList.add('locked');
-  document.getElementById('vax-fx').textContent='Unlocks Week '+G.sc.vaxWeek+' — immunises ~10,000 people/level/week.';
+  document.getElementById('vax-fx').textContent='Unlocks Week '+G.sc.vaxWeek+' — immunises ~10,000 people/level/week. Immunity wanes like natural immunity.';
   setLock(0); setShield(0); setFinance(0); setVaxPriority('elderly');
   renderAdvisorShell();
   enterWeek();
