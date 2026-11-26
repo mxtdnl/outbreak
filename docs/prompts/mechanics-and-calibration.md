@@ -77,6 +77,8 @@ Build a reproducible calibration tool and use it to re-derive `LOBBY_CAL`.
 - Update `docs/FACILITATOR_GUIDE.md`: the grade-band table, event descriptions, forecast description, vaccine text, §18 and §19. Update `docs/USER_GUIDE.md` in plain English to match.
 - Re-capture any screenshots in `docs/images/` whose content changed, using Playwright at `deviceScaleFactor: 2`. Large full-screen captures are stored as quality-85 JPEG at 2,000px width; element crops as PNG.
 - Note in the guides that grades from before this change are **not comparable** with grades after it.
+- After all guide edits, run `python3 tools/link_glossary.py`, which re-links every glossary term in each guide to that guide's glossary. Add any new term to the relevant glossary first; the Facilitator Guide's glossary takes plain-English definitions from the User Guide where they exist. Check new matches for words with more than one sense, and add overrides in `OVR` or `SKIP_CTX` where needed.
+- Then run `python3 tools/build_docx.py` to regenerate `docs/docx/*.docx`. It must report 0 unresolved links.
 
 ## Constraints
 - Work on a new branch. Commit in logical steps (mechanics, harness, calibration, docs). Do not open a pull request unless asked.
