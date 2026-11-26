@@ -27,10 +27,10 @@ This document specifies the simulation engine, every mechanic and constant, the 
 
 ## 1. Architecture
 
-- **One file**: `index.html`, containing the [CSS](#g-html) (lines 9–550), the markup for all screens (552–930) and the script (932–2521). It has no dependencies, build step or server. The only external resource is Google Fonts, which have system fallbacks.
-- **Screens** are `div.screen`s. Exactly one has `.active` at a time (`showScreen`, line 2467): `screen-briefing`, `screen-command`, `screen-event`, `screen-report`, `screen-debrief`, `screen-scorecard`.
+- **One file**: `index.html`, containing the [CSS](#g-html) (lines 11–552), the markup for all screens (554–932) and the script (934–2523). It has no dependencies, build step or server. The only external resource is Google Fonts, which have system fallbacks.
+- **Screens** are `div.screen`s. Exactly one has `.active` at a time (`showScreen`, line 2469): `screen-briefing`, `screen-command`, `screen-event`, `screen-report`, `screen-debrief`, `screen-scorecard`.
 - **[Global state](#g-global-state)**: `G` (the current game, built by `init()`), `SETUP` (scenario, difficulty and [lobby](#g-lobby) count chosen on the briefing), plus the display flags `CLASSMODE`, `DEBATEVIEW` and `SHOWSCORES`.
-- **Pure core**: `computeStep(comp, econ, sat, week, d, sc, mods)` (line 1295) has no [side effects](#g-side-effect) and does not touch the [DOM](#g-dom). Gameplay (`advanceWeek`), forecasting (`updateForecast`) and the [reference strategies](#g-reference-strategy) (`runStrategy`) all call it, so all three use exactly the same dynamics.
+- **Pure core**: `computeStep(comp, econ, sat, week, d, sc, mods)` (line 1297) has no [side effects](#g-side-effect) and does not touch the [DOM](#g-dom). Gameplay (`advanceWeek`), forecasting (`updateForecast`) and the [reference strategies](#g-reference-strategy) (`runStrategy`) all call it, so all three use exactly the same dynamics.
 - **The [DOM](#g-dom) holds the decision state**: slider and toggle values are read back from the [DOM](#g-dom) by `getDecisions()` every time they are needed. Tiered policies and vaccine priority are kept in `G` (`G.lock`, `G.shield`, `G.finance`, `G.vaxPriority`). Neither is reset between weeks, so the plan persists.
 - **Persistence**: only `localStorage['outbreak-mode']` (`solo` | `class`). Game state is not saved.
 
@@ -56,7 +56,7 @@ This document specifies the simulation engine, every mechanic and constant, the 
 
 ## 2. Constants and parameter tables
 
-### Global (lines 936–946)
+### Global (lines 938–948)
 
 | Constant | Value | Meaning |
 |---|---|---|
@@ -327,7 +327,7 @@ Across 4,000 random 12-week policies (4 scenarios × Standard/Hard × 500), chan
 
 ## 5. Decisions and costing
 
-`getDecisions()` (line 1406) reads:
+`getDecisions()` (line 1408) reads:
 - the sliders `r-perm … r-comms` (integers 0–5); `vax` is forced to 0 if `G.week < sc.vaxWeek`;
 - the toggles `p-masks`, `p-schools`, `p-travel`;
 - `G.lock`, `G.shield`, `G.finance`, `G.vaxPriority`.
@@ -349,7 +349,7 @@ Available budget = `G.budget + G.eventMods.bonusBudget`. After a week runs, the 
 
 ## 6. Forecasting engine
 
-`updateForecast(d)` (line 1471).
+`updateForecast(d)` (line 1473).
 
 ### Gating
 - `funded = G.lastEpi` (the level committed in the previous completed week). `pending = d.epi` (the live slider).
@@ -394,13 +394,13 @@ baseMods() = { r0Delta:0, ifrMult:1, lockEffMult:1, complyMult:1, capMult:1,
 
 `enterWeek` resets `G.eventMods` to `baseMods()` and `G.eventCost` to 0, then adds any [banked](#g-bank) vaccine doses (§4.6). An event response's `apply(m)` changes `G.eventMods`, and its `cost` sets `G.eventCost`. **All event effects last one week**, and the event text says so: the [variant](#g-variant) card describes a "one-week surge", and the burnout and misinformation cards state the effect "this week" and no longer claim that staffing or communications reduce them, since neither is modelled.
 
-### 7.2 Scheduling (`buildEventSchedule`, line 1244)
+### 7.2 Scheduling (`buildEventSchedule`, line 1246)
 Uses the [seeded](#g-seed) [RNG](#g-rng):
 1. A **[variant](#g-variant)** is placed in week `3 + floor(rng·3)`, which is week 3, 4 or 5.
 2. Further events, up to `df.events` in total, are placed in distinct weeks chosen uniformly from `[3..11]`. Each event type is drawn uniformly from the pool `['variant','fatigue','misinfo','erosion','aid','vaxboost']`. For `storm`, a second `'variant'` entry is added at the front, giving 2/7 odds per draw. There is a guard of 100 iterations.
 3. The same event type can occur more than once. Weeks 1, 2 and 12 never hold a [scheduled event](#g-scheduled-event). (The code comment says "weeks 2..11"; the candidate list actually starts at 3.)
 
-### 7.3 Triggered events (`pickEvent`, line 1644)
+### 7.3 Triggered events (`pickEvent`, line 1646)
 These are evaluated in `enterWeek` only if the week has no [scheduled event](#g-scheduled-event) and `G.week − G.lastCondWeek ≥ 2`. The conditions use `last = G.history[-1]` (the week just completed) and its `dec`. They are checked in this order, and the first match fires:
 
 | Event | Condition |
@@ -467,7 +467,7 @@ afterReport()                                   (CONTINUE)
 
 ## 9. Debrief scoring and reference strategies
 
-### Composite (`buildDebrief`, line 2126)
+### Composite (`buildDebrief`, line 2128)
 
 ```
 deathScore = max(0, 100 − totalDeaths/100)
@@ -512,7 +512,7 @@ In a "do nothing" run the economy reaches 0 because of deaths (−newDeaths/90),
 
 ## 10. Lobby scoring (Class Scorecard)
 
-`computeLobbyScores()` (line 1038). Here `wk` is the set of history records with week > 0, and `cal = LOBBY_CAL[difficulty]`, falling back to `hard`.
+`computeLobbyScores()` (line 1040). Here `wk` is the set of history records with week > 0, and `cal = LOBBY_CAL[difficulty]`, falling back to `hard`.
 
 ### Calibration table
 
@@ -612,7 +612,7 @@ The chart helpers `CFS` (font ×1.8), `CLW` (line ×1.9), `CDOT` (dot ×1.7), `C
 - **Keys**: Ctrl/Cmd+Alt+C works globally. Bare `D` and `S` work only in class mode on the command screen, and are ignored while focus is in a text input, textarea or contenteditable element.
 
 ### Advisors and ticker
-Both are [pure functions](#g-pure-function) of `G`, the current decisions and the last history record. They hold no state of their own. See `ADVISORS` (line 1772) and `updateTicker` (line 1751) for the exact conditions.
+Both are [pure functions](#g-pure-function) of `G`, the current decisions and the last history record. They hold no state of their own. See `ADVISORS` (line 1774) and `updateTicker` (line 1753) for the exact conditions.
 
 ---
 
