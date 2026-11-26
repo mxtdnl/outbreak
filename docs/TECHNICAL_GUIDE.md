@@ -1,6 +1,6 @@
 # OUTBREAK — Technical Guide
 
-This document specifies the simulation engine, every mechanic and constant, the event system, forecasting, scoring and the application architecture. All of it is taken from `index.html`. Line references are to that file at the time of writing. For gameplay guidance, see the [User Guide](USER_GUIDE.md).
+This document specifies the simulation engine, every mechanic and constant, the event system, forecasting, scoring and the application architecture. All of it is taken from `index.html`. Line references are to that file at the time of writing. For gameplay guidance, see the [User Guide](USER_GUIDE.md) (participants) and the [Facilitator Guide](FACILITATOR_GUIDE.md) (instructors). Terms that are not plain English are defined in the [Glossary](#16-glossary).
 
 ---
 
@@ -21,6 +21,7 @@ This document specifies the simulation engine, every mechanic and constant, the 
 13. [Determinism and reproducibility](#13-determinism-and-reproducibility)
 14. [Known modelling simplifications and discrepancies](#14-known-modelling-simplifications-and-discrepancies)
 15. [Extending the simulation](#15-extending-the-simulation)
+16. [Glossary](#16-glossary)
 
 ---
 
@@ -644,3 +645,122 @@ This section lists places where the model is deliberately simple, or where the c
 - **New event**: add it to `EVENTS` with `icon, kicker, title, build, opts` (and `positive` or `conditional` if relevant). For a scheduled event, add its key to the pool in `buildEventSchedule`. For a triggered event, add a condition to `pickEvent`. Effects must be expressed through the `baseMods()` fields, or through a new field that `computeStep` reads.
 - **New resource or policy**: add the markup, a cost in `RES_COST` or the policy arrays, read it in `getDecisions`, apply it in `computeStep`, and add it to the history `dec`, the export key list `dk`, the proposal bar and the decision log.
 - **Keep `computeStep` pure**: forecasting and the reference strategies depend on calling it repeatedly without side effects.
+
+---
+
+## 16. Glossary
+
+The terms below appear in this guide or in the code, and are not plain English. Where a term has a general meaning and a more specific meaning in OUTBREAK, both are given.
+
+### Epidemiology
+
+| Term | Definition |
+|---|---|
+| **Pathogen** | A microorganism, such as a virus or bacterium, that causes disease. |
+| **Transmission** | The passing of an infection from one person to another. |
+| **Compartmental model** | A model that divides a population into groups ("compartments") by disease state and tracks how many people move between them over time. |
+| **Compartment** | One of those groups, such as Susceptible or Infectious. In OUTBREAK each compartment exists separately for the general (`g`) and vulnerable (`v`) groups. |
+| **SEIR / SEIRD-S** | The compartments used: **S**usceptible, **E**xposed, **I**nfectious, **R**ecovered (or Removed), **D**ead. The trailing "-S" means that recovered people return to Susceptible as immunity wanes. |
+| **Susceptible (S)** | Able to catch the infection. |
+| **Exposed (E)** | Infected but not yet able to infect others. |
+| **Latent period** | The time spent in E. Here its average is 1/σ ≈ 5.8 days. Often loosely called the incubation period, although strictly incubation is the time until symptoms appear. |
+| **Infectious (I)** | Able to infect others. |
+| **Infectious period** | The time spent in I. Here its average is 1/γ ≈ 7.8 days. |
+| **Recovered / Removed (R)** | No longer infectious and currently immune, through recovery or vaccination. |
+| **Prevalence** | The number of people infected at a given moment (here, I). Contrast with **incidence**. |
+| **Incidence** | The number of *new* infections in a period (here, `newCases` per week). |
+| **R₀ (basic reproduction number)** | The average number of people one infectious person infects in a fully susceptible population with no interventions. A scenario parameter. |
+| **Rₑ / Reff (effective reproduction number)** | The average number of people one infectious person infects under current conditions. **In this code**, `Reff` = R₀ × the policy multiplier only. It does not include the effect of immunity in the population (see **susceptible depletion**). |
+| **Epidemic threshold** | R = 1. Above it, each case causes more than one new case on average, so infections grow; below it, they shrink. |
+| **Susceptible depletion** | The slowing of an outbreak as fewer people remain who can be infected. In the model this enters through the S/N term in the force of infection. |
+| **Force of infection (λ)** | The rate at which susceptible people become infected, here per sub-step. Proportional to Rₑ, γ and the fraction of the population that is infectious. |
+| **β (transmission rate)** | The rate of infectious contacts per infectious person. In this model β = Rₑ × γ. |
+| **σ (sigma)** | The rate at which exposed people become infectious, per week (1.2). |
+| **γ (gamma)** | The rate at which infectious people stop being infectious, per week (0.9). |
+| **Homogeneous mixing** | The assumption that everyone is equally likely to contact everyone else, with no structure by age, household or place. |
+| **IFR (infection fatality ratio)** | The fraction of infected people who die. `ifrG` and `ifrV` are the IFRs of the general and vulnerable groups. |
+| **Waning immunity** | The loss of immunity over time. Here a fixed fraction (`sc.waning`) of R returns to S each week. |
+| **Clinically vulnerable** | People at high risk of severe disease. In OUTBREAK, the 18% group with higher hospitalisation and fatality rates. |
+| **Shielding** | Measures to reduce the exposure of vulnerable people specifically. Modelled as a cut in the vulnerable group's susceptibility. |
+| **Compliance** | The fraction of the population following guidance. Here `cf`, from 0.15 to 1.0, which scales the effect of lockdown, masks, school closures and shielding. |
+| **Variant** | A genetically changed form of the pathogen. Here, a one-week increase in R₀. |
+| **Super-spreader cluster** | A single event or setting that causes an unusually large number of infections. Here, a one-off transfer of people from S to E. |
+| **Surge capacity** | Temporary extra hospital capacity. Here, beds that last one week. |
+| **Port of entry (POE)** | A border crossing point, such as an airport or seaport, where arrivals can be screened. |
+| **Contact tracing** | Identifying and isolating people who have been in contact with a case. Combined with testing as one lever. |
+| **Epidemic curve** | A chart of infections over time. |
+| **Peak** | The point at which prevalence is highest. |
+| **Overflow** | Hospital bed demand exceeding capacity. Raises fatality in the model. |
+| **Endemic** | A disease that persists in a population at a steady or recurring level, rather than in a single outbreak. |
+
+### Mathematics and numerical methods
+
+| Term | Definition |
+|---|---|
+| **Explicit Euler method** | A simple way to step equations forward in time: the change over a short step is the current rate multiplied by the step length. |
+| **Sub-step / dt** | One of the 7 short (daily) steps inside each simulated week. `dt` is the step length, 1/7 of a week. Smaller steps reduce numerical error. |
+| **Numerical stability** | Whether a step-by-step calculation stays well-behaved (for example, never producing negative people). Daily sub-steps are used for this reason. |
+| **Deterministic** | Producing the same output every time for the same input; involving no randomness. |
+| **Stochastic** | Involving randomness. |
+| **Ensemble** | Many runs of a stochastic model, used to estimate a range of outcomes. The forecast band is *not* an ensemble. |
+| **Horizon** | How many weeks ahead a forecast projects. |
+| **Uncertainty band** | The shaded range around a forecast line. Here a heuristic width, `unc` × weeks ahead, not a statistical interval. |
+| **Heuristic** | A rule of thumb chosen to be reasonable, not derived from data or theory. |
+| **Multiplier / factor** | A number that another quantity is multiplied by. For example, ×0.65 reduces transmission to 65%. |
+| **Clamp** | To force a value into a range, replacing anything below the minimum with the minimum and anything above the maximum with the maximum. Written clamp(x, min, max). |
+| **Index (0–100)** | A score on a fixed scale. The Economy and Satisfaction indices start at 100. |
+| **Arithmetic mean** | The ordinary average: sum divided by count. |
+| **Geometric mean** | The nth root of the product of n values. A low value pulls it down far more than it would an arithmetic mean, and any zero makes it zero. |
+| **Cube root (cbrt)** | The geometric mean of three values is the cube root of their product. |
+| **Logarithmic (log) scale / log10** | A scale on which each step represents multiplication by a fixed factor (×10 for log10), not addition. Used where values range over orders of magnitude, such as deaths. |
+| **`logIndex`** | The function that maps a raw value onto 0–100 on a log scale between a "best" and "worst" anchor. |
+| **Anchor** | A fixed reference value that a scale is pinned to, for example the raw value that maps to 100. |
+| **Calibration** | Choosing anchors and grade bands so that scores spread sensibly across the range of plausible play. |
+| **Composite score** | A single score combined from several. The debrief composite is 40% deaths, 30% economy and 30% satisfaction. |
+| **Weighting** | The relative importance given to each part of a composite. |
+| **Spread** | The difference between the largest and smallest value in a set. |
+| **dp** | Decimal places. |
+| **Σ / Π** | Sum of / product of a series of values. |
+
+### Scoring and game design
+
+| Term | Definition |
+|---|---|
+| **Lobby** | An interest group that scores the government on one outcome: Business, General Public, Vulnerable, Healthcare or Treasury. |
+| **Capture / capture spread** | "Capture" is when a government serves one interest group at others' expense. "Capture spread" is the gap between the best- and worst-scoring lobbies; 45 or more is reported as captured. |
+| **Non-substitutable** | Unable to compensate for a poor score in one area with a high score in another. This is the property the geometric mean gives the government score. |
+| **Grade band** | The score range that maps to a letter grade. |
+| **Reference strategy** | A fixed, scripted plan run on the same scenario for comparison in the debrief. |
+| **Scheduled event** | An event whose week is fixed at the start of the game by the seed. |
+| **Triggered (conditional) event** | An event that fires when the game state meets a condition. |
+| **Cooldown** | The minimum gap (2 weeks) between triggered events. |
+| **Modifier (`mods`)** | A temporary adjustment that an event applies to the model for one week, such as `r0Delta` or `capMult`. |
+| **Severity (`sev`)** | The difficulty's multiplier for event strength. |
+| **Cumulative** | Added up over time. `poeCum` is the total of POE levels over all completed weeks. |
+| **Lag / in arrears** | Taking effect later than when paid for. Modelling funded this week produces a forecast next week. |
+
+### Software and web
+
+| Term | Definition |
+|---|---|
+| **HTML / CSS / JavaScript** | The languages of web pages: structure, presentation and behaviour respectively. OUTBREAK is all three in one file. |
+| **DOM (Document Object Model)** | The browser's live, in-memory representation of the page. The game reads slider values from the DOM. |
+| **Canvas / Canvas 2D API** | An HTML element, and the browser's built-in drawing commands for it, used to draw the charts. |
+| **devicePixelRatio** | The ratio of physical screen pixels to layout pixels. Canvases are sized by it so charts are sharp on high-resolution screens. |
+| **Pure function** | A function that depends only on its inputs and has no side effects. `computeStep` is pure. |
+| **Side effect** | Any change a function makes outside its return value, such as altering global state or the page. |
+| **Global state** | Variables readable and writable from anywhere in the program, such as `G` and `SETUP`. |
+| **Headless** | Run without a browser or display, here by extracting the model code and running it in Node.js to produce the reference table in §9. |
+| **Node.js** | A program for running JavaScript outside a browser. |
+| **RNG (random number generator)** | A function producing a sequence of numbers that appear random. |
+| **Pseudo-random** | Generated by a deterministic algorithm, so the same starting point always gives the same sequence. |
+| **Seed** | The starting value of a pseudo-random generator. Here, the text typed on the briefing screen combined with the scenario and difficulty. |
+| **Hash** | A function that turns input, such as text, into a fixed-size number. Used to turn the seed text into the RNG's starting value. |
+| **mulberry32** | The specific small, fast pseudo-random algorithm used. |
+| **localStorage** | Browser storage that persists between visits for one website. Used only to remember the display mode. |
+| **Clipboard API / `execCommand`** | Browser features for copying text. `execCommand` is the older fallback. |
+| **JSON** | JavaScript Object Notation: a structured text format for data, readable by most programming languages. |
+| **CSV** | Comma-separated values: a plain-text table format that spreadsheets can open. |
+| **Media query (`@media`)** | A CSS rule that applies only under conditions such as screen height or printing. |
+| **Data attribute (`data-mode`, `data-view`)** | A custom attribute on an HTML element. CSS rules key off these to switch the Classroom and Debate layouts. |
+| **Tooltip** | A small box shown when hovering over an element, here over the epidemic curve. |
